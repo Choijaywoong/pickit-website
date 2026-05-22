@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - PickIt</title>
+    <link rel="stylesheet" href="auth.css">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-logo">
+            <a href="index.html"><img src="assets/logo.png" alt="PickIt"></a>
+        </div>
+        <h1 class="auth-title">무료 체험 시작하기</h1>
+        <p class="auth-subtitle">14일 동안 PickIt의 모든 기능을 체험해 보세요.</p>
+        
+        <form action="index.html">
+            <div class="form-group">
+                <label for="name">이름</label>
+                <input type="text" id="name" placeholder="성함을 입력해 주세요" required>
+            </div>
+            <div class="form-group">
+                <label for="email">이메일 주소</label>
+                <input type="email" id="email" placeholder="example@email.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">비밀번호</label>
+                <input type="password" id="password" placeholder="8자 이상 입력해 주세요" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm-password">비밀번호 확인</label>
+                <input type="password" id="confirm-password" placeholder="비밀번호를 다시 입력해 주세요" required>
+            </div>
+            <button type="submit" class="auth-btn">가입 완료</button>
+        </form>
+
+        <div class="auth-footer">
+            이미 계정이 있으신가요? <a href="login.html">로그인하기</a>
+        </div>
+    </div>
+</body>
+</html>

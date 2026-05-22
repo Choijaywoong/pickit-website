@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대시보드 홈 - PickIt</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <!-- 1. 왼쪽 메뉴바 -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <a href="dashboard.html"><img src="assets/logo.png" alt="PickIt"></a>
+        </div>
+
+        <ul class="nav-menu">
+            <a href="dashboard.html" style="text-decoration:none; color:inherit;">
+                <li class="nav-item active">
+                    <span style="font-size: 20px;"></span> 홈
+                </li>
+            </a>
+            <a href="settings.html" style="text-decoration:none; color:inherit;">
+                <li class="nav-item">
+                    <span style="font-size: 20px;"></span> 넛지 설정
+                </li>
+            </a>
+            <a href="statistics.html" style="text-decoration:none; color:inherit;">
+                <li class="nav-item">
+                    <span style="font-size: 20px;"></span> 성과 통계
+                </li>
+            </a>
+            <a href="billing.html" style="text-decoration:none; color:inherit;">
+                <li class="nav-item">
+                    <span style="font-size: 20px;"></span> 요금 관리
+                </li>
+            </a>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="shop-name">사장님 쇼핑몰</div>
+            <a href="index.html" style="text-decoration:none;"><button class="logout-btn">로그아웃</button></a>
+        </div>
+    </aside>
+
+    <!-- 2. 오른쪽 메인 내용 -->
+    <main class="main-content">
+        <!-- 인사말 및 기간 필터 -->
+        <header class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 class="page-title" style="display: flex; align-items: center; gap: 16px;">
+                사장님, 피킷이 찾아준 숨은 매출을 확인하세요! 🎉
+                <span class="status-badge">피킷 작동 중</span>
+            </h1>
+            <div class="period-filter">
+                <button class="filter-btn">오늘</button>
+                <button class="filter-btn">최근 7일</button>
+                <button class="filter-btn active">최근 1개월</button>
+            </div>
+        </header>
+
+        <!-- 핵심 성과 상자 3개 -->
+        <div class="stats-grid">
+            <!-- 첫 번째 상자 -->
+            <div class="stat-card">
+                <div class="stat-title">이탈 방어 성공 <span class="info-icon">?</span></div>
+                <div class="stat-value">128명 <span class="stat-subtitle">(방어율 18%)</span></div>
+                <div class="trend-up">↑ 어제보다 15% 증가</div>
+            </div>
+
+            <!-- 두 번째 상자 -->
+            <div class="stat-card">
+                <div class="stat-title">추가 매출액 <span class="info-icon">?</span></div>
+                <div class="stat-value primary">1,250,000원</div>
+                <div class="trend-up">↑ 어제보다 15% 증가</div>
+            </div>
+
+            <!-- 세 번째 상자 -->
+            <div class="stat-card">
+                <div class="stat-title">오늘 넛지 띄운 횟수 <span class="info-icon">?</span></div>
+                <div class="stat-value">450회</div>
+                <div class="trend-up">↑ 어제보다 15% 증가</div>
+            </div>
+        </div>
+
+        <!-- 매출 변화 선 그래프 -->
+        <div class="chart-container">
+            <div class="chart-header">최근 1개월 추가 매출 변화</div>
+            <canvas id="revenueChart"></canvas>
+        </div>
+
+        <!-- 실시간 AI 학습 피드 (새로 추가) -->
+        <div class="ai-feed-section">
+            <h2 class="ai-feed-title"> 실시간 PICKIT 작동 현황</h2>
+            <div class="ai-feed-box">
+                <div class="ai-feed-content">
+                    <div class="feed-item success">
+                        🟢 [오버핏 코트] 결제 이탈 임계점 방어 성공<br>&nbsp;&nbsp;➡️ 현재 유저 컨텍스트 기반 '사이즈 추천 모델'의 노출 가중치 상향 업데이트
+                    </div>
+                    <div class="feed-item error">
+                        🔴 [데님 팬츠] 장바구니 세션 이탈 감지<br>&nbsp;&nbsp;➡️ 해당 행동 패턴에 대한 '마감 임박 모델'의 가중치 하향 튜닝 및 대안 시퀀스 탐색
+                    </div>
+                    <div class="feed-item success">
+                        🟢 [베이직 니트] 체류 시간 연장 및 전환 성공<br>&nbsp;&nbsp;➡️ 다중 방문자 트래픽에서 '군중 심리 넛지'의 발동 활성도 긍정적 강화
+                    </div>
+                    <div class="feed-item error">
+                        🔴 [레더 재킷] 스크롤 이탈 및 세션 종료<br>&nbsp;&nbsp;➡️ 타겟 그룹 대비 '리뷰 노출 넛지'의 적합도 페널티 부여 및 파라미터 재조정
+                    </div>
+                    <div class="feed-item typing">
+                        ▶ 실시간 행동 데이터 스트림 분석 및 추론 모델 최적화 진행 중...<span class="cursor">_</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 초간편 연동 버튼 -->
+        <div class="integration-card">
+            <div class="integration-text">
+                <span>🔗</span> 복사하기 버튼 한 번으로 쇼핑몰에 피킷을 달아보세요
+            </div>
+            <button class="copy-btn" onclick="alert('코드가 클립보드에 복사되었습니다!')">코드 복사하기</button>
+        </div>
+    </main>
+
+    <!-- 차트 그리기 스크립트 -->
+    <script>
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+
+        // 그래프 아래를 예쁘게 채울 파란색 그라데이션
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(37, 99, 235, 0.4)'); // 파란색 반투명
+        gradient.addColorStop(1, 'rgba(37, 99, 235, 0.0)'); // 투명하게 사라짐
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['1일', '5일', '10일', '15일', '20일', '25일', '30일'],
+                datasets: [
+                    {
+                        label: '피킷 적용 전',
+                        data: [80000, 120000, 90000, 150000, 200000, 220000, 250000],
+                        borderColor: '#94a3b8', // 옅은 회색
+                        borderWidth: 2,
+                        borderDash: [5, 5], // 점선
+                        pointRadius: 0, // 기본 점 숨기기
+                        pointHoverRadius: 4,
+                        fill: false,
+                        tension: 0.4
+                    },
+                    {
+                        label: '피킷 적용 후',
+                        data: [120000, 250000, 180000, 420000, 680000, 850000, 1250000],
+                        borderColor: '#2563eb', // 파란색 선
+                        backgroundColor: gradient, // 그라데이션 채우기 (회색선까지만)
+                        borderWidth: 4,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#2563eb',
+                        pointBorderWidth: 3,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        fill: '-1', // 아래 회색 점선까지 색칠
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        align: 'end',
+                        onClick: null, // 범례 클릭 기능 비활성화
+                        labels: {
+                            font: { family: "'Pretendard Variable', sans-serif", size: 14, weight: '600' },
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        padding: 12,
+                        titleFont: { size: 14, family: "'Pretendard Variable', sans-serif" },
+                        bodyFont: { size: 16, weight: 'bold', family: "'Pretendard Variable', sans-serif" },
+                        displayColors: false,
+                        callbacks: {
+                            label: function (context) {
+                                return context.parsed.y.toLocaleString() + '원';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: "'Pretendard Variable', sans-serif", size: 14, color: '#64748b' } }
+                    },
+                    y: {
+                        border: { display: false },
+                        grid: { color: '#f1f5f9' },
+                        beginAtZero: true,
+                        ticks: {
+                            font: { family: "'Pretendard Variable', sans-serif", size: 14, color: '#64748b' },
+                            callback: function (value) {
+                                if (value === 0) return '0';
+                                return (value / 10000) + '만'; // 만원 단위로 표시
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <!-- 실시간 AI 피드 시뮬레이션 스크립트 -->
+    <script>
+        const dummyLogs = [
+            { type: 'success', status: "🟢 [와이드 슬랙스] 결제 이탈 임계점 방어 성공", action: "&nbsp;&nbsp;➡️ 현재 유저 컨텍스트 기반 '사이즈 추천 모델'의 노출 가중치 상향 업데이트" },
+            { type: 'error', status: "🔴 [크롭 가디건] 장바구니 세션 이탈 감지", action: "&nbsp;&nbsp;➡️ 해당 행동 패턴에 대한 '마감 임박 모델'의 가중치 하향 튜닝 및 대안 시퀀스 탐색" },
+            { type: 'success', status: "🟢 [베이직 셔츠] 체류 시간 연장 및 전환 성공", action: "&nbsp;&nbsp;➡️ 다중 방문자 트래픽에서 '군중 심리 넛지'의 발동 활성도 긍정적 강화" },
+            { type: 'error', status: "🔴 [핀턱 팬츠] 스크롤 이탈 및 세션 종료", action: "&nbsp;&nbsp;➡️ 타겟 그룹 대비 '리뷰 노출 넛지'의 적합도 페널티 부여 및 파라미터 재조정" },
+            { type: 'success', status: "🟢 [캐시미어 머플러] 프로모션 배너 이탈 방어 성공", action: "&nbsp;&nbsp;➡️ '세트 할인 넛지' 기반 전환 확률 모델 파라미터 최적화 완료" },
+            { type: 'success', status: "🟢 [플리츠 스커트] 구매 전환 성공", action: "&nbsp;&nbsp;➡️ 최근 방문자 군집 내 '희소성 강조 넛지' 추천 알고리즘 가중치 상향 갱신" },
+            { type: 'error', status: "🔴 [스트라이프 니트] 상세페이지 조기 이탈 발생", action: "&nbsp;&nbsp;➡️ 이탈 시그널 감지 후 '실시간 추천 모델' 파라미터 패널티 적용" }
+        ];
+
+        const aiFeedBox = document.querySelector('.ai-feed-box');
+        const aiFeedContent = document.querySelector('.ai-feed-content');
+        const typingIndicator = document.querySelector('.feed-item.typing');
+
+        function addRandomLog() {
+            // 랜덤한 로그 하나 뽑기
+            const randomLog = dummyLogs[Math.floor(Math.random() * dummyLogs.length)];
+
+            // 새 div 만들기
+            const newLogDiv = document.createElement('div');
+            newLogDiv.className = `feed-item ${randomLog.type}`;
+
+            // 1단계: 먼저 '성공/실패 여부'만 출력
+            newLogDiv.innerHTML = randomLog.status;
+            newLogDiv.style.animation = 'slideUpLog 0.5s ease-out forwards';
+
+            // 타이핑 인디케이터 바로 위에 추가
+            aiFeedContent.insertBefore(newLogDiv, typingIndicator);
+            aiFeedBox.scrollTop = aiFeedBox.scrollHeight;
+
+            // 너무 많아지면 삭제 (최적화)
+            if (aiFeedContent.children.length > 20) {
+                aiFeedContent.removeChild(aiFeedContent.firstElementChild);
+            }
+
+            // 2단계: 0.8초 ~ 1.5초 딜레이 후 '가중치 부여 내용' 추가 (실시간 타이핑되는 느낌)
+            const typingDelay = Math.floor(Math.random() * 700) + 800;
+            setTimeout(() => {
+                newLogDiv.innerHTML += `<br>${randomLog.action}`;
+                aiFeedBox.scrollTop = aiFeedBox.scrollHeight; // 내용이 추가되면서 공간을 차지하므로 다시 스크롤
+
+                // 3단계: 그로부터 2초 ~ 4초 후에 다음 로그 시작
+                const nextTime = Math.floor(Math.random() * 2000) + 2000;
+                setTimeout(addRandomLog, nextTime);
+            }, typingDelay);
+        }
+
+        // 초기 시작
+        setTimeout(addRandomLog, 2000);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PickIt - 쇼핑몰 이탈 방지 인공지능 점원</title>
+    <meta name="description" content="피킷이 이탈 골든타임을 잡아 결제를 끌어냅니다. 오프라인 옷가게 직원처럼 먼저 다가가는 인공지능 점원을 고용해 보세요.">
+    <link rel="stylesheet" href="style.css?v=1.1">
+    <!-- 폰트 적용 (Pretendard) -->
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+</head>
+
+<body>
+    <!-- 1. 맨 위 메뉴바 -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="index.html" onclick="window.scrollTo(0,0)"><img src="assets/logo.png" alt="PickIt"></a>
+            </div>
+            <nav class="nav-menu">
+                <a href="#features">기능 소개</a>
+                <a href="#success">성공 사례</a>
+                <a href="#pricing">요금 안내</a>
+                <a href="#faq">자주 묻는 질문</a>
+            </nav>
+            <div class="header-actions">
+                <a href="login.html" class="login-btn">로그인</a>
+                <a href="signup.html" class="cta-btn">14일 무료 체험하기</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- 1. 메인 대문 구역 (Hero Section) -->
+        <section class="hero-new">
+            <div class="container hero-container">
+                <h1 class="hero-title-new">사장님의 쇼핑몰은 지금,<br><span class="highlight-circle">살아 숨쉬고 있나요?</span></h1>
+                <p class="hero-subtitle-new">그냥 구경만 하다 나가는 고객들.<br>PICKIT은 오로지 구매 전환에만 집중합니다.</p>
+                <div class="nudge-bubble-container">
+                    <div class="nudge-bubble">
+                        <div class="nudge-bubble-header">
+                            <span class="nudge-dot"></span>
+                            <span class="nudge-dot"></span>
+                            <span class="nudge-dot"></span>
+                        </div>
+                        <div class="nudge-bubble-content">
+                            <div class="nudge-avatar">👋</div>
+                            <div class="nudge-text">
+                                <p><strong>고객님, 고민 중이신가요? <br>제가 도와드릴게요!</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-bg-glow"></div>
+        </section>
+
+        <!-- 페인 포인트 구역 -->
+        <section class="pain-point-section">
+            <div class="container">
+                <h2 class="pain-point-title text-center">밑 빠진 독에 물 붓기, 언제까지 광고비만 태우실 건가요?</h2>
+                <div class="pain-point-bubbles" id="painBubbles">
+                    <!-- 말풍선 1 (왼쪽) -->
+                    <div class="pain-bubble-item left bubble-anim" style="--delay: 0s;">
+                        <div class="pain-point-text">"유입은 어느정도 있는데 왜 결제는 안 할까요...? 😥"</div>
+                    </div>
+                    <!-- 말풍선 2 (오른쪽) -->
+                    <div class="pain-bubble-item right bubble-anim" style="--delay: 0.5s;">
+                        <div class="pain-point-text">"이번 달도 광고비만 수백만 원... 진짜 밑 빠진 독에 물 붓는 기분이에요."</div>
+                    </div>
+                    <!-- 말풍선 3 (왼쪽) -->
+                    <div class="pain-bubble-item left bubble-anim" style="--delay: 1.0s;">
+                        <div class="pain-point-text">"광고 단가는 계속 오르는데, 안 쓸 수도 없고 답답하네요 💸"</div>
+                    </div>
+                    <!-- 말풍선 4 (오른쪽) -->
+                    <div class="pain-bubble-item right bubble-anim" style="--delay: 1.5s;">
+                        <div class="pain-point-text">"열심히 쿠폰 뿌렸더니 마진이 하나도 안 남았어요. 이게 맞는 건지... 🤔"</div>
+                    </div>
+                    <!-- 말풍선 5 (왼쪽) -->
+                    <div class="pain-bubble-item left bubble-anim" style="--delay: 2.0s;">
+                        <div class="pain-point-text">"장바구니에 담아두고 그냥 나가는 손님들, 어떻게 붙잡을 수가 없네요."</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 문제 제기 구역 (Problem Statement) -->
+        <section class="problem-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">아무에게나 쿠폰을 뿌리며<br>마진을 깎아먹고 있진 않나요?</h2>
+                    <p class="section-desc">결제를 망설이는 딱 그 순간, 혜택이 꼭 필요한 고객에게만 스마트하게 쏘세요.</p>
+                </div>
+                <div class="comparison-grid">
+                    <!-- 1번째 카드 (기존 방식 1) -->
+                    <div class="comparison-card old-way">
+                        <div class="card-badge error">기존 방식</div>
+                        <h3 class="card-title">모두에게 뿌리는 쿠폰</h3>
+                        <p class="card-highlight">(마진 낭비)</p>
+                        
+                        <!-- 기존 방식 1: 회색 배경이 없는 모서리가 둥근 하얀 상자 안의 UI 블록 -->
+                        <div class="ui-mockup-box transparent-box">
+                            <div class="white-rounded-box">
+                                <div class="white-box-header">
+                                    <span class="mini-card-icon">🎟️</span>
+                                    <span class="mini-card-text">10% 쿠폰 (전체 발송)</span>
+                                </div>
+                                
+                                <div class="ui-chart-container">
+                                    <span class="ui-chart-label red-text">전체 마진율 하락</span>
+                                    <svg viewBox="0 0 240 70" fill="none" xmlns="http://www.w3.org/2000/svg" class="mini-chart-svg">
+                                        <defs>
+                                            <linearGradient id="redChartGrad" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="0%" stop-color="#ef4444" stop-opacity="0.25"/>
+                                                <stop offset="100%" stop-color="#ef4444" stop-opacity="0.0"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <!-- 하락하는 빨간색 꺾은선 -->
+                                        <path d="M 10,12 C 50,15 80,45 120,40 C 160,35 200,62 230,62" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
+                                        <path d="M 10,12 C 50,15 80,45 120,40 C 160,35 200,62 230,62 L 230,70 L 10,70 Z" fill="url(#redChartGrad)"/>
+                                        <!-- 하락 화살표 표시 -->
+                                        <path d="M 220,53 L 230,62 L 221,68" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 2번째 카드 (기존 방식 2 - 신규 추가!) -->
+                    <div class="comparison-card warning-way">
+                        <div class="card-badge warning">기존 방식</div>
+                        <h3 class="card-title">99%가 외면하는 챗봇</h3>
+                        <p class="card-highlight">(고객 피로감)</p>
+                        
+                        <!-- 기존 방식 2: 챗봇 대화창 UI 블록 -->
+                        <div class="ui-mockup-box transparent-box">
+                            <div class="white-rounded-box chatbot-box">
+                                <div class="chatbot-header">
+                                    <div class="chatbot-profile">
+                                        <span class="chatbot-avatar">🤖</span>
+                                        <span class="chatbot-name">AI 상담원</span>
+                                    </div>
+                                    <div class="chatbot-close-btn" title="귀찮아서 끄기">✕</div>
+                                </div>
+                                <div class="chatbot-body">
+                                    <div class="chatbot-bubble">
+                                        <p class="chatbot-text">99%의 고객은 챗봇을 누르지 않고 무시합니다.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 3번째 카드 (PICKIT 방식) -->
+                    <div class="comparison-card new-way pickit-card">
+                        <div class="card-badge success">PICKIT</div>
+                        <h3 class="card-title">망설이는 순간에만 띄우는 넛지</h3>
+                        <p class="card-highlight">(마진 보호)</p>
+                        
+                        <!-- PICKIT: 정밀 타겟 넛지 미니 UI 블록 (테두리 및 파란색 강조) -->
+                        <div class="ui-mockup-box transparent-box">
+                            <div class="white-rounded-box pickit-highlight-box">
+                                <div class="white-box-header pickit-header">
+                                    <span class="mini-card-icon">⚡</span>
+                                    <span class="mini-card-text blue-text">✨ 구매 확률 85% 고객에게만 넛지 노출</span>
+                                </div>
+                                
+                                <div class="ui-chart-container">
+                                    <span class="ui-chart-label blue-text">순수 마진율 상승</span>
+                                    <svg viewBox="0 0 240 70" fill="none" xmlns="http://www.w3.org/2000/svg" class="mini-chart-svg">
+                                        <defs>
+                                            <linearGradient id="blueChartGrad" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="0%" stop-color="#2563eb" stop-opacity="0.25"/>
+                                                <stop offset="100%" stop-color="#2563eb" stop-opacity="0.0"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <!-- 상승하는 파란색/초록색 꺾은선 -->
+                                        <path d="M 10,60 C 50,55 80,25 120,28 C 160,31 200,8 230,8" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
+                                        <path d="M 10,60 C 50,55 80,25 120,28 C 160,31 200,8 230,8 L 230,70 L 10,70 Z" fill="url(#blueChartGrad)"/>
+                                        <!-- 상승 화살표 표시 -->
+                                        <path d="M 220,17 L 230,8 L 221,2" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 솔루션 구역 (How it works) -->
+        <section class="solution-section" id="features">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">피킷은 지켜보고, 눈치채고, 말을 겁니다.</h2>
+                </div>
+                <div class="solution-grid">
+                    <div class="solution-card">
+                        <div class="step-icon">👁️</div>
+                        <h3 class="step-title">1. 지켜보기</h3>
+                        <p class="step-desc">행동 데이터 실시간 분석</p>
+                    </div>
+                    <div class="solution-card">
+                        <div class="step-icon">🧠</div>
+                        <h3 class="step-title">2. 눈치채기</h3>
+                        <p class="step-desc">이탈 확률 및 타이밍 계산</p>
+                    </div>
+                    <div class="solution-card">
+                        <div class="step-icon">💬</div>
+                        <h3 class="step-title">3. 말 걸기</h3>
+                        <p class="step-desc">최적의 맞춤 넛지 팝업 등장</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7종 넛지 체험존 -->
+        <section class="nudge-demo-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">피킷의 7가지 무기가 쇼핑몰을 지킵니다</h2>
+                    <p class="section-desc">아래 버튼들을 눌러 고객의 행동을 가상으로 시뮬레이션해 보세요. 피킷이 실시간으로 눈치채고 작동합니다.</p>
+                </div>
+                <div class="nudge-demo-layout">
+                    <!-- 왼쪽: 행동 버튼 7개 -->
+                    <div class="nudge-buttons-col">
+                        <button class="nudge-sim-btn" onclick="showNudge(1)">👥 다른 손님들도 많이 구경할 때</button>
+                        <button class="nudge-sim-btn" onclick="showNudge(2)">🙋 회원가입을 고민할 때</button>
+                        <button class="nudge-sim-btn" onclick="showNudge(3)">⏰ 장바구니에 담고 망설일 때</button>
+                        <button class="nudge-sim-btn" onclick="showNudge(4)">🚚 배송비나 반품이 걱정될 때</button>
+                        <button class="nudge-sim-btn" onclick="showNudge(5)">👗 옷에 어울리는 세트 상품이 필요할 때</button>
+                        <button class="nudge-sim-btn" onclick="showNudge(6)">⭐ 다른 유저의 생생한 리뷰를 보고 싶어 할 때</button>
+                        <button class="nudge-sim-btn" onclick="showNudge(7)">🔥 인기 상품 재고가 얼마 안 남았을 때</button>
+                    </div>
+
+                    <!-- 오른쪽: 스마트폰 미리보기 -->
+                    <div class="nudge-phone-col">
+                        <div class="phone-mockup">
+                            <div class="phone-screen">
+                                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&q=80&w=400"
+                                    alt="쇼핑몰 배경" class="phone-bg-img">
+                                <!-- 넛지 팝업 -->
+                                <div class="nudge-popup" id="nudgePopup">
+                                    <span class="nudge-popup-icon">💬</span>
+                                    <p id="nudgeText">← 왼쪽 버튼을 눌러보세요!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 경쟁사 비교 표 구역 -->
+        <section class="comparison-table-section">
+            <div class="container">
+                <h2 class="section-title text-center">왜 다들 피킷(PICKIT)을 사용할까요?</h2>
+                <div class="table-wrapper">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>비교 항목</th>
+                                <th>기존 팝업 솔루션</th>
+                                <th>타사 AI 툴</th>
+                                <th class="highlight-col">🏆 PICKIT (피킷)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>설치 및 사용 편의성</td>
+                                <td>❌ 복잡한 설치</td>
+                                <td>🔺 개발자 필요</td>
+                                <td class="highlight-col">🔵 1초면 끝! 코드 한 줄 복사</td>
+                            </tr>
+                            <tr>
+                                <td>직관적인 대시보드 UI</td>
+                                <td>❌ 보기 어려움</td>
+                                <td>🔺 무난함</td>
+                                <td class="highlight-col">🔵 사장님 맞춤형 초간편 UI</td>
+                            </tr>
+                            <tr>
+                                <td>타겟팅 완전 자동화</td>
+                                <td>❌ 100% 수동 설정</td>
+                                <td>❌ 일부 자동화</td>
+                                <td class="highlight-col">🔵 이탈 타이밍 자동 감지</td>
+                            </tr>
+                            <tr>
+                                <td>성장하는 실시간 AI</td>
+                                <td>❌ 정해진 기능만</td>
+                                <td>🔺 주기적 업데이트</td>
+                                <td class="highlight-col">🔵 실시간 행동 데이터 강화 학습</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 플랫폼 연동 구역 (새로 추가) -->
+        <section class="platform-section">
+            <div class="container text-center">
+                <h2 class="section-title">사장님이 쓰시는 쇼핑몰 플랫폼, 전부 연동됩니다.</h2>
+                <p class="section-desc">카페24부터 쇼피파이까지, 복사한 코드 한 줄만 넣으면 바로 작동합니다.</p>
+                <div class="platform-grid">
+                    <div class="platform-card">카페24</div>
+                    <div class="platform-card">아임웹</div>
+                    <div class="platform-card">메이크샵</div>
+                    <div class="platform-card">고도몰</div>
+                    <div class="platform-card">쇼피파이</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 지원 기관 구역 (새로 추가) -->
+        <section class="supporters-section">
+            <div class="container text-center">
+                <p class="supporters-label">SUPPORTED BY</p>
+                <h2 class="section-title">피킷의 가능성, 이미 검증받았습니다</h2>
+                <p class="section-desc">서울대학교 공과대학과 아산나눔재단의 든든한 지원을 받으며 함께 성장하고 있습니다.</p>
+                <div class="supporters-grid">
+                    <div class="supporter-card">
+                        <div class="supporter-icon">🏫</div>
+                        <div class="supporter-name">서울대학교 공과대학</div>
+                        <div class="supporter-sub">Seoul National University<br>College of Engineering</div>
+                    </div>
+                    <div class="supporter-card">
+                        <div class="supporter-icon">🌱</div>
+                        <div class="supporter-name">아산나눔재단</div>
+                        <div class="supporter-sub">Asan Nanum Foundation</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 성공 사례 구역 -->
+        <section class="success-section" id="success">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">이미 수많은 쇼핑몰이 피킷으로 이탈을 막고 있습니다.</h2>
+                </div>
+                <div class="success-grid">
+                    <div class="success-card">
+                        <div class="stars">⭐⭐⭐⭐⭐</div>
+                        <p class="success-quote">"도입 1달 만에 장바구니 결제율이 15% 올랐어요! (A 여성의류 쇼핑몰)"</p>
+                    </div>
+                    <div class="success-card">
+                        <div class="stars">⭐⭐⭐⭐⭐</div>
+                        <p class="success-quote">"설치가 너무 쉬워서 놀랐고, 방어한 매출액을 대시보드로 매일 확인하는 재미가 쏠쏠합니다. (B 남성복 쇼핑몰)"</p>
+                    </div>
+                    <div class="success-card">
+                        <div class="stars">⭐⭐⭐⭐⭐</div>
+                        <p class="success-quote">"무작정 뿌리던 쿠폰 비용을 아끼고, 진짜 필요한 사람에게만 넛지를 주니 마진이 확 늘었습니다. (C 잡화 쇼핑몰)"</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 요금제 구역 -->
+        <section class="pricing" id="pricing">
+            <div class="container">
+                <div class="pricing-header-text text-center">
+                    <h2 class="section-title">요금 안내</h2>
+                    <div class="pricing-pain-point">
+                        <div class="pain-bubble">
+                            "광고비랑 원가로 나가면 마진이 얼마 없는데 월 구독제는 너무 부담스럽다."
+                        </div>
+                    </div>
+                    <div class="pricing-solution-text">
+                        점원도 일한 만큼 받으니까,<br><strong>피킷은 오직 피킷이 벌어들인 금액에서 5%만 받습니다.</strong>
+                    </div>
+                </div>
+                <div class="pricing-grid">
+                    <div class="pricing-card">
+                        <div class="pricing-header">14일 무료 플랜</div>
+                        <div class="pricing-body">결제 등록 없이<br>모든 기능 사용 가능</div>
+                        <a href="signup.html" class="pricing-btn secondary">무료로 시작하기</a>
+                    </div>
+                    <div class="pricing-card highlight-card">
+                        <div class="pricing-header">합리적인 매출 증대분 과금</div>
+                        <div class="pricing-body">피킷으로 늘어난 추가 매출의<br><span class="highlight">5%</span>만 과금, 초기 부담 제로
+                        </div>
+                        <a href="signup.html" class="pricing-btn primary">14일 무료 체험하기</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. 자주 묻는 질문 (FAQ) -->
+        <section class="faq-section" id="faq">
+            <div class="container">
+                <h2 class="section-title text-center">자주 묻는 질문</h2>
+                <div class="faq-list">
+                    <details class="faq-item">
+                        <summary class="faq-question">우리 쇼핑몰에도 달 수 있나요?<span class="faq-icon">+</span></summary>
+                        <div class="faq-answer">
+                            <p>네, 물론입니다! 카페24, 아임웹 등 사장님이 어떤 쇼핑몰 플랫폼을 사용하시든 상관없이 전부 연동이 가능합니다.</p>
+                        </div>
+                    </details>
+                    <details class="faq-item">
+                        <summary class="faq-question">설치는 어렵지 않나요?<span class="faq-icon">+</span></summary>
+                        <div class="faq-answer">
+                            <p>컴퓨터를 잘 몰라도 괜찮습니다. 복잡한 프로그램 설치 없이, 피킷이 제공하는 한 줄의 코드만 복사해서 붙여넣으면 1초 만에 설치가 끝납니다.</p>
+                        </div>
+                    </details>
+                    <details class="faq-item">
+                        <summary class="faq-question">어떻게 작동하는지 직접 보고 싶어요.<span class="faq-icon">+</span></summary>
+                        <div class="faq-answer">
+                            <p>고객이 장바구니에 물건을 담아두고 결제를 망설이거나 쇼핑몰을 나가려는 순간을 실시간으로 눈치채고, 구매 확신을 주는 맞춤 넛지 메시지를 알아서 화면에
+                                띄워줍니다.</p>
+                        </div>
+                    </details>
+                    <details class="faq-item">
+                        <summary class="faq-question">팝업을 달면 쇼핑몰이 느려지지 않나요?<span class="faq-icon">+</span></summary>
+                        <div class="faq-answer">
+                            <p>전혀 걱정하지 마세요! 피킷은 아주 가벼운 특수 기술로 만들어져서 사장님의 쇼핑몰 로딩 속도에 0.1초의 영향도 주지 않습니다. 안심하고 사용하셔도 됩니다.
+                            </p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 행동 유도 구역 (CTA) -->
+        <section class="cta-section">
+            <div class="container text-center">
+                <h2 class="cta-title">지금 바로 잠든 쇼핑몰을 깨워보세요</h2>
+                <a href="signup.html" class="cta-button-massive">14일 무료 체험하기</a>
+            </div>
+            <div class="cta-bg-glow"></div>
+        </section>
+    </main>
+
+    <!-- 6. 맨 아래 회사 정보 구역 -->
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer-left">
+                <div class="footer-logo">
+                    <img src="assets/logo.png" alt="PickIt">
+                </div>
+                <div class="footer-info">
+                    <p>서울특별시 관악구</p>
+                    <p>이메일 주소: contact@pickit.example.com</p>
+                    <p>대표자: 최재웅</p>
+                </div>
+            </div>
+            <div class="footer-right">
+                <a href="#terms">이용약관</a>
+                <a href="#privacy">개인정보 처리방침</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 넛지 체험존 스크립트 -->
+    <script>
+        const nudgeMessages = {
+            1: "지금 15명이 이 상품을 함께 보고 있어요!",
+            2: "회원가입을 하시면 5,000원 할인 쿠폰을 드려요!",
+            3: "지금부터 5분 내에 결제 시 할인 쿠폰이 적용돼요!",
+            4: "일단 입어보세요! 교환 및 반품 배송비는 저희가 부담할게요.",
+            5: "이 바지를 구매한 분들 중 60%는 이 티셔츠도 같이 샀어요!",
+            6: "은지님과 비슷한 20대 여성들이 발림성이 좋다고 추천했어요!",
+            7: "방금 전 2명이 결제를 완료했어요! 선택하신 사이즈는 1개 남았습니다."
+        };
+
+        function showNudge(num) {
+            const popup = document.getElementById('nudgePopup');
+            const text = document.getElementById('nudgeText');
+
+            // 활성 버튼 하이라이트
+            document.querySelectorAll('.nudge-sim-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i + 1 === num);
+            });
+
+            // 팝업 먼저 숨기고 → 글자 바꾸고 → 다시 등장 (애니메이션 재시작)
+            popup.classList.remove('nudge-popup-show');
+            void popup.offsetWidth; // reflow 강제 실행 (애니메이션 리셋 트릭)
+            text.textContent = nudgeMessages[num];
+            popup.classList.add('nudge-popup-show');
+        }
+
+        // 말풍선 스크롤 감지 → 순차 등장
+        const bubbles = document.querySelectorAll('.bubble-anim');
+        const bubbleObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.2 });
+
+        bubbles.forEach(bubble => bubbleObserver.observe(bubble));
+    </script>
+</body>
+
+</html>

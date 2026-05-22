@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>넛지 설정 - PickIt</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+</head>
+
+<body>
+    <!-- 1. 왼쪽 메뉴바 (기존 유지, 넛지 설정에 불 켜기) -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <a href="dashboard.html"><img src="assets/logo.png" alt="PickIt"></a>
+        </div>
+
+        <ul class="nav-menu">
+            <a href="dashboard.html" style="text-decoration:none; color:inherit;">
+                <li class="nav-item">
+                    <span style="font-size: 20px;"></span> 홈
+                </li>
+            </a>
+            <a href="settings.html" style="text-decoration:none; color:inherit;">
+                <li class="nav-item active">
+                    <span style="font-size: 20px;"></span> 넛지 설정
+                </li>
+            </a>
+            <a href="statistics.html" style="text-decoration:none; color:inherit;">
+                <li class="nav-item">
+                    <span style="font-size: 20px;"></span> 성과 통계
+                </li>
+            </a>
+            <a href="billing.html" style="text-decoration:none; color:inherit;">
+                <li class="nav-item">
+                    <span style="font-size: 20px;"></span> 요금 관리
+                </li>
+            </a>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="shop-name">사장님 쇼핑몰</div>
+            <a href="index.html" style="text-decoration:none;"><button class="logout-btn">로그아웃</button></a>
+        </div>
+    </aside>
+
+    <!-- 2. 오른쪽 메인 내용 -->
+    <main class="main-content">
+        <header class="page-header">
+            <h1 class="page-title">넛지 설정</h1>
+        </header>
+
+        <!-- 좌우 반으로 나눈 레이아웃 -->
+        <div class="settings-container">
+
+            <!-- 맨 위: 넛지 전체 작동 스위치 -->
+            <div class="setting-group main-activation-box" style="border: 2px solid var(--primary-color);">
+                <div class="setting-header" style="margin-bottom: 0;">
+                    <div>
+                        <div class="setting-title" style="color: var(--primary-color);">PICKIT 넛지 활성화</div>
+                        <div style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">AI가 알아서 최적의 타이밍과 메시지를
+                            찾아냅니다.</div>
+                    </div>
+                    <label class="switch large">
+                        <input type="checkbox" checked onchange="toggleOptimization(this)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 중간 1: 상황별 넛지 설정 -->
+            <div class="setting-group">
+                <div class="setting-header">
+                    <div class="setting-title">상황별 넛지 설정</div>
+                </div>
+
+                <div class="nudge-cards-wrapper">
+                    <!-- 카드 1 -->
+                    <div class="nudge-card">
+                        <div class="nudge-situation-box">
+                            군중 심리를 자극해 구매 망설임을 줄이는 상황
+                        </div>
+                        <div class="nudge-arrow-container">
+                            <svg width="24" height="40" viewBox="0 0 24 40" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 4 C 20 16, 4 24, 12 36" stroke="#64748b" stroke-width="5"
+                                    stroke-linecap="round" fill="none" />
+                            </svg>
+                        </div>
+                        <div class="nudge-message-box">
+                            "지금 15명이 이 상품을 함께 보고 있어요!"
+                        </div>
+                        <div class="target-options">
+                            <div class="target-row">
+                                <span class="target-label">노출 대상:</span>
+                                <div class="target-btns">
+                                    <button class="target-btn active">모두</button>
+                                    <button class="target-btn">신규 방문자</button>
+                                    <button class="target-btn">재방문자</button>
+                                </div>
+                            </div>
+                            <div class="target-row">
+                                <span class="target-label">노출 기기:</span>
+                                <div class="target-btns">
+                                    <button class="target-btn active">모든 기기</button>
+                                    <button class="target-btn">모바일만</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="nudge-card-footer">
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 카드 2 -->
+                    <div class="nudge-card">
+                        <div class="nudge-situation-box">
+                            회원가입을 유도하여 고객을 확보하려는 상황
+                        </div>
+                        <div class="nudge-arrow-container">
+                            <svg width="24" height="40" viewBox="0 0 24 40" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 4 C 20 16, 4 24, 12 36" stroke="#64748b" stroke-width="5"
+                                    stroke-linecap="round" fill="none" />
+                            </svg>
+                        </div>
+                        <div class="nudge-message-box">
+                            "회원가입을 하시면 5,000원 할인 쿠폰을 드려요!"
+                        </div>
+                        <div class="target-options">
+                            <div class="target-row">
+                                <span class="target-label">노출 대상:</span>
+                                <div class="target-btns">
+                                    <button class="target-btn">모두</button>
+                                    <button class="target-btn active">신규 방문자</button>
+                                    <button class="target-btn">재방문자</button>
+                                </div>
+                            </div>
+                            <div class="target-row">
+                                <span class="target-label">노출 기기:</span>
+                                <div class="target-btns">
+                                    <button class="target-btn active">모든 기기</button>
+                                    <button class="target-btn">모바일만</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="nudge-card-footer">
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 카드 3 -->
+                    <div class="nudge-card">
+                        <div class="nudge-situation-box">
+                            촉박함을 매개로 빠른 결제를 유도하는 상황
+                        </div>
+                        <div class="nudge-arrow-container">
+                            <svg width="24" height="40" viewBox="0 0 24 40" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 4 C 20 16, 4 24, 12 36" stroke="#64748b" stroke-width="5"
+                                    stroke-linecap="round" fill="none" />
+                            </svg>
+                        </div>
+                        <div class="nudge-message-box">
+                            "지금부터 5분 내에 결제 시 할인 쿠폰이 적용돼요!"
+                        </div>
+                        <div class="target-options">
+                            <div class="target-row">
+                                <span class="target-label">노출 대상:</span>
+                                <div class="target-btns">
+                                    <button class="target-btn active">모두</button>
+                                    <button class="target-btn">신규 방문자</button>
+                                    <button class="target-btn">재방문자</button>
+                                </div>
+                            </div>
+                            <div class="target-row">
+                                <span class="target-label">노출 기기:</span>
+                                <div class="target-btns">
+                                    <button class="target-btn active">모든 기기</button>
+                                    <button class="target-btn">모바일만</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="nudge-card-footer">
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 카드 4 -->
+                    <div class="nudge-card">
+                        <div class="nudge-situation-box">
+                            반품 걱정 때문에 구매의 문턱을 넘지 못하는 상황
+                        </div>
+                        <div class="nudge-arrow-container">
+                            <svg width="24" height="40" viewBox="0 0 24 40" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 4 C 20 16, 4 24, 12 36" stroke="#64748b" stroke-width="5"
+                                    stroke-linecap="round" fill="none" />
+                            </svg>
+                        </div>
+                        <div class="nudge-message-box">
+                            "일단 입어보세요! 교환 및 반품 배송비는 저희가 부담할게요."
+                        </div>
+                        <div class="target-options">
+                            <div class="target-row">
+                                <span class="target-label">노출 대상:</span>
+                                <div class="target-btns">
+                                    <button class="target-btn active">모두</button>
+                                    <button class="target-btn">신규 방문자</button>
+                                    <button class="target-btn">재방문자</button>
+                                </div>
+                            </div>
+                            <div class="target-row">
+                                <span class="target-label">노출 기기:</span>
+                                <div class="target-btns">
+                                    <button class="target-btn active">모든 기기</button>
+                                    <button class="target-btn">모바일만</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="nudge-card-footer">
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 카드 5 -->
+                    <div class="nudge-card">
+                        <div class="nudge-situation-box">
+                            비슷한 상품을 제안하여 결제 금액을 높이려는 상황
+                        </div>
+                        <div class="nudge-arrow-container">
+                            <svg width="24" height="40" viewBox="0 0 24 40" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 4 C 20 16, 4 24, 12 36" stroke="#64748b" stroke-width="5"
+                                    stroke-linecap="round" fill="none" />
+                            </svg>
+                        </div>
+                        <div class="nudge-message-box">
+                            "이 바지를 구매한 분들 중 60%는 이 티셔츠도 같이 샀어요!"
+                        </div>
+                        <div class="target-options">
+                            <div class="target-row">
+                                <span class="target-label">노출 대상:</span>
+                                <div class="target-btns">
+                                    <button class="target-btn active">모두</button>
+                                    <button class="target-btn">신규 방문자</button>
+                                    <button class="target-btn">재방문자</button>
+                                </div>
+                            </div>
+                            <div class="target-row">
+                                <span class="target-label">노출 기기:</span>
+                                <div class="target-btns">
+                                    <button class="target-btn active">모든 기기</button>
+                                    <button class="target-btn">모바일만</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="nudge-card-footer">
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 카드 6 -->
+                    <div class="nudge-card">
+                        <div class="nudge-situation-box">
+                            리뷰 탐색 시간을 줄이고 긍정 요소를 노출하는 상황
+                        </div>
+                        <div class="nudge-arrow-container">
+                            <svg width="24" height="40" viewBox="0 0 24 40" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 4 C 20 16, 4 24, 12 36" stroke="#64748b" stroke-width="5"
+                                    stroke-linecap="round" fill="none" />
+                            </svg>
+                        </div>
+                        <div class="nudge-message-box">
+                            "은지님과 비슷한 20대 여성들이 발림성이 좋다고 추천했어요!"
+                        </div>
+                        <div class="target-options">
+                            <div class="target-row">
+                                <span class="target-label">노출 대상:</span>
+                                <div class="target-btns">
+                                    <button class="target-btn">모두</button>
+                                    <button class="target-btn">신규 방문자</button>
+                                    <button class="target-btn active">재방문자</button>
+                                </div>
+                            </div>
+                            <div class="target-row">
+                                <span class="target-label">노출 기기:</span>
+                                <div class="target-btns">
+                                    <button class="target-btn active">모든 기기</button>
+                                    <button class="target-btn">모바일만</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="nudge-card-footer">
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 카드 7 -->
+                    <div class="nudge-card">
+                        <div class="nudge-situation-box">
+                            물리적 희소성을 알려 구매 결정을 앞당기는 상황
+                        </div>
+                        <div class="nudge-arrow-container">
+                            <svg width="24" height="40" viewBox="0 0 24 40" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 4 C 20 16, 4 24, 12 36" stroke="#64748b" stroke-width="5"
+                                    stroke-linecap="round" fill="none" />
+                            </svg>
+                        </div>
+                        <div class="nudge-message-box">
+                            "방금 전 2명이 결제를 완료했어요! 선택하신 사이즈는 1개 남았습니다."
+                        </div>
+                        <div class="target-options">
+                            <div class="target-row">
+                                <span class="target-label">노출 대상:</span>
+                                <div class="target-btns">
+                                    <button class="target-btn active">모두</button>
+                                    <button class="target-btn">신규 방문자</button>
+                                    <button class="target-btn">재방문자</button>
+                                </div>
+                            </div>
+                            <div class="target-row">
+                                <span class="target-label">노출 기기:</span>
+                                <div class="target-btns">
+                                    <button class="target-btn active">모든 기기</button>
+                                    <button class="target-btn">모바일만</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="nudge-card-footer">
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 중간 2: 넛지 디자인 설정 -->
+            <div class="setting-group">
+                <div class="setting-header" style="margin-bottom: 24px;">
+                    <div class="setting-title">넛지 디자인 설정</div>
+                </div>
+
+                <div class="design-split">
+                    <!-- 왼쪽 구역 (설정) -->
+                    <div class="design-left">
+                        <div class="option-row">
+                            <div class="setting-label">넛지 모양 템플릿 고르기</div>
+                            <div class="option-buttons">
+                                <button class="opt-btn selected" onclick="changeShape('rounded', this)">둥근 모서리</button>
+                                <button class="opt-btn" onclick="changeShape('sharp', this)">뾰족한 모서리</button>
+                            </div>
+                        </div>
+
+                        <div class="option-row">
+                            <div class="setting-label">텍스트 글꼴 고르기</div>
+                            <select class="font-select" onchange="changeFont(this)">
+                                <option value="'Pretendard Variable', sans-serif">프리텐다드 (기본)</option>
+                                <option value="'Nanum Myeongjo', serif">나눔명조</option>
+                                <option value="sans-serif">시스템 기본 고딕</option>
+                            </select>
+                        </div>
+
+                        <div class="color-section-row">
+                            <div>
+                                <div class="setting-label" style="margin-bottom: 12px;">배경 색상</div>
+                                <div class="color-options">
+                                    <div class="color-btn selected" style="background-color: #1e293b;"
+                                        onclick="changeBg(this, '#1e293b')"></div>
+                                    <div class="color-btn" style="background-color: #2563eb;"
+                                        onclick="changeBg(this, '#2563eb')"></div>
+                                    <div class="color-btn" style="background-color: #ffffff; border: 1px solid #e2e8f0;"
+                                        onclick="changeBg(this, '#ffffff')"></div>
+                                    <div class="color-btn" style="background-color: #fca5a5;"
+                                        onclick="changeBg(this, '#fca5a5')"></div>
+                                    <div class="color-btn" style="background-color: #fbbf24;"
+                                        onclick="changeBg(this, '#fbbf24')"></div>
+                                    <div class="color-btn rainbow-btn">
+                                        +
+                                        <input type="color" oninput="changeBg(this.parentElement, this.value)">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="setting-label" style="margin-bottom: 12px;">글자 색상</div>
+                                <div class="color-options">
+                                    <div class="color-btn selected"
+                                        style="background-color: #ffffff; border: 1px solid #e2e8f0;"
+                                        onclick="changeText(this, '#ffffff')"></div>
+                                    <div class="color-btn" style="background-color: #0f172a;"
+                                        onclick="changeText(this, '#0f172a')"></div>
+                                    <div class="color-btn" style="background-color: #2563eb;"
+                                        onclick="changeText(this, '#2563eb')"></div>
+                                    <div class="color-btn rainbow-btn">
+                                        +
+                                        <input type="color" oninput="changeText(this.parentElement, this.value)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 오른쪽 구역 (미리보기) -->
+                    <div class="design-right">
+                        <div class="device-toggle">
+                            <button class="dev-btn active" onclick="setDevice('mobile', this)">모바일</button>
+                            <button class="dev-btn" onclick="setDevice('pc', this)">PC</button>
+                        </div>
+
+                        <div class="preview-container" id="previewContainer">
+                            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=600"
+                                alt="쇼핑몰 배경" class="preview-bg-img">
+
+                            <div class="nudge-mockup" id="nudgeMockupBox">
+                                <div class="nudge-mockup-header">
+                                    <span>✨ PickIt AI 점원</span>
+                                </div>
+                                <div class="nudge-mockup-body" id="nudgeMockupText">
+                                    "고객님과 비슷한 체형의 리뷰가 있어요!"
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- UI 동작 스크립트 -->
+    <script>
+        // 자동 최적화 모드 스위치 연동
+        function toggleOptimization(checkbox) {
+            const group = checkbox.closest('.setting-group');
+            if (checkbox.checked) {
+                group.style.borderColor = 'var(--primary-color)';
+                group.querySelector('.setting-title').style.color = 'var(--primary-color)';
+            } else {
+                group.style.borderColor = 'var(--border-color)';
+                group.querySelector('.setting-title').style.color = 'var(--text-main)';
+            }
+        }
+
+        // 모양 변경
+        function changeShape(shape, btnElement) {
+            btnElement.parentElement.querySelectorAll('.opt-btn').forEach(btn => btn.classList.remove('selected'));
+            btnElement.classList.add('selected');
+
+            const mockup = document.getElementById('nudgeMockupBox');
+            if (shape === 'sharp') {
+                mockup.classList.add('sharp');
+            } else {
+                mockup.classList.remove('sharp');
+            }
+        }
+
+        // 폰트 변경
+        function changeFont(selectElement) {
+            document.getElementById('nudgeMockupBox').style.fontFamily = selectElement.value;
+        }
+
+        // 배경색 변경
+        function changeBg(element, color) {
+            element.parentElement.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('selected'));
+            element.classList.add('selected');
+
+            const box = document.getElementById('nudgeMockupBox');
+            box.style.backgroundColor = color;
+
+            if (color === '#ffffff') {
+                box.style.border = '1px solid #e2e8f0';
+            } else {
+                box.style.border = 'none';
+            }
+        }
+
+        // 글자색 변경
+        function changeText(element, color) {
+            element.parentElement.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('selected'));
+            element.classList.add('selected');
+
+            document.getElementById('nudgeMockupBox').style.color = color;
+        }
+
+        // 기기 변경 (모바일 <-> PC)
+        function setDevice(device, btnElement) {
+            btnElement.parentElement.querySelectorAll('.dev-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            const container = document.getElementById('previewContainer');
+            if (device === 'pc') {
+                container.classList.add('pc-mode');
+            } else {
+                container.classList.remove('pc-mode');
+            }
+        }
+    </script>
+</body>
+
+</html>
