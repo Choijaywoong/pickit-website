@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import * as XLSX from 'xlsx';
+import ReactMarkdown from 'react-markdown';
 import styles from './ChatWidget.module.css';
 import SettingsModal from './SettingsModal';
 
@@ -12,14 +13,15 @@ const QUICK_ACTIONS = [
   '블랙 L 재고 품절 처리해줘',
 ];
 
-const CHANNEL_INFO = {
-  coupang: { label: '쿠팡',              color: '#E50029' },
-  naver:   { label: '네이버 스마트스토어', color: '#03C75A' },
-  cafe24:  { label: '카페24',            color: '#2563EB' },
-  musinsa: { label: '무신사',            color: '#1A1A1A' },
-  ably:    { label: '에이블리',           color: '#FF6B9D' },
-  zigzag:  { label: '지그재그',           color: '#FF5A5A' },
-};
+// 전체 6개 채널 목록 (연결 여부와 무관하게 항상 표시)
+const ALL_CHANNELS = [
+  { id: 'coupang', label: '쿠팡',              color: '#E50029' },
+  { id: 'naver',   label: '네이버',             color: '#03C75A' },
+  { id: 'cafe24',  label: '카페24',             color: '#2563EB' },
+  { id: 'musinsa', label: '무신사',             color: '#222222' },
+  { id: 'ably',    label: '에이블리',            color: '#FF6B9D' },
+  { id: 'zigzag',  label: '지그재그',            color: '#FF5A5A' },
+];
 
 // FR-005: 서버 JSON → 셀러 PC에서 xlsx 생성 (규칙④)
 function downloadExcel(excelData, filename) {
@@ -59,6 +61,9 @@ export default function ChatWidget() {
   const onboarding = JSON.parse(localStorage.getItem('pickit_onboarding') || '{}');
   const connectedChannels = onboarding.channels || [];
 
+  // 활성화된 채널: 연결된 채널 중 사용자가 켜둔 것만 (처음엔 전부 ON)
+  const [activeChannels, setActiveChannels] = useState(connectedChannels);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -85,6 +90,20 @@ export default function ChatWidget() {
     const msg = (text ?? input).trim();
     if (!msg || loading) return;
     setInput('');
+
+    // addMsg 호출 전에 history를 먼저 스냅샷 (현재 messages 기준)
+    // user/assistant 메시지만, UI 전용 필드 제거, 최근 20개로 제한 (토큰 절약)
+    const history = messages
+      .filter((m) =>
+        (m.role === 'user' || m.role === 'assistant') &&
+        !m.isError &&
+        !m.isConnectionError &&
+        typeof m.content === 'string' &&
+        m.content.trim()
+      )
+      .map((m) => ({ role: m.role, content: m.content }))
+      .slice(-20);
+
     addMsg({ role: 'user', content: msg });
     setLoading(true);
 
@@ -92,9 +111,19 @@ export default function ChatWidget() {
       const res  = await fetch(`${API_BASE}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg }),
+        body: JSON.stringify({ message: msg, activeChannels, history }),
       });
       const data = await res.json();
+
+      // 서버 에러 (400, 500 등)
+      if (!res.ok) {
+        addMsg({
+          role: 'assistant',
+          content: data.error || '처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
+          isError: true,
+        });
+        return;
+      }
 
       // 방화벽 보류
       if (data.held) {
@@ -108,7 +137,7 @@ export default function ChatWidget() {
         downloadExcel(data.excelData, data.filename);
         addMsg({ role: 'assistant', content: data.reply, excelFilename: data.filename });
       } else {
-        addMsg({ role: 'assistant', content: data.reply || JSON.stringify(data) });
+        addMsg({ role: 'assistant', content: data.reply || '처리가 완료되었습니다.' });
       }
 
       // FR-008: 연동 끊김
@@ -122,7 +151,7 @@ export default function ChatWidget() {
     } finally {
       setLoading(false);
     }
-  }, [input, loading]);
+  }, [input, loading, activeChannels, messages]);
 
   async function confirmAction() {
     if (!pendingAction) return;
@@ -151,6 +180,14 @@ export default function ChatWidget() {
     addMsg({ role: 'assistant', content: '취소되었습니다.' });
   }
 
+  // 채널 블록 토글: 연결된 채널만 켜고 끌 수 있다
+  function toggleChannel(id) {
+    if (!connectedChannels.includes(id)) return;
+    setActiveChannels((prev) =>
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
+    );
+  }
+
   const isEmpty = messages.length === 0;
 
   return (
@@ -174,17 +211,58 @@ export default function ChatWidget() {
         </div>
 
         <div className={styles.sidebarBody}>
-          <p className={styles.sectionLabel}>연결된 채널</p>
-          {connectedChannels.length === 0 ? (
-            <p className={styles.noChannel}>연결된 채널 없음</p>
-          ) : (
-            connectedChannels.map((ch) => (
-              <div key={ch} className={styles.channelRow}>
-                <span className={styles.channelDot} style={{ background: CHANNEL_INFO[ch]?.color }} />
-                <span>{CHANNEL_INFO[ch]?.label || ch}</span>
-              </div>
-            ))
-          )}
+          <p className={styles.sectionLabel}>
+            채널 선택
+            {activeChannels.length > 0 && (
+              <span className={styles.activeCount}>{activeChannels.length}개 활성</span>
+            )}
+          </p>
+
+          <div className={styles.channelBlocks}>
+            {ALL_CHANNELS.map((ch) => {
+              const isConnected = connectedChannels.includes(ch.id);
+              const isActive    = isConnected && activeChannels.includes(ch.id);
+
+              // 블록 상태에 따른 클래스
+              let blockClass = styles.chBlock;
+              if (!isConnected)      blockClass += ` ${styles.chBlockUnlinked}`;
+              else if (isActive)     blockClass += ` ${styles.chBlockOn}`;
+              else                   blockClass += ` ${styles.chBlockOff}`;
+
+              return (
+                <button
+                  key={ch.id}
+                  className={blockClass}
+                  style={isActive ? {
+                    borderColor: ch.color,
+                    backgroundColor: `${ch.color}18`, // 채널 색상 ~10% 투명도 배경
+                  } : undefined}
+                  onClick={() => toggleChannel(ch.id)}
+                  disabled={!isConnected}
+                  title={!isConnected ? '온보딩에서 선택되지 않은 채널입니다' : isActive ? '클릭하면 비활성화됩니다' : '클릭하면 활성화됩니다'}
+                >
+                  {/* 채널 컬러 점 */}
+                  <span
+                    className={styles.chDot}
+                    style={{ background: isConnected ? ch.color : '#D1D5DB' }}
+                  />
+
+                  {/* 채널명 */}
+                  <span className={styles.chLabel}>{ch.label}</span>
+
+                  {/* 상태 표시 */}
+                  {!isConnected ? (
+                    <span className={styles.chBadgeUnlinked}>미연결</span>
+                  ) : (
+                    <span
+                      className={`${styles.chToggle} ${isActive ? styles.chToggleOn : ''}`}
+                      style={isActive ? { background: ch.color } : undefined}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* 사이드바 하단: 설정 버튼 */}
@@ -253,7 +331,13 @@ export default function ChatWidget() {
                     ${msg.isConnectionError ? styles.bubbleConnection : ''}
                     ${msg.isError           ? styles.bubbleError      : ''}
                   `}>
-                    <p className={styles.bubbleText}>{msg.content}</p>
+                    {msg.role === 'assistant' ? (
+                      <div className={styles.bubbleMarkdown}>
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p className={styles.bubbleText}>{msg.content}</p>
+                    )}
 
                     {/* 엑셀 다운로드 완료 뱃지 */}
                     {msg.excelFilename && (

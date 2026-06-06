@@ -13,7 +13,9 @@ const { initTable } = require('./src/db/salesLog');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-app.use(cors());
+// CORS_ORIGIN이 설정된 경우(배포) 해당 도메인만 허용, 없으면(개발) 전체 허용
+const corsOrigin = process.env.CORS_ORIGIN || '*';
+app.use(cors({ origin: corsOrigin }));
 app.use(express.json());
 
 app.use('/api', routes);

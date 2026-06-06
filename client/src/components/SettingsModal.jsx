@@ -3,24 +3,10 @@ import styles from './SettingsModal.module.css';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
-// 채널별 입력 필드 정의
+// 채널별 입력 필드 정의 (셀러가 직접 발급받는 자격증명만 포함)
+// ANTHROPIC_API_KEY, CAFE24_CLIENT_ID, CAFE24_CLIENT_SECRET, CAFE24_REDIRECT_URI는
+// PICKIT 플랫폼 자격증명 → server/.env에 저장, 이 UI에 노출하지 않음
 const CHANNEL_CONFIG = [
-  {
-    id: 'pickit',
-    label: 'PICKIT AI',
-    badge: '필수',
-    color: '#2563EB',
-    desc: '채팅 기능 전체의 기반. 먼저 입력해 주세요.',
-    fields: [
-      {
-        key: 'ANTHROPIC_API_KEY',
-        label: 'Anthropic API Key',
-        type: 'password',
-        hint: 'console.anthropic.com → API Keys에서 발급',
-        required: true,
-      },
-    ],
-  },
   {
     id: 'coupang',
     label: '쿠팡',
@@ -46,13 +32,12 @@ const CHANNEL_CONFIG = [
     id: 'cafe24',
     label: '카페24',
     color: '#1155CC',
-    desc: '조회·수정·송장 지원. 앱 등록 후 OAuth 인증 필요.',
+    desc: '조회·수정·송장 지원. Mall ID 입력 후 OAuth 인증 필요.',
     isOAuth: true,
+    // OAuth 완료 여부 확인용 (입력 필드 아님)
+    oauthKey: 'CAFE24_ACCESS_TOKEN',
     fields: [
-      { key: 'CAFE24_MALL_ID',       label: 'Mall ID',       type: 'text',     hint: '카페24 쇼핑몰 주소 앞 부분 (예: myshop)' },
-      { key: 'CAFE24_CLIENT_ID',     label: 'Client ID',     type: 'text',     hint: '카페24 개발자센터 > 앱 등록 후 발급' },
-      { key: 'CAFE24_CLIENT_SECRET', label: 'Client Secret', type: 'password', hint: 'Client ID와 함께 발급됨' },
-      { key: 'CAFE24_REDIRECT_URI',  label: 'Redirect URI',  type: 'text',     hint: '예: http://localhost:4000/api/oauth/cafe24/callback' },
+      { key: 'CAFE24_MALL_ID', label: 'Mall ID', type: 'text', hint: '카페24 쇼핑몰 주소 앞부분 (예: myshop → myshop.cafe24.com)' },
     ],
   },
   {
@@ -85,7 +70,7 @@ const CHANNEL_CONFIG = [
 ];
 
 export default function SettingsModal({ onClose }) {
-  const [activeTab, setActiveTab]   = useState('pickit');
+  const [activeTab, setActiveTab]   = useState('coupang');
   const [formValues, setFormValues] = useState({});
   const [savedKeys, setSavedKeys]   = useState({});
   const [saving, setSaving]         = useState(false);
@@ -155,7 +140,10 @@ export default function SettingsModal({ onClose }) {
 
   // 채널이 완전히 설정됐는지 여부
   function isChannelComplete(ch) {
-    return ch.fields.every((f) => savedKeys[f.key]);
+    const fieldsOk = ch.fields.every((f) => savedKeys[f.key]);
+    // OAuth 채널은 access token까지 있어야 완료
+    if (ch.oauthKey) return fieldsOk && savedKeys[ch.oauthKey];
+    return fieldsOk;
   }
 
   return (
@@ -165,7 +153,7 @@ export default function SettingsModal({ onClose }) {
         <div className={styles.header}>
           <div>
             <h2 className={styles.title}>채널 연결 설정</h2>
-            <p className={styles.subtitle}>API Key를 입력하면 해당 채널에서 주문·재고·송장을 처리할 수 있습니다.</p>
+            <p className={styles.subtitle}>각 채널에서 발급받은 API Key를 입력하면 주문·재고·송장을 처리할 수 있습니다.</p>
           </div>
           <button className={styles.closeBtn} onClick={onClose}>✕</button>
         </div>
@@ -224,15 +212,24 @@ export default function SettingsModal({ onClose }) {
                 ))}
               </div>
 
-              {/* Cafe24 OAuth 버튼 */}
+              {/* Cafe24 OAuth 섹션 */}
               {channel.isOAuth && (
                 <div className={styles.oauthSection}>
-                  <p className={styles.oauthDesc}>
-                    위 정보를 저장한 후, 아래 버튼으로 카페24 OAuth 인증을 완료하세요.
-                  </p>
-                  <button className={styles.oauthBtn} onClick={handleOAuthCafe24}>
-                    카페24 OAuth 인증하기 →
-                  </button>
+                  {savedKeys[channel.oauthKey] ? (
+                    <p className={styles.oauthDesc} style={{ color: '#15803D', fontWeight: 600 }}>
+                      ✅ OAuth 인증 완료. 카페24 채널이 연결되었습니다.
+                    </p>
+                  ) : (
+                    <>
+                      <p className={styles.oauthDesc}>
+                        Mall ID를 저장한 후 아래 버튼을 누르면 카페24 로그인 페이지로 이동합니다.
+                        로그인 후 PICKIT에 권한을 허용하면 자동으로 연결됩니다.
+                      </p>
+                      <button className={styles.oauthBtn} onClick={handleOAuthCafe24}>
+                        카페24 OAuth 인증하기 →
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
 

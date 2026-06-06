@@ -31,7 +31,7 @@ function generateAuth(method, path, query = '') {
 
 // 모든 쿠팡 API 호출의 단일 진입점 (retry 포함)
 async function coupangFetch(method, path, query = '', body = null) {
-  const vendorId  = cred.get('COUPANG_cred.get('COUPANG_VENDOR_ID')');
+  const vendorId  = cred.get('COUPANG_VENDOR_ID');
   const accessKey = cred.get('COUPANG_ACCESS_KEY');
   const secretKey = cred.get('COUPANG_SECRET_KEY');
   if (!vendorId || !accessKey || !secretKey) {

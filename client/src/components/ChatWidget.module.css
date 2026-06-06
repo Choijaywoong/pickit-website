@@ -94,6 +94,9 @@
 }
 
 .sectionLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 11px;
   font-weight: 600;
   color: #94a3b8;
@@ -102,27 +105,140 @@
   margin: 0 0 10px;
 }
 
-.noChannel {
-  font-size: 12px;
-  color: #94a3b8;
-  margin: 0;
+.activeCount {
+  font-size: 10px;
+  background: #DBEAFE;
+  color: #2563EB;
+  padding: 1px 7px;
+  border-radius: 20px;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
-.channelRow {
+/* ─── 채널 블록 ─── */
+.channelBlocks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 블록 기본 */
+.chBlock {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 8px;
-  border-radius: 8px;
+  width: 100%;
+  padding: 9px 11px;
+  border-radius: 10px;
+  border: 1.5px solid #E2E8F0;
+  background: transparent;
   font-size: 13px;
-  color: #334155;
-  font-weight: 500;
-  margin-bottom: 2px;
-  transition: background 0.12s;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s ease, background-color 0.2s ease,
+              color 0.2s ease, transform 0.12s ease, box-shadow 0.2s ease;
+  position: relative;
 }
 
-.channelRow:hover {
-  background: #DBEAFE;
+/* 연결됨 + 활성(ON) */
+.chBlockOn {
+  color: #1e293b;
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.chBlockOn:hover {
+  filter: brightness(0.97);
+}
+
+.chBlockOn:active {
+  transform: scale(0.97);
+}
+
+/* 연결됨 + 비활성(OFF) */
+.chBlockOff {
+  border-color: #D1D5DB;
+  background: #F9FAFB;
+  color: #9CA3AF;
+}
+
+.chBlockOff:hover {
+  border-color: #9CA3AF;
+  background: #F3F4F6;
+  color: #6B7280;
+}
+
+.chBlockOff:active {
+  transform: scale(0.97);
+}
+
+/* 미연결 */
+.chBlockUnlinked {
+  border: 1.5px dashed #E5E7EB;
+  background: transparent;
+  color: #D1D5DB;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* 채널 컬러 점 */
+.chDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+/* 채널명 */
+.chLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 미연결 뱃지 */
+.chBadgeUnlinked {
+  font-size: 10px;
+  background: #F3F4F6;
+  color: #D1D5DB;
+  padding: 1px 7px;
+  border-radius: 20px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+/* 토글 필 (ON/OFF 표시기) */
+.chToggle {
+  width: 28px;
+  height: 16px;
+  border-radius: 8px;
+  background: #D1D5DB;
+  flex-shrink: 0;
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+.chToggle::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease;
+}
+
+/* ON 상태: 점이 오른쪽으로 이동 */
+.chToggleOn::after {
+  transform: translateX(12px);
 }
 
 /* 사이드바 하단 설정 버튼 */
@@ -346,6 +462,49 @@
 .bubbleText {
   margin: 0;
   white-space: pre-wrap;
+}
+
+/* AI 응답 마크다운 렌더링 */
+.bubbleMarkdown {
+  font-size: inherit;
+  line-height: 1.65;
+}
+
+.bubbleMarkdown p {
+  margin: 0 0 8px;
+}
+
+.bubbleMarkdown p:last-child {
+  margin-bottom: 0;
+}
+
+.bubbleMarkdown ul,
+.bubbleMarkdown ol {
+  margin: 4px 0 8px;
+  padding-left: 20px;
+}
+
+.bubbleMarkdown li {
+  margin-bottom: 3px;
+}
+
+.bubbleMarkdown strong {
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.bubbleMarkdown code {
+  background: #F1F5F9;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.88em;
+  font-family: 'Menlo', 'Consolas', monospace;
+}
+
+.bubbleMarkdown h3 {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 8px 0 4px;
 }
 
 /* 특수 말풍선 */

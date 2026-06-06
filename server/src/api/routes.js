@@ -12,10 +12,10 @@ router.get('/health', (req, res) => {
 
 // 채팅 메시지 처리 (프론트 ChatWidget → 여기로 POST)
 router.post('/chat', async (req, res) => {
-  const { message, history } = req.body;
+  const { message, history, activeChannels } = req.body;
   if (!message) return res.status(400).json({ error: '메시지가 없습니다.' });
   try {
-    const result = await chat(message, history || []);
+    const result = await chat(message, history || [], activeChannels || []);
     res.json(result);
   } catch (err) {
     console.error('[/api/chat 오류]', err.message);
