@@ -1,0 +1,541 @@
+/* ── 풀스크린 2-컬럼 레이아웃 (Claude.ai / Gemini 스타일) ── */
+.layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+/* ────────────────────────── 사이드바 ────────────────────────── */
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: #F0F4FF;
+  border-right: 1px solid #DBEAFE;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.22s ease, opacity 0.22s ease;
+  overflow: hidden;
+}
+
+.sidebarClosed {
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sidebarTop {
+  padding: 22px 16px 18px;
+  border-bottom: 1px solid #DBEAFE;
+  flex-shrink: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.brandLogo {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563EB, #60A5FA);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: -1px;
+}
+
+.brandName {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: 1.5px;
+}
+
+.brandSub {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 1px;
+}
+
+.newChatBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 9px 14px;
+  background: #2563EB;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.newChatBtn:hover {
+  background: #1D4ED8;
+}
+
+.sidebarBody {
+  flex: 1;
+  padding: 20px 16px;
+  overflow-y: auto;
+}
+
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0 0 10px;
+}
+
+.noChannel {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.channelRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #334155;
+  font-weight: 500;
+  margin-bottom: 2px;
+  transition: background 0.12s;
+}
+
+.channelRow:hover {
+  background: #DBEAFE;
+}
+
+/* 사이드바 하단 설정 버튼 */
+.sidebarFooter {
+  flex-shrink: 0;
+  padding: 12px 12px 16px;
+  border-top: 1px solid #DBEAFE;
+}
+
+.settingsBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 10px;
+  background: none;
+  border: none;
+  border-radius: 9px;
+  font-size: 13px;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.13s, color 0.13s;
+  text-align: left;
+}
+
+.settingsBtn:hover {
+  background: #DBEAFE;
+  color: #2563EB;
+}
+
+.channelDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ────────────────────────── 메인 영역 ────────────────────────── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #ffffff;
+  min-width: 0;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 24px;
+  border-bottom: 1px solid #F1F5F9;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.menuBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.menuBtn:hover {
+  background: #F1F5F9;
+  color: #1e293b;
+}
+
+.topbarTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* ─── 메시지 스크롤 영역 ─── */
+.messagesArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 빈 화면 */
+.emptyState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  max-width: 580px;
+  margin: auto;
+  padding: 20px;
+}
+
+.emptyLogo {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #2563EB, #60A5FA);
+  color: #fff;
+  font-size: 32px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  letter-spacing: -1px;
+  box-shadow: 0 8px 28px rgba(37, 99, 235, 0.28);
+}
+
+.emptyTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 10px;
+}
+
+.emptyDesc {
+  font-size: 15px;
+  color: #64748b;
+  line-height: 1.7;
+  margin: 0 0 32px;
+}
+
+.quickGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.quickBtn {
+  padding: 10px 20px;
+  background: #EFF6FF;
+  color: #2563EB;
+  border: 1px solid #BFDBFE;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.12s;
+}
+
+.quickBtn:hover {
+  background: #DBEAFE;
+  border-color: #93C5FD;
+  transform: translateY(-1px);
+}
+
+/* 메시지 목록 */
+.msgList {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 740px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.msgRow {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.msgRow.user {
+  flex-direction: row-reverse;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563EB, #60A5FA);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: -0.5px;
+}
+
+/* 말풍선 */
+.bubble {
+  max-width: 78%;
+  padding: 14px 18px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.7;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  background: #ffffff;
+  word-break: break-word;
+}
+
+.msgRow.assistant .bubble {
+  border-radius: 4px 18px 18px 18px;
+}
+
+.msgRow.user .bubble {
+  background: #2563EB;
+  color: #ffffff;
+  border-color: #2563EB;
+  border-radius: 18px 4px 18px 18px;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.22);
+}
+
+.bubbleText {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* 특수 말풍선 */
+.bubbleDanger {
+  border-color: #FCD34D !important;
+  background: #FFFBEB !important;
+}
+
+.bubbleConnection {
+  border-color: #FB923C !important;
+  background: #FFF7ED !important;
+}
+
+.bubbleError {
+  border-color: #FCA5A5 !important;
+  background: #FEF2F2 !important;
+}
+
+/* 엑셀 뱃지 */
+.excelBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #15803D;
+  font-weight: 500;
+}
+
+/* 링크 */
+.linkBtn {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #2563EB;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.linkBtn:hover {
+  text-decoration: underline;
+}
+
+/* 방화벽 승인 버튼 */
+.approvalRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.btnApprove {
+  padding: 8px 18px;
+  background: #2563EB;
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btnApprove:hover {
+  background: #1D4ED8;
+}
+
+.btnCancel {
+  padding: 8px 16px;
+  background: #F1F5F9;
+  color: #475569;
+  border: none;
+  border-radius: 9px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btnCancel:hover {
+  background: #E2E8F0;
+}
+
+/* 타이핑 애니메이션 */
+.typingDots {
+  display: flex;
+  gap: 5px;
+  padding: 4px 2px;
+  align-items: center;
+}
+
+.typingDots span {
+  width: 7px;
+  height: 7px;
+  background: #94a3b8;
+  border-radius: 50%;
+  animation: typingBounce 1.3s ease-in-out infinite;
+}
+
+.typingDots span:nth-child(2) { animation-delay: 0.18s; }
+.typingDots span:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+  30% { transform: translateY(-7px); opacity: 1; }
+}
+
+/* ─── 입력 영역 ─── */
+.inputWrap {
+  flex-shrink: 0;
+  padding: 16px 24px 22px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-top: 1px solid #F1F5F9;
+}
+
+.inputBox {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  width: 100%;
+  max-width: 740px;
+  background: #F8FAFC;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 18px;
+  padding: 10px 10px 10px 18px;
+  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+}
+
+.inputBox:focus-within {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px #DBEAFE;
+  background: #ffffff;
+}
+
+.textarea {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  color: #1e293b;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.textarea::placeholder {
+  color: #94a3b8;
+}
+
+.textarea:disabled {
+  opacity: 0.6;
+}
+
+.sendBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: #2563EB;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.12s;
+}
+
+.sendBtn:hover:not(:disabled) {
+  background: #1D4ED8;
+  transform: scale(1.07);
+}
+
+.sendBtn:disabled {
+  background: #CBD5E1;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.inputHint {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: #94a3b8;
+  text-align: center;
+}

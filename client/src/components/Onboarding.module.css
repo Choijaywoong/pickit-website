@@ -1,0 +1,233 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', -apple-system, sans-serif;
+  backdrop-filter: blur(4px);
+}
+
+.card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 40px 36px;
+  width: 440px;
+  max-width: 92vw;
+  box-shadow: 0 20px 60px rgba(37, 99, 235, 0.15), 0 4px 16px rgba(0,0,0,0.08);
+}
+
+/* 브랜드 */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.logoIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563EB, #60A5FA);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: -1px;
+}
+
+.logoText {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: 2px;
+}
+
+.tagline {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 28px;
+}
+
+/* Step */
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.question {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.hint {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* 예/아니오 버튼 */
+.btnRow {
+  display: flex;
+  gap: 10px;
+}
+
+.btnYes {
+  flex: 1;
+  padding: 14px;
+  background: #2563EB;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btnYes:hover {
+  background: #1D4ED8;
+}
+
+.btnNo {
+  flex: 1;
+  padding: 14px;
+  background: #F1F5F9;
+  color: #475569;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btnNo:hover {
+  background: #E2E8F0;
+}
+
+.notice {
+  font-size: 12px;
+  color: #64748b;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* 채널 목록 */
+.channelGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.groupLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.channelItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #1e293b;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.channelItem:has(input:checked) {
+  background: #EFF6FF;
+  border-color: #2563EB;
+}
+
+.channelItem input {
+  accent-color: #2563EB;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.badge {
+  margin-left: auto;
+  font-size: 10px;
+  background: #FEF3C7;
+  color: #92400E;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* 에이블리 경고 */
+.warning {
+  background: #FFFBEB;
+  border: 1px solid #FCD34D;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: #333;
+}
+
+.warning p {
+  margin: 6px 0 10px;
+  line-height: 1.6;
+}
+
+.btnClose {
+  padding: 7px 16px;
+  background: #D97706;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btnClose:hover {
+  background: #B45309;
+}
+
+/* 시작하기 버튼 */
+.btnStart {
+  width: 100%;
+  padding: 15px;
+  background: #2563EB;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.btnStart:hover:not(:disabled) {
+  background: #1D4ED8;
+}
+
+.btnStart:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
