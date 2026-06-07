@@ -1,12 +1,48 @@
 import styles from './LandingPage.module.css';
 
+/* ── 채널 로고 SVG ── */
+const ChannelLogos = {
+  coupang: (
+    <svg viewBox="0 0 80 24" fill="none" xmlns="http://www.w3.org/2000/svg" height="18">
+      <text x="0" y="19" fontFamily="Arial Black, Arial" fontWeight="900" fontSize="20" fill="#E50029">쿠팡</text>
+    </svg>
+  ),
+  naver: (
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" height="22" width="22">
+      <rect width="24" height="24" rx="4" fill="#03C75A"/>
+      <path d="M5 18V6h3.8l4.4 7V6H17v12h-3.8l-4.4-7v7H5z" fill="white"/>
+    </svg>
+  ),
+  cafe24: (
+    <svg viewBox="0 0 72 20" xmlns="http://www.w3.org/2000/svg" height="18">
+      <text x="0" y="16" fontFamily="Arial, sans-serif" fontWeight="800" fontSize="17" fill="#1155CC">cafe24</text>
+    </svg>
+  ),
+  musinsa: (
+    <svg viewBox="0 0 80 22" xmlns="http://www.w3.org/2000/svg" height="18">
+      <text x="0" y="17" fontFamily="Arial Black, Arial" fontWeight="900" fontSize="16" fill="#1A1A1A">무신사</text>
+    </svg>
+  ),
+  ably: (
+    <svg viewBox="0 0 70 22" xmlns="http://www.w3.org/2000/svg" height="18">
+      <text x="0" y="17" fontFamily="Arial, sans-serif" fontWeight="800" fontSize="16" fill="#FF6B9D">에이블리</text>
+    </svg>
+  ),
+  zigzag: (
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" height="22" width="22">
+      <rect width="24" height="24" rx="4" fill="#FF5A5A"/>
+      <path d="M6 7h12l-5 5 5 5H6l5-5-5-5z" fill="white"/>
+    </svg>
+  ),
+};
+
 const CHANNELS = [
-  { id: 'coupang', label: '쿠팡',              color: '#E50029' },
-  { id: 'naver',   label: '네이버 스마트스토어', color: '#03C75A' },
-  { id: 'cafe24',  label: '카페24',             color: '#2563EB' },
-  { id: 'musinsa', label: '무신사',             color: '#222222' },
-  { id: 'ably',    label: '에이블리',            color: '#FF6B9D' },
-  { id: 'zigzag',  label: '지그재그',            color: '#FF5A5A' },
+  { id: 'coupang', label: '쿠팡' },
+  { id: 'naver',   label: '네이버 스마트스토어' },
+  { id: 'cafe24',  label: '카페24' },
+  { id: 'musinsa', label: '무신사' },
+  { id: 'ably',    label: '에이블리' },
+  { id: 'zigzag',  label: '지그재그' },
 ];
 
 const PAINS = [
@@ -32,6 +68,21 @@ const DEMO_MESSAGES = [
   { role: 'assistant', text: '오늘 쿠팡 12건, 네이버 8건, 카페24 3건 — 총 23건입니다. 엑셀로 뽑아드릴까요?' },
   { role: 'user',      text: '블랙 L 사이즈 품절 처리해줘' },
   { role: 'assistant', text: '⚠️ 방화벽 — 3개 채널 × 1개 상품 재고 수정입니다. 최종 승인하시겠어요?' },
+];
+
+const SUPPORTERS = [
+  {
+    name: '서울대학교 공과대학',
+    nameEn: 'SNU College of Engineering',
+    color: '#003876',
+    initial: 'SNU',
+  },
+  {
+    name: '아산나눔재단',
+    nameEn: 'Asan Nanum Foundation',
+    color: '#005BAC',
+    initial: 'AN',
+  },
 ];
 
 export default function LandingPage({ onStart }) {
@@ -64,14 +115,14 @@ export default function LandingPage({ onStart }) {
         <p className={styles.heroSub}>신용카드 불필요 · 14일 무료 체험</p>
       </section>
 
-      {/* ── 채널 배지 ── */}
+      {/* ── 채널 로고 ── */}
       <section className={styles.channels}>
         <p className={styles.channelsLabel}>연동 채널</p>
         <div className={styles.channelList}>
           {CHANNELS.map((ch) => (
             <div key={ch.id} className={styles.channelBadge}>
-              <span className={styles.channelDot} style={{ background: ch.color }} />
-              {ch.label}
+              {ChannelLogos[ch.id]}
+              <span className={styles.channelLabel}>{ch.label}</span>
             </div>
           ))}
         </div>
@@ -118,6 +169,24 @@ export default function LandingPage({ onStart }) {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── 지원기관 ── */}
+      <section className={styles.supportSection}>
+        <p className={styles.supportLabel}>지원기관</p>
+        <div className={styles.supportList}>
+          {SUPPORTERS.map((s) => (
+            <div key={s.name} className={styles.supportCard}>
+              <div className={styles.supportInitial} style={{ background: s.color }}>
+                {s.initial}
+              </div>
+              <div>
+                <div className={styles.supportName}>{s.name}</div>
+                <div className={styles.supportNameEn}>{s.nameEn}</div>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
