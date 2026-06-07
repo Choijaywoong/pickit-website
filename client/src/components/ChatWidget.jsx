@@ -2,7 +2,16 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import * as XLSX from 'xlsx';
 import ReactMarkdown from 'react-markdown';
 import styles from './ChatWidget.module.css';
-import SettingsModal from './SettingsModal';
+import SettingsModal      from './SettingsModal';
+import FirewallToast      from './FirewallToast';
+import ResultPanel        from './ResultPanel';
+import ExcelBar           from './ExcelBar';
+import FileCard           from './FileCard';
+import ConnectionBanner   from './ConnectionBanner';
+import PredictionAlert    from './PredictionAlert';
+import { showToast }      from './Toast';
+import { authFetch }      from '../auth';
+import { supabase }       from '../supabase';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
@@ -53,6 +62,10 @@ export default function ChatWidget() {
   const [pendingAction, setPendingAction] = useState(null);
   const [sidebarOpen, setSidebarOpen]     = useState(true);
   const [showSettings, setShowSettings]   = useState(false);
+  const [panelData, setPanelData]         = useState(null);  // ResultPanel 데이터
+  const [panelOpen, setPanelOpen]         = useState(false); // ResultPanel 열림 여부
+  const [connErrors, setConnErrors]       = useState([]);    // 연동 끊김 에러 목록
+  const [predictions, setPredictions]     = useState([]);    // 발주 예측 알림
 
   const bottomRef  = useRef(null);
   const textareaRef = useRef(null);
@@ -67,6 +80,58 @@ export default function ChatWidget() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // ConnectionStatus "다시 연결하기" → SettingsModal 특정 탭으로 열기
+  useEffect(() => {
+    function handleOpenSettings(e) {
+      setShowSettings(true);
+      // SettingsModal에 초기 탭 전달 (CustomEvent detail.tab)
+      if (e.detail?.tab) {
+        window.__pickit_settings_tab = e.detail.tab;
+      }
+    }
+    window.addEventListener('pickit-open-settings', handleOpenSettings);
+    return () => window.removeEventListener('pickit-open-settings', handleOpenSettings);
+  }, []);
+
+  // 데모 패널에서 보내는 mock 메시지 수신
+  useEffect(() => {
+    function handleDemo(e) {
+      const { userMsg, responses, orders, filename } = e.detail;
+      if (userMsg) setMessages((prev) => [...prev, { role: 'user', content: userMsg }]);
+      responses.forEach((resp) => {
+        setMessages((prev) => [...prev, resp]);
+        if (resp.isDangerous) {
+          setPendingAction({
+            toolInput:    {},
+            channels:     resp.channels     || '전체',
+            productCount: resp.productCount || '—',
+            changeDesc:   resp.changeDesc   || '—',
+            firewallType: resp.firewallType || '방화벽',
+          });
+        }
+      });
+      // 주문/엑셀 더미 데이터 → 마지막 assistant 메시지에 fileData 주입
+      if (orders && orders.length && filename) {
+        const mode = filename.includes('리포트') || filename.includes('엑셀') ? 'excel' : 'orders';
+        const panelInfo = { orders, filename, mode };
+        setPanelData(panelInfo);
+        // 가장 마지막 assistant 메시지에 fileData를 붙임
+        setMessages((prev) => {
+          const copy = [...prev];
+          for (let i = copy.length - 1; i >= 0; i--) {
+            if (copy[i].role === 'assistant') {
+              copy[i] = { ...copy[i], fileData: { orders, filename, count: orders.length, mode } };
+              break;
+            }
+          }
+          return copy;
+        });
+      }
+    }
+    window.addEventListener('pickit-demo', handleDemo);
+    return () => window.removeEventListener('pickit-demo', handleDemo);
+  }, []);
 
   // textarea 높이 자동 조절
   useEffect(() => {
@@ -83,6 +148,8 @@ export default function ChatWidget() {
   function newConversation() {
     setMessages([]);
     setPendingAction(null);
+    setPanelData(null);
+    setPanelOpen(false);
     setTimeout(() => textareaRef.current?.focus(), 50);
   }
 
@@ -108,7 +175,7 @@ export default function ChatWidget() {
     setLoading(true);
 
     try {
-      const res  = await fetch(`${API_BASE}/chat`, {
+      const res  = await authFetch(`${API_BASE}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: msg, activeChannels, history }),
@@ -127,24 +194,48 @@ export default function ChatWidget() {
 
       // 방화벽 보류
       if (data.held) {
-        setPendingAction(data);
-        addMsg({ role: 'assistant', content: data.reason, isDangerous: true, pendingData: data });
+        setPendingAction({
+          ...data,
+          channels:     data.channels     || '—',
+          productCount: data.productCount || '—',
+          changeDesc:   data.changeDesc   || '—',
+          firewallType: data.firewallType || '방화벽',
+        });
+        addMsg({ role: 'assistant', content: data.reason, isDangerous: true });
         return;
       }
 
-      // FR-005: 엑셀 → 자동 다운로드
+      // FR-005: 엑셀 추출 → 메시지에 fileData 포함
       if (data.excelData) {
-        downloadExcel(data.excelData, data.filename);
-        addMsg({ role: 'assistant', content: data.reply, excelFilename: data.filename });
+        const orders   = data.excelData.orders || [];
+        const filename = data.filename || 'pickit_주문내역.xlsx';
+        const panelInfo = { orders, filename, mode: 'excel' };
+        setPanelData(panelInfo);
+        addMsg({ role: 'assistant', content: data.reply || '엑셀 파일이 준비되었습니다.',
+          fileData: { orders, filename, count: orders.length, mode: 'excel' } });
+      } else if (data.orders?.length) {
+        // 주문 조회 응답 → 메시지에 fileData 포함
+        const now      = new Date();
+        const filename = `${now.getFullYear()}_${String(now.getMonth()+1).padStart(2,'0')}_전체채널_주문.xlsx`;
+        const panelInfo = { orders: data.orders, filename, mode: 'orders' };
+        setPanelData(panelInfo);
+        addMsg({ role: 'assistant', content: data.reply || '처리가 완료되었습니다.',
+          fileData: { orders: data.orders, filename, count: data.orders.length, mode: 'orders' } });
       } else {
         addMsg({ role: 'assistant', content: data.reply || '처리가 완료되었습니다.' });
       }
 
-      // FR-008: 연동 끊김
+      // FR-008: 연동 끊김 → ConnectionBanner 갱신
       if (data.connectionErrors?.length) {
+        setConnErrors(data.connectionErrors);
         data.connectionErrors.forEach((e) =>
           addMsg({ role: 'assistant', content: e.message, isConnectionError: true, link: e.link })
         );
+      }
+
+      // 발주 예측 알림
+      if (data.predictions?.length) {
+        setPredictions(data.predictions);
       }
     } catch {
       addMsg({ role: 'assistant', content: '서버에 연결하지 못했습니다. 서버가 실행 중인지 확인해 주세요.', isError: true });
@@ -157,19 +248,23 @@ export default function ChatWidget() {
     if (!pendingAction) return;
     setLoading(true);
     try {
-      const res  = await fetch(`${API_BASE}/tool/execute`, {
+      const res  = await authFetch(`${API_BASE}/tool/execute`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...pendingAction.toolInput, _confirmed: true }),
       });
       const data = await res.json();
-      addMsg({
-        role: 'assistant',
-        content: data.error ? `처리 실패: ${data.message}` : '✅ 승인 완료. 처리되었습니다.',
-      });
+      if (data.error) {
+        addMsg({ role: 'assistant', content: `처리 실패: ${data.message}` });
+        showToast('처리 중 오류가 발생했습니다.', 'error');
+      } else {
+        addMsg({ role: 'assistant', content: '처리가 완료되었습니다.' });
+        showToast('승인 완료 — 처리되었습니다.', 'success');
+      }
       setPendingAction(null);
     } catch {
       addMsg({ role: 'assistant', content: '처리 중 오류가 발생했습니다.' });
+      showToast('서버 오류가 발생했습니다.', 'error');
     } finally {
       setLoading(false);
     }
@@ -178,6 +273,7 @@ export default function ChatWidget() {
   function cancelAction() {
     setPendingAction(null);
     addMsg({ role: 'assistant', content: '취소되었습니다.' });
+    showToast('작업이 취소되었습니다.', 'info');
   }
 
   // 채널 블록 토글: 연결된 채널만 켜고 끌 수 있다
@@ -191,7 +287,7 @@ export default function ChatWidget() {
   const isEmpty = messages.length === 0;
 
   return (
-    <div className={styles.layout}>
+    <div className={`${styles.layout} ${panelOpen ? styles.layoutWithPanel : ''}`}>
 
       {/* ── 사이드바 ── */}
       <aside className={`${styles.sidebar} ${sidebarOpen ? '' : styles.sidebarClosed}`}>
@@ -265,7 +361,7 @@ export default function ChatWidget() {
           </div>
         </div>
 
-        {/* 사이드바 하단: 설정 버튼 */}
+        {/* 사이드바 하단: 설정 버튼 + 채널 변경 */}
         <div className={styles.sidebarFooter}>
           <button className={styles.settingsBtn} onClick={() => setShowSettings(true)}>
             <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
@@ -273,6 +369,35 @@ export default function ChatWidget() {
               <path fillRule="evenodd" clipRule="evenodd" d="M6.02 1.5a.5.5 0 00-.49.4l-.23 1.13A5.5 5.5 0 003.7 3.96l-1.1-.4a.5.5 0 00-.6.23l-1.5 2.6a.5.5 0 00.12.64l.9.72a5.5 5.5 0 000 1.5l-.9.72a.5.5 0 00-.12.64l1.5 2.6a.5.5 0 00.6.23l1.1-.4a5.5 5.5 0 001.6.93l.22 1.13a.5.5 0 00.49.4h3a.5.5 0 00.49-.4l.23-1.13a5.5 5.5 0 001.6-.93l1.1.4a.5.5 0 00.6-.23l1.5-2.6a.5.5 0 00-.12-.64l-.9-.72a5.5 5.5 0 000-1.5l.9-.72a.5.5 0 00.12-.64l-1.5-2.6a.5.5 0 00-.6-.23l-1.1.4a5.5 5.5 0 00-1.6-.93L9.48 1.9a.5.5 0 00-.49-.4h-3zm.98 1h1l.2 1.02.5.22a4.5 4.5 0 011.3.76l.44.35.98-.36.5.87-.8.64.07.54a4.5 4.5 0 010 1.2l-.07.54.8.64-.5.87-.98-.36-.44.35a4.5 4.5 0 01-1.3.76l-.5.22-.2 1.02h-1l-.2-1.02-.5-.22a4.5 4.5 0 01-1.3-.76l-.44-.35-.98.36-.5-.87.8-.64-.07-.54a4.5 4.5 0 010-1.2l.07-.54-.8-.64.5-.87.98.36.44-.35a4.5 4.5 0 011.3-.76l.5-.22.2-1.02z" fill="currentColor"/>
             </svg>
             채널 연결 설정
+          </button>
+          {supabase && (
+            <button
+              className={styles.logoutBtn}
+              onClick={async () => {
+                await supabase.auth.signOut();
+                localStorage.removeItem('pickit_onboarding');
+              }}
+              title="로그아웃"
+            >
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                <path d="M5 2H2a1 1 0 00-1 1v7a1 1 0 001 1h3M9 9l3-3-3-3M12 6.5H5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              로그아웃
+            </button>
+          )}
+          <button
+            className={styles.reOnboardBtn}
+            onClick={() => {
+              localStorage.removeItem('pickit_onboarding');
+              window.dispatchEvent(new CustomEvent('pickit-restart-onboarding'));
+            }}
+            title="채널 구성을 다시 설정합니다"
+          >
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path d="M1 6.5a5.5 5.5 0 015.5-5.5 5.5 5.5 0 014.4 2.2M12 6.5a5.5 5.5 0 01-5.5 5.5 5.5 5.5 0 01-4.4-2.2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+              <path d="M10 2l1.2 1.7L13 2.3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            채널 변경
           </button>
         </div>
       </aside>
@@ -295,6 +420,9 @@ export default function ChatWidget() {
           <span className={styles.topbarTitle}>PICKIT Assistant</span>
         </header>
 
+        {/* 연동 끊김 배너 */}
+        <ConnectionBanner errors={connErrors} />
+
         {/* 메시지 영역 */}
         <div className={styles.messagesArea}>
           {isEmpty ? (
@@ -316,17 +444,21 @@ export default function ChatWidget() {
           ) : (
             /* 메시지 목록 */
             <div className={styles.msgList}>
+              {/* 발주 예측 알림 (hasInventory = true 셀러만) */}
+              {predictions.length > 0 && (
+                <PredictionAlert
+                  predictions={predictions}
+                  onClickItem={(name) => setInput(`${name} 재고 조회해줘`)}
+                />
+              )}
+
               {messages.map((msg, i) => (
                 <div key={i} className={`${styles.msgRow} ${styles[msg.role]}`}>
 
-                  {/* AI 아바타 */}
-                  {msg.role === 'assistant' && (
-                    <div className={styles.avatar}>P</div>
-                  )}
-
-                  {/* 말풍선 */}
+                  {/* 말풍선 / 텍스트 영역 */}
                   <div className={`
                     ${styles.bubble}
+                    ${msg.role === 'user'   ? styles.bubbleUser       : styles.bubbleAssistant}
                     ${msg.isDangerous       ? styles.bubbleDanger     : ''}
                     ${msg.isConnectionError ? styles.bubbleConnection : ''}
                     ${msg.isError           ? styles.bubbleError      : ''}
@@ -339,11 +471,21 @@ export default function ChatWidget() {
                       <p className={styles.bubbleText}>{msg.content}</p>
                     )}
 
-                    {/* 엑셀 다운로드 완료 뱃지 */}
-                    {msg.excelFilename && (
-                      <div className={styles.excelBadge}>
-                        <span>📥</span> {msg.excelFilename} 저장 완료
-                      </div>
+                    {/* 파일 카드 — 주문/엑셀 응답 시 메시지마다 독립적으로 표시 */}
+                    {msg.fileData && (
+                      <FileCard
+                        filename={msg.fileData.filename}
+                        count={msg.fileData.count}
+                        orders={msg.fileData.orders}
+                        onExpand={() => {
+                          setPanelData({
+                            orders:   msg.fileData.orders,
+                            filename: msg.fileData.filename,
+                            mode:     msg.fileData.mode,
+                          });
+                          setPanelOpen(true);
+                        }}
+                      />
                     )}
 
                     {/* 연동 끊김 링크 */}
@@ -352,25 +494,6 @@ export default function ChatWidget() {
                         연동 설정 페이지 바로가기 →
                       </a>
                     )}
-
-                    {/* 파트너센터 우회 링크 */}
-                    {msg.pendingData?.link && !msg.isConnectionError && (
-                      <a href={msg.pendingData.link} target="_blank" rel="noreferrer" className={styles.linkBtn}>
-                        파트너센터 바로가기 →
-                      </a>
-                    )}
-
-                    {/* 방화벽 승인 버튼 */}
-                    {msg.isDangerous && !msg.pendingData?.link && (
-                      <div className={styles.approvalRow}>
-                        <button className={styles.btnApprove} onClick={confirmAction}>
-                          최종 승인하기
-                        </button>
-                        <button className={styles.btnCancel} onClick={cancelAction}>
-                          취소
-                        </button>
-                      </div>
-                    )}
                   </div>
                 </div>
               ))}
@@ -378,11 +501,8 @@ export default function ChatWidget() {
               {/* 로딩 중 타이핑 애니메이션 */}
               {loading && (
                 <div className={`${styles.msgRow} ${styles.assistant}`}>
-                  <div className={styles.avatar}>P</div>
-                  <div className={styles.bubble}>
-                    <div className={styles.typingDots}>
-                      <span /><span /><span />
-                    </div>
+                  <div className={styles.typingDots}>
+                    <span /><span /><span />
                   </div>
                 </div>
               )}
@@ -394,14 +514,21 @@ export default function ChatWidget() {
 
         {/* 입력 영역 */}
         <div className={styles.inputWrap}>
-          <div className={styles.inputBox}>
+          {/* FirewallToast — 입력창 위 절대 위치 (pendingAction 있을 때만) */}
+          <FirewallToast
+            data={pendingAction}
+            onApprove={confirmAction}
+            onCancel={cancelAction}
+          />
+
+          <div className={`${styles.inputBox} ${pendingAction ? styles.inputBoxLocked : ''}`}>
             <textarea
               ref={textareaRef}
               className={styles.textarea}
               value={input}
               rows={1}
-              disabled={loading}
-              placeholder="주문 조회, 재고 수정, 송장 전송... 무엇이든 말씀하세요"
+              disabled={loading || !!pendingAction}
+              placeholder={pendingAction ? '승인 또는 취소 후 입력 가능합니다' : '주문 조회, 재고 수정, 송장 전송... 무엇이든 말씀하세요'}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -413,7 +540,7 @@ export default function ChatWidget() {
             <button
               className={styles.sendBtn}
               onClick={() => sendMessage()}
-              disabled={loading || !input.trim()}
+              disabled={loading || !input.trim() || !!pendingAction}
               title="전송 (Enter)"
             >
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -424,6 +551,14 @@ export default function ChatWidget() {
           <p className={styles.inputHint}>Enter로 전송 &middot; Shift+Enter로 줄바꿈</p>
         </div>
       </main>
+
+      {/* ResultPanel — 우측 슬라이드 패널 (main 오른쪽) */}
+      <ResultPanel
+        open={panelOpen}
+        onClose={() => setPanelOpen(false)}
+        data={panelData}
+        connectedChannels={connectedChannels}
+      />
     </div>
   );
 }

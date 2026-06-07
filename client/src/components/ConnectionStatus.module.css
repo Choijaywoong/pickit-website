@@ -1,0 +1,233 @@
+/* ConnectionStatus — 온보딩 완료 직후 채널 연동 상태 화면 */
+
+.container {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 24px 40px;
+  overflow-y: auto;
+  z-index: 9000;
+  max-width: 700px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* 헤더 */
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logoMark {
+  width: 28px;
+  height: 28px;
+  background: #2563EB;
+  color: #fff;
+  font-weight: 800;
+  font-size: 15px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoText {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #111827;
+}
+
+.summary {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.refreshBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 9px;
+  font-size: 13px;
+  color: #374151;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.13s;
+  flex-shrink: 0;
+}
+
+.refreshBtn:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.refreshBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 카드 그리드 */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+/* 카드 기본 */
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.cardError {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.cardWarning {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+/* 카드 상단 행 */
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cardLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.chName {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 상태 뱃지 */
+.badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+
+.badge_ok {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.badge_error {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.badge_warning {
+  background: #fef9c3;
+  color: #b45309;
+}
+
+/* 카드 하단 (에러/경고) */
+.cardBottom {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cardMsg {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.reconnectBtn {
+  width: 100%;
+  padding: 8px 0;
+  background: #fff;
+  border: 1.5px solid #ef4444;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.13s;
+}
+
+.reconnectBtn:hover {
+  background: #fef2f2;
+}
+
+/* CTA 버튼 */
+.startBtn {
+  width: 100%;
+  padding: 15px 0;
+  background: #2563EB;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.startBtn:hover {
+  background: #1d4ed8;
+}
+
+/* 모바일 */
+@media (max-width: 480px) {
+  .container {
+    padding: 24px 16px 32px;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

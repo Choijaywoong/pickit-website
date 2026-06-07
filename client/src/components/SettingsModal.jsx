@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import styles from './SettingsModal.module.css';
+import { authFetch } from '../auth';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
@@ -70,7 +71,10 @@ const CHANNEL_CONFIG = [
 ];
 
 export default function SettingsModal({ onClose }) {
-  const [activeTab, setActiveTab]   = useState('coupang');
+  // ConnectionStatus "다시 연결하기"에서 특정 탭을 지정해서 열 수 있음
+  const initialTab = window.__pickit_settings_tab || 'coupang';
+  if (window.__pickit_settings_tab) delete window.__pickit_settings_tab;
+  const [activeTab, setActiveTab]   = useState(initialTab);
   const [formValues, setFormValues] = useState({});
   const [savedKeys, setSavedKeys]   = useState({});
   const [saving, setSaving]         = useState(false);
@@ -78,7 +82,7 @@ export default function SettingsModal({ onClose }) {
 
   // 열릴 때 서버에서 키 설정 여부 로드
   useEffect(() => {
-    fetch(`${API_BASE}/settings/credentials`)
+    authFetch(`${API_BASE}/settings/credentials`)
       .then((r) => r.json())
       .then(setSavedKeys)
       .catch(() => {});
@@ -106,7 +110,7 @@ export default function SettingsModal({ onClose }) {
     setSaving(true);
     setSaveMsg('');
     try {
-      const res  = await fetch(`${API_BASE}/settings/credentials`, {
+      const res  = await authFetch(`${API_BASE}/settings/credentials`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(toSave),

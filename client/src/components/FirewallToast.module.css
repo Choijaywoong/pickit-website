@@ -1,0 +1,125 @@
+/* FirewallToast — 입력창 바로 위, 일반 흐름에서 표시 */
+
+.overlay {
+  position: relative;
+  width: 100%;
+  max-width: 700px;
+  margin-bottom: 8px;
+  z-index: 10;
+  background: #fff;
+  border: 1.5px solid #ef4444;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+/* 헤더 */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 16px 12px;
+  background: #fef2f2;
+  border-bottom: 1px solid #fecaca;
+}
+
+.shield {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.headerText {
+  font-size: 14px;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+/* 정보 3열 */
+.infoRow {
+  display: flex;
+  align-items: stretch;
+  padding: 14px 16px;
+  gap: 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.infoCell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.divider {
+  width: 1px;
+  background: #e5e7eb;
+  margin: 0 14px;
+  flex-shrink: 0;
+}
+
+.infoLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.infoValue {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.infoDanger {
+  color: #dc2626;
+}
+
+/* 버튼 행 */
+.btnRow {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+}
+
+.btnCancel {
+  flex: 1;
+  padding: 10px 0;
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.13s;
+}
+
+.btnCancel:hover {
+  background: #e5e7eb;
+}
+
+.btnApprove {
+  flex: 2;
+  padding: 10px 0;
+  background: #fff;
+  color: #dc2626;
+  border: 1.5px solid #ef4444;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.13s, color 0.13s;
+}
+
+.btnApprove:hover {
+  background: #fef2f2;
+}

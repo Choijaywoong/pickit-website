@@ -4,11 +4,15 @@ const { handleToolCall }              = require('../core/toolHandler');
 const { chat }                        = require('../core/llm');
 const { predictDepletion, getDailySalesRate } = require('../db/salesLog');
 const { syncStock }                   = require('../core/stockSync');
+const authMiddleware                  = require('../core/authMiddleware');
 
-// 헬스체크
+// 헬스체크 — 인증 불필요
 router.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'PICKIT' });
 });
+
+// 채팅·Tool·예측·재고동기화는 인증 필요
+router.use(['/chat', '/tool/execute', '/predict', '/sync-stock', '/sales-log'], authMiddleware);
 
 // 채팅 메시지 처리 (프론트 ChatWidget → 여기로 POST)
 router.post('/chat', async (req, res) => {

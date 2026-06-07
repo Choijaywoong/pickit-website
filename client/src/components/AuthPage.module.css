@@ -1,0 +1,228 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #EFF6FF 0%, #F8FAFC 60%, #F0F4FF 100%);
+  padding: 24px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 8px 40px rgba(37, 99, 235, 0.12), 0 2px 8px rgba(0,0,0,0.06);
+  padding: 40px 40px 36px;
+  width: 100%;
+  max-width: 420px;
+}
+
+/* 로고 */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.logoMark {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #2563EB, #60A5FA);
+  color: #fff;
+  font-size: 24px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: -1px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.32);
+}
+
+.logoName {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: 1.5px;
+}
+
+.logoSub {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+/* 탭 */
+.tabs {
+  display: flex;
+  background: #F1F5F9;
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 28px;
+}
+
+.tab {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: background 0.16s, color 0.16s, box-shadow 0.16s;
+}
+
+.tabActive {
+  background: #ffffff;
+  color: #1e293b;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+/* 폼 */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  margin-top: 10px;
+}
+
+.label:first-child {
+  margin-top: 0;
+}
+
+.input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #1e293b;
+  background: #F8FAFC;
+  outline: none;
+  transition: border-color 0.16s, box-shadow 0.16s, background 0.16s;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px #DBEAFE;
+  background: #ffffff;
+}
+
+.input::placeholder {
+  color: #CBD5E1;
+}
+
+.error {
+  margin: 4px 0 0;
+  padding: 10px 14px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #DC2626;
+  font-weight: 500;
+}
+
+.submitBtn {
+  margin-top: 18px;
+  width: 100%;
+  padding: 13px;
+  background: #2563EB;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.32);
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: #1D4ED8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.36);
+}
+
+.submitBtn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submitBtn:disabled {
+  background: #93C5FD;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* 전환 텍스트 */
+.switchHint {
+  margin: 20px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.switchLink {
+  background: none;
+  border: none;
+  color: #2563EB;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* 이메일 확인 완료 화면 */
+.checkIcon {
+  font-size: 48px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.doneTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  text-align: center;
+  margin: 0 0 12px;
+}
+
+.doneDesc {
+  font-size: 14px;
+  color: #64748b;
+  text-align: center;
+  line-height: 1.7;
+  margin: 0 0 28px;
+}
+
+.backBtn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: #F1F5F9;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.backBtn:hover {
+  background: #E2E8F0;
+}
