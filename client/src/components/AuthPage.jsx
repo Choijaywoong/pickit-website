@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { supabase } from '../supabase';
 import styles from './AuthPage.module.css';
+import { useLanguage } from '../i18n';
 
 export default function AuthPage({ onSuccess }) {
+  const { lang, setLang, t } = useLanguage();
   const [tab,      setTab]      = useState('login');
   const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
@@ -19,8 +21,7 @@ export default function AuthPage({ onSuccess }) {
       provider: 'google',
       options: { redirectTo: window.location.origin },
     });
-    if (error) { setError('Google 로그인에 실패했습니다.'); setSocialLoading(''); }
-    // 성공 시 Supabase가 Google로 리다이렉트 → 돌아오면 App.jsx onAuthStateChange가 세션 처리
+    if (error) { setError(t('errGoogleFail')); setSocialLoading(''); }
   }
 
   // 카카오: UI만 구현, 사업자 등록 후 Supabase Provider 설정 시 활성화
@@ -31,7 +32,7 @@ export default function AuthPage({ onSuccess }) {
       provider: 'kakao',
       options: { redirectTo: window.location.origin },
     });
-    if (error) { setError('카카오 로그인 설정이 아직 준비 중입니다.'); setSocialLoading(''); }
+    if (error) { setError(t('errKakaoPreparing')); setSocialLoading(''); }
   }
 
   // ── 이메일 로그인 ───────────────────────────────────────────────
@@ -51,11 +52,11 @@ export default function AuthPage({ onSuccess }) {
       }
     } catch (err) {
       const msg = err.message || '';
-      if (msg.includes('Invalid login credentials')) setError('이메일 또는 비밀번호가 올바르지 않습니다.');
-      else if (msg.includes('User already registered')) setError('이미 가입된 이메일입니다. 로그인해 주세요.');
-      else if (msg.includes('Password should be at least')) setError('비밀번호는 최소 6자 이상이어야 합니다.');
-      else if (msg.includes('Unable to validate email')) setError('올바른 이메일 주소를 입력해 주세요.');
-      else setError(msg || '오류가 발생했습니다.');
+      if (msg.includes('Invalid login credentials')) setError(t('errInvalidCred'));
+      else if (msg.includes('User already registered')) setError(t('errAlreadyReg'));
+      else if (msg.includes('Password should be at least')) setError(t('errWeakPassword'));
+      else if (msg.includes('Unable to validate email')) setError(t('errInvalidEmail'));
+      else setError(msg || t('errGeneric'));
     } finally {
       setLoading(false);
     }
@@ -67,13 +68,12 @@ export default function AuthPage({ onSuccess }) {
       <div className={styles.page}>
         <div className={styles.card}>
           <div className={styles.checkIcon}>✉️</div>
-          <h2 className={styles.doneTitle}>이메일을 확인해 주세요</h2>
+          <h2 className={styles.doneTitle}>{t('doneTitle')}</h2>
           <p className={styles.doneDesc}>
-            <strong>{email}</strong>으로 인증 링크를 보냈습니다.<br />
-            링크를 클릭하면 자동으로 로그인됩니다.
+            <strong>{email}</strong>{t('doneDesc')}
           </p>
           <button className={styles.backBtn} onClick={() => { setDone(false); setTab('login'); }}>
-            로그인으로 돌아가기
+            {t('backToLogin')}
           </button>
         </div>
       </div>
@@ -84,12 +84,20 @@ export default function AuthPage({ onSuccess }) {
     <div className={styles.page}>
       <div className={styles.card}>
 
+        {/* 언어 토글 */}
+        <button
+          className={styles.langToggle}
+          onClick={() => setLang(lang === 'ko' ? 'en' : 'ko')}
+        >
+          {lang === 'ko' ? 'EN' : '한'}
+        </button>
+
         {/* 로고 */}
         <div className={styles.logo}>
           <div className={styles.logoMark}>P</div>
           <div>
             <div className={styles.logoName}>PICKIT</div>
-            <div className={styles.logoSub}>멀티채널 AI 운영 서비스</div>
+            <div className={styles.logoSub}>{t('authLogoSub')}</div>
           </div>
         </div>
 
@@ -112,7 +120,7 @@ export default function AuthPage({ onSuccess }) {
                 <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.3 4.1-4.2 5.4l6.2 5.2C37 38.3 44 33 44 24c0-1.3-.1-2.6-.4-3.9z"/>
               </svg>
             )}
-            Google로 계속하기
+            {t('googleBtn')}
           </button>
 
           {/* 카카오 */}
@@ -128,33 +136,33 @@ export default function AuthPage({ onSuccess }) {
                 <path d="M12 3C6.48 3 2 6.72 2 11.3c0 2.9 1.88 5.45 4.7 6.93l-.95 3.53c-.08.3.26.54.52.37L10.6 19.8c.45.06.9.1 1.4.1 5.52 0 10-3.72 10-8.3C22 6.72 17.52 3 12 3z"/>
               </svg>
             )}
-            카카오로 계속하기
-            <span className={styles.comingSoon}>준비 중</span>
+            {t('kakaoBtn')}
+            <span className={styles.comingSoon}>{t('comingSoon')}</span>
           </button>
         </div>
 
         {/* 구분선 */}
         <div className={styles.divider}>
-          <span>또는 이메일로 계속하기</span>
+          <span>{t('authDivider')}</span>
         </div>
 
         {/* 탭 */}
         <div className={styles.tabs}>
           <button className={`${styles.tab} ${tab === 'login'  ? styles.tabActive : ''}`}
-            onClick={() => { setTab('login');  setError(''); }}>로그인</button>
+            onClick={() => { setTab('login');  setError(''); }}>{t('tabLogin')}</button>
           <button className={`${styles.tab} ${tab === 'signup' ? styles.tabActive : ''}`}
-            onClick={() => { setTab('signup'); setError(''); }}>회원가입</button>
+            onClick={() => { setTab('signup'); setError(''); }}>{t('tabSignup')}</button>
         </div>
 
         {/* 이메일 폼 */}
         <form className={styles.form} onSubmit={handleSubmit}>
-          <label className={styles.label}>이메일</label>
+          <label className={styles.label}>{t('emailLabel')}</label>
           <input className={styles.input} type="email" placeholder="seller@example.com"
             value={email} onChange={(e) => setEmail(e.target.value)}
             required autoComplete="email" />
 
-          <label className={styles.label}>비밀번호</label>
-          <input className={styles.input} type="password" placeholder="6자 이상"
+          <label className={styles.label}>{t('passwordLabel')}</label>
+          <input className={styles.input} type="password" placeholder={t('passwordHint')}
             value={password} onChange={(e) => setPassword(e.target.value)}
             required autoComplete={tab === 'login' ? 'current-password' : 'new-password'} />
 
@@ -162,21 +170,21 @@ export default function AuthPage({ onSuccess }) {
 
           <button className={styles.submitBtn} type="submit" disabled={loading}>
             {loading
-              ? (tab === 'login' ? '로그인 중...' : '가입 중...')
-              : (tab === 'login' ? '이메일로 로그인' : '이메일로 회원가입')}
+              ? (tab === 'login' ? t('loggingIn') : t('signingUp'))
+              : (tab === 'login' ? t('loginBtn') : t('signupBtn'))}
           </button>
         </form>
 
         {tab === 'login' && (
           <p className={styles.switchHint}>
-            아직 계정이 없으신가요?{' '}
-            <button className={styles.switchLink} onClick={() => { setTab('signup'); setError(''); }}>회원가입</button>
+            {t('switchToSignup')}{' '}
+            <button className={styles.switchLink} onClick={() => { setTab('signup'); setError(''); }}>{t('tabSignup')}</button>
           </p>
         )}
         {tab === 'signup' && (
           <p className={styles.switchHint}>
-            이미 계정이 있으신가요?{' '}
-            <button className={styles.switchLink} onClick={() => { setTab('login'); setError(''); }}>로그인</button>
+            {t('switchToLogin')}{' '}
+            <button className={styles.switchLink} onClick={() => { setTab('login'); setError(''); }}>{t('tabLogin')}</button>
           </p>
         )}
       </div>

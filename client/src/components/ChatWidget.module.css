@@ -319,6 +319,30 @@
   color: #64748b;
 }
 
+/* 사이드바 언어 토글 */
+.sidebarLangToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 6px 10px;
+  margin-top: 4px;
+  background: transparent;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.sidebarLangToggle:hover {
+  border-color: #2563EB;
+  color: #2563EB;
+}
+
 .channelDot {
   width: 8px;
   height: 8px;
@@ -708,4 +732,99 @@
   font-size: 11px;
   color: #94a3b8;
   text-align: center;
+}
+
+/* ──────────────────── 모바일 반응형 ──────────────────── */
+@media (max-width: 768px) {
+  /* 사이드바: 드로어(overlay) 방식으로 전환 */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 300;
+    width: 280px;
+    transform: translateX(0);
+    transition: transform 0.25s ease;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
+  }
+
+  /* 닫힌 사이드바: width는 유지하되 transform으로 숨김 */
+  .sidebarClosed {
+    transform: translateX(-100%);
+    width: 280px;
+    opacity: 1;
+  }
+
+  /* 메인: 사이드바가 overlay이므로 전체 폭 사용 */
+  .main {
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* 메시지 패딩 축소 */
+  .messagesArea {
+    padding: 16px 16px;
+  }
+
+  /* 입력창 패딩 축소 */
+  .inputWrap {
+    padding: 10px 12px 14px;
+  }
+
+  .inputBox {
+    border-radius: 14px;
+    padding: 8px 8px 8px 14px;
+  }
+
+  /* 힌트 숨김 (공간 절약) */
+  .inputHint {
+    display: none;
+  }
+
+  /* 빈 화면 크기 조정 */
+  .emptyTitle {
+    font-size: 22px;
+  }
+
+  .emptyDesc {
+    font-size: 14px;
+  }
+
+  /* 퀵 액션 버튼: 전체 폭 */
+  .quickGrid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .quickBtn {
+    text-align: left;
+    border-radius: 12px;
+  }
+
+  /* 사용자 말풍선 최대 폭 조정 */
+  .bubbleUser {
+    max-width: 88%;
+  }
+}
+
+/* 사이드바 오버레이 배경 */
+.sidebarOverlay {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .sidebarOverlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 299;
+    animation: overlayIn 0.2s ease;
+  }
+
+  @keyframes overlayIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
 }

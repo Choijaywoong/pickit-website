@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { authFetch } from '../../auth';
 import styles from './StepApiKeys.module.css';
+import { useLanguage } from '../../i18n';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
-// 채널별 입력 필드 정의
 const CHANNEL_CONFIG = {
   coupang: {
     label: '쿠팡', color: '#E50029',
@@ -55,8 +55,9 @@ const CHANNEL_CONFIG = {
 };
 
 export default function StepApiKeys({ channels, onComplete }) {
-  const [idx,     setIdx]     = useState(0);       // 현재 채널 인덱스
-  const [values,  setValues]  = useState({});       // 입력값
+  const { t } = useLanguage();
+  const [idx,     setIdx]     = useState(0);
+  const [values,  setValues]  = useState({});
   const [saving,  setSaving]  = useState(false);
   const [error,   setError]   = useState('');
 
@@ -80,14 +81,13 @@ export default function StepApiKeys({ channels, onComplete }) {
   }
 
   async function handleSave() {
-    // 빈 필드 확인 (OAuth 채널은 Mall ID만 있으면 됨)
     const toSave = {};
     config.fields.forEach(({ key }) => {
       if (values[key]?.trim()) toSave[key] = values[key].trim();
     });
 
     if (Object.keys(toSave).length === 0) {
-      setError('최소 하나의 필드를 입력해 주세요.');
+      setError(t('ob3SkipHint'));
       return;
     }
 
@@ -128,7 +128,7 @@ export default function StepApiKeys({ channels, onComplete }) {
 
       {/* 진행 상태 */}
       <div className={styles.progressWrap}>
-        <span className={styles.progressText}>API 연결 {idx + 1} / {total}</span>
+        <span className={styles.progressText}>{t('ob3ProgressText', idx + 1, total)}</span>
         <div className={styles.progressBar}>
           {channels.map((_, i) => (
             <div
@@ -178,16 +178,14 @@ export default function StepApiKeys({ channels, onComplete }) {
       {/* 액션 버튼 */}
       <div className={styles.actions}>
         <button className={styles.skipBtn} onClick={goNext} disabled={saving}>
-          나중에 설정
+          {t('ob3SkipBtn')}
         </button>
         <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
-          {saving ? '저장 중...' : idx + 1 >= total ? '완료' : '저장 후 다음 →'}
+          {saving ? t('ob3Saving') : idx + 1 >= total ? t('ob3DoneBtn') : t('ob3SaveBtn')}
         </button>
       </div>
 
-      <p className={styles.skipHint}>
-        '나중에 설정'을 누르면 채팅 화면 → 설정에서 언제든 입력할 수 있습니다.
-      </p>
+      <p className={styles.skipHint}>{t('ob3SkipHint')}</p>
     </div>
   );
 }

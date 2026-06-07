@@ -46,6 +46,30 @@
   letter-spacing: 1.5px;
 }
 
+.navRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.langToggle {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.langToggle:hover {
+  border-color: #2563EB;
+  color: #2563EB;
+}
+
 .navCta {
   padding: 9px 20px;
   background: #2563EB;
@@ -495,7 +519,55 @@
   color: #94a3b8;
 }
 
-@media (max-width: 640px) {
+/* ────────────────── 모바일 반응형 ────────────────── */
+@media (max-width: 768px) {
+  /* 네비 */
   .nav { padding: 14px 20px; }
+
+  /* 히어로 */
+  .hero { padding: 64px 20px 52px; }
+
+  .heroDesc { font-size: 16px; }
+
+  .heroBtn { padding: 14px 28px; font-size: 15px; }
+
+  /* 공통 섹션 */
+  .section { padding: 56px 20px; }
+
+  /* 채널 배지 */
+  .channels { padding: 32px 16px; gap: 12px; }
+
+  .channelBadge { padding: 8px 14px; font-size: 12px; }
+
+  /* 지원기관: 세로 정렬 */
+  .supportSection { padding: 48px 20px; }
+
+  .supportList { flex-direction: column; align-items: stretch; max-width: 360px; }
+
+  .supportCard { justify-content: flex-start; }
+
+  /* 최종 CTA */
+  .ctaSection { padding: 64px 20px; }
+
+  .ctaBtn { padding: 14px 32px; font-size: 15px; }
+
+  /* 푸터 */
   .footer { padding: 20px 24px; flex-direction: column; gap: 8px; text-align: center; }
+}
+
+@media (max-width: 480px) {
+  /* 히어로 타이틀: clamp가 처리하지만 폭 좁을 때 추가 조정 */
+  .heroTitle { letter-spacing: -0.8px; }
+
+  /* 채널 뱃지 줄 단위로 쌓기 */
+  .channelList { gap: 8px; }
+
+  /* 페인 카드: 모바일에서 1열 */
+  .painGrid { grid-template-columns: 1fr; }
+
+  /* 섹션 타이틀 */
+  .sectionTitle { margin-bottom: 32px; }
+
+  /* CTA 제목 */
+  .ctaTitle { letter-spacing: -0.4px; }
 }

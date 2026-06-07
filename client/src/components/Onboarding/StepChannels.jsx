@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import styles from './StepChannels.module.css';
+import { useLanguage } from '../../i18n';
 
 const CHANNELS = [
   { id: 'coupang', label: '쿠팡',              tier: 'core' },
@@ -20,6 +21,7 @@ const CHANNEL_COLOR = {
 };
 
 export default function StepChannels({ onNext }) {
+  const { t } = useLanguage();
   const [selected, setSelected]       = useState([]);
   const [ablyWarning, setAblyWarning] = useState(false);
 
@@ -34,6 +36,12 @@ export default function StepChannels({ onNext }) {
 
   const canStart = selected.length >= 2;
 
+  const countHint = selected.length === 0
+    ? t('ob2Count0')
+    : selected.length === 1
+    ? t('ob2Count1')
+    : t('ob2CountN', selected.length);
+
   return (
     <div className={styles.container}>
 
@@ -44,10 +52,10 @@ export default function StepChannels({ onNext }) {
       </div>
 
       {/* 진행 표시 */}
-      <p className={styles.progress}>2 / 2 단계</p>
+      <p className={styles.progress}>{t('ob2Progress')}</p>
 
-      <h1 className={styles.question}>운영 중인 채널을 선택해 주세요</h1>
-      <p className={styles.desc}>2개 이상 선택 · 나중에 설정에서 언제든 변경 가능합니다.</p>
+      <h1 className={styles.question}>{t('ob2Question')}</h1>
+      <p className={styles.desc}>{t('ob2Desc')}</p>
 
       {/* 채널 카드 그리드 */}
       <div className={styles.grid}>
@@ -66,20 +74,11 @@ export default function StepChannels({ onNext }) {
               onClick={() => toggle(ch.id)}
               style={isSelected && !isAbly ? { borderColor: CHANNEL_COLOR[ch.id] } : undefined}
             >
-              {/* 채널 컬러 점 */}
-              <span
-                className={styles.dot}
-                style={{ background: CHANNEL_COLOR[ch.id] }}
-              />
-
+              <span className={styles.dot} style={{ background: CHANNEL_COLOR[ch.id] }} />
               <span className={styles.chLabel}>{ch.label}</span>
-
-              {/* 티어 뱃지 */}
               {ch.tier === 'vertical' && (
-                <span className={styles.tierBadge}>조회·송장</span>
+                <span className={styles.tierBadge}>{t('ob2TierBadge')}</span>
               )}
-
-              {/* 선택 체크 */}
               {isSelected && <span className={styles.check}>✓</span>}
             </button>
           );
@@ -95,29 +94,21 @@ export default function StepChannels({ onNext }) {
               <line x1="12" y1="9" x2="12" y2="13"/>
               <line x1="12" y1="17" x2="12.01" y2="17"/>
             </svg>
-            에이블리는 '셀러스(Sellers)' 입점 타입만 연동 가능합니다
+            {t('ob2AblyWarn')}
           </div>
-          <p className={styles.ablyWarnBody}>
-            입점 타입을 먼저 확인해 주세요. 다른 타입은 연동되지 않습니다.
-          </p>
+          <p className={styles.ablyWarnBody}>{t('ob2AblyWarnBody')}</p>
         </div>
       )}
 
       {/* 선택 카운트 */}
-      <p className={styles.countHint}>
-        {selected.length === 0
-          ? '채널을 2개 이상 선택해 주세요'
-          : selected.length === 1
-          ? '1개 선택됨 — 1개 더 선택해야 시작할 수 있습니다'
-          : `${selected.length}개 선택됨`}
-      </p>
+      <p className={styles.countHint}>{countHint}</p>
 
       <button
         className={styles.startBtn}
         disabled={!canStart}
         onClick={() => onNext(selected)}
       >
-        다음 — API 연결하기 →
+        {t('ob2Next')}
       </button>
     </div>
   );

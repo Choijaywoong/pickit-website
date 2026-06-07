@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
 import { supabase }         from './supabase';
 import { setAuthToken }     from './auth';
+import { useLanguage }      from './i18n';
 import LandingPage           from './components/LandingPage';
 import AuthPage              from './components/AuthPage';
 import Onboarding            from './components/Onboarding/index';
 import ConnectionStatus      from './components/ConnectionStatus';
 import ChatWidget            from './components/ChatWidget';
 import DemoPanel             from './components/DemoPanel';
-import ToastContainer        from './components/Toast';
+import ToastContainer, { showToast } from './components/Toast';
 
 const ONBOARDING_KEY = 'pickit_onboarding';
 
 // 단계: 'auth' → 'onboarding' → 'connection' → 'chat'
 // Supabase 미설정 시 'auth' 단계를 건너뛰고 바로 'onboarding'부터 시작
 export default function App() {
+  const { t } = useLanguage();
   const [step,     setStep]     = useState('loading');
   const [channels, setChannels] = useState([]);
 
@@ -78,6 +80,18 @@ export default function App() {
     }
     window.addEventListener('pickit-restart-onboarding', handleRestart);
     return () => window.removeEventListener('pickit-restart-onboarding', handleRestart);
+  }, []);
+
+  // 401 세션 만료: authFetch가 감지 → 자동 로그아웃 + 토스트 안내
+  useEffect(() => {
+    async function handleSessionExpired() {
+      if (supabase) await supabase.auth.signOut();
+      setAuthToken(null);
+      setStep('auth');
+      showToast(t('sessionExpired'), 'error', 5000);
+    }
+    window.addEventListener('pickit-session-expired', handleSessionExpired);
+    return () => window.removeEventListener('pickit-session-expired', handleSessionExpired);
   }, []);
 
   function handleAuthSuccess(session) {

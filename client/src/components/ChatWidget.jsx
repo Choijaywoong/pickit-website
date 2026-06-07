@@ -12,15 +12,11 @@ import PredictionAlert    from './PredictionAlert';
 import { showToast }      from './Toast';
 import { authFetch }      from '../auth';
 import { supabase }       from '../supabase';
+import { useLanguage }    from '../i18n';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
-const QUICK_ACTIONS = [
-  '오늘 쿠팡 주문 보여줘',
-  '오늘 전체 채널 주문 조회해줘',
-  '이번 달 주문 엑셀로 뽑아줘',
-  '블랙 L 재고 품절 처리해줘',
-];
+// QUICK_ACTIONS는 useLanguage()를 통해 컴포넌트 안에서 가져옴
 
 // 전체 6개 채널 목록 (연결 여부와 무관하게 항상 표시)
 const ALL_CHANNELS = [
@@ -56,11 +52,12 @@ function downloadExcel(excelData, filename) {
 }
 
 export default function ChatWidget() {
+  const { lang, setLang, t } = useLanguage();
   const [messages, setMessages]           = useState([]);
   const [input, setInput]                 = useState('');
   const [loading, setLoading]             = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
-  const [sidebarOpen, setSidebarOpen]     = useState(true);
+  const [sidebarOpen, setSidebarOpen]     = useState(() => window.innerWidth > 768);
   const [showSettings, setShowSettings]   = useState(false);
   const [panelData, setPanelData]         = useState(null);  // ResultPanel 데이터
   const [panelOpen, setPanelOpen]         = useState(false); // ResultPanel 열림 여부
@@ -180,15 +177,26 @@ export default function ChatWidget() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: msg, activeChannels, history }),
       });
+
+      // 401은 auth.js가 이미 'pickit-session-expired' 이벤트로 처리
+      if (res.status === 401) { setLoading(false); return; }
+
       const data = await res.json();
 
-      // 서버 에러 (400, 500 등)
+      // 서버 에러 (400, 500 등) — 에러 유형별 메시지
       if (!res.ok) {
-        addMsg({
-          role: 'assistant',
-          content: data.error || '처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
-          isError: true,
-        });
+        const errText = data.error || '';
+        let content;
+        if (/API Key|설정되지 않았/.test(errText)) {
+          content = t('errNoApiKey');
+        } else if (/연동이 만료|401|403/.test(errText)) {
+          content = t('errChannelAuth');
+        } else if (/LLM|AI|Claude/.test(errText)) {
+          content = t('errLlm');
+        } else {
+          content = errText || t('errUnexpected');
+        }
+        addMsg({ role: 'assistant', content, isError: true });
         return;
       }
 
@@ -237,8 +245,13 @@ export default function ChatWidget() {
       if (data.predictions?.length) {
         setPredictions(data.predictions);
       }
-    } catch {
-      addMsg({ role: 'assistant', content: '서버에 연결하지 못했습니다. 서버가 실행 중인지 확인해 주세요.', isError: true });
+    } catch (e) {
+      const isNetworkErr = e instanceof TypeError;
+      addMsg({
+        role: 'assistant',
+        content: isNetworkErr ? t('errNetwork') : t('errUnexpected'),
+        isError: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -254,17 +267,18 @@ export default function ChatWidget() {
         body: JSON.stringify({ ...pendingAction.toolInput, _confirmed: true }),
       });
       const data = await res.json();
-      if (data.error) {
-        addMsg({ role: 'assistant', content: `처리 실패: ${data.message}` });
-        showToast('처리 중 오류가 발생했습니다.', 'error');
+      if (!res.ok || data.error) {
+        const msg = data.error || data.message || t('errUnexpected');
+        addMsg({ role: 'assistant', content: msg, isError: true });
+        showToast(t('toastError'), 'error');
       } else {
-        addMsg({ role: 'assistant', content: '처리가 완료되었습니다.' });
-        showToast('승인 완료 — 처리되었습니다.', 'success');
+        addMsg({ role: 'assistant', content: t('approved') });
+        showToast(t('toastApproved'), 'success');
       }
       setPendingAction(null);
     } catch {
-      addMsg({ role: 'assistant', content: '처리 중 오류가 발생했습니다.' });
-      showToast('서버 오류가 발생했습니다.', 'error');
+      addMsg({ role: 'assistant', content: t('errUnexpected'), isError: true });
+      showToast(t('toastError'), 'error');
     } finally {
       setLoading(false);
     }
@@ -272,8 +286,8 @@ export default function ChatWidget() {
 
   function cancelAction() {
     setPendingAction(null);
-    addMsg({ role: 'assistant', content: '취소되었습니다.' });
-    showToast('작업이 취소되었습니다.', 'info');
+    addMsg({ role: 'assistant', content: t('cancelled') });
+    showToast(t('toastCancelled'), 'info');
   }
 
   // 채널 블록 토글: 연결된 채널만 켜고 끌 수 있다
@@ -286,8 +300,15 @@ export default function ChatWidget() {
 
   const isEmpty = messages.length === 0;
 
+  const isMobile = () => window.innerWidth <= 768;
+
   return (
     <div className={`${styles.layout} ${panelOpen ? styles.layoutWithPanel : ''}`}>
+
+      {/* 모바일: 사이드바 열릴 때 배경 오버레이 */}
+      {sidebarOpen && isMobile() && (
+        <div className={styles.sidebarOverlay} onClick={() => setSidebarOpen(false)} />
+      )}
 
       {/* ── 사이드바 ── */}
       <aside className={`${styles.sidebar} ${sidebarOpen ? '' : styles.sidebarClosed}`}>
@@ -297,20 +318,20 @@ export default function ChatWidget() {
             <div className={styles.brandLogo}>P</div>
             <div>
               <div className={styles.brandName}>PICKIT</div>
-              <div className={styles.brandSub}>멀티채널 AI 운영</div>
+              <div className={styles.brandSub}>{t('brandSub')}</div>
             </div>
           </div>
 
           <button className={styles.newChatBtn} onClick={newConversation}>
-            <span>+</span> 새 대화
+            <span>+</span> {t('newChat')}
           </button>
         </div>
 
         <div className={styles.sidebarBody}>
           <p className={styles.sectionLabel}>
-            채널 선택
+            {t('channelSection')}
             {activeChannels.length > 0 && (
-              <span className={styles.activeCount}>{activeChannels.length}개 활성</span>
+              <span className={styles.activeCount}>{t('activeCount', activeChannels.length)}</span>
             )}
           </p>
 
@@ -348,7 +369,7 @@ export default function ChatWidget() {
 
                   {/* 상태 표시 */}
                   {!isConnected ? (
-                    <span className={styles.chBadgeUnlinked}>미연결</span>
+                    <span className={styles.chBadgeUnlinked}>{t('unlinked')}</span>
                   ) : (
                     <span
                       className={`${styles.chToggle} ${isActive ? styles.chToggleOn : ''}`}
@@ -368,7 +389,7 @@ export default function ChatWidget() {
               <path d="M7.5 9.5a2 2 0 100-4 2 2 0 000 4z" fill="currentColor"/>
               <path fillRule="evenodd" clipRule="evenodd" d="M6.02 1.5a.5.5 0 00-.49.4l-.23 1.13A5.5 5.5 0 003.7 3.96l-1.1-.4a.5.5 0 00-.6.23l-1.5 2.6a.5.5 0 00.12.64l.9.72a5.5 5.5 0 000 1.5l-.9.72a.5.5 0 00-.12.64l1.5 2.6a.5.5 0 00.6.23l1.1-.4a5.5 5.5 0 001.6.93l.22 1.13a.5.5 0 00.49.4h3a.5.5 0 00.49-.4l.23-1.13a5.5 5.5 0 001.6-.93l1.1.4a.5.5 0 00.6-.23l1.5-2.6a.5.5 0 00-.12-.64l-.9-.72a5.5 5.5 0 000-1.5l.9-.72a.5.5 0 00.12-.64l-1.5-2.6a.5.5 0 00-.6-.23l-1.1.4a5.5 5.5 0 00-1.6-.93L9.48 1.9a.5.5 0 00-.49-.4h-3zm.98 1h1l.2 1.02.5.22a4.5 4.5 0 011.3.76l.44.35.98-.36.5.87-.8.64.07.54a4.5 4.5 0 010 1.2l-.07.54.8.64-.5.87-.98-.36-.44.35a4.5 4.5 0 01-1.3.76l-.5.22-.2 1.02h-1l-.2-1.02-.5-.22a4.5 4.5 0 01-1.3-.76l-.44-.35-.98.36-.5-.87.8-.64-.07-.54a4.5 4.5 0 010-1.2l.07-.54-.8-.64.5-.87.98.36.44-.35a4.5 4.5 0 011.3-.76l.5-.22.2-1.02z" fill="currentColor"/>
             </svg>
-            채널 연결 설정
+            {t('settingsBtn')}
           </button>
           {supabase && (
             <button
@@ -377,12 +398,12 @@ export default function ChatWidget() {
                 await supabase.auth.signOut();
                 localStorage.removeItem('pickit_onboarding');
               }}
-              title="로그아웃"
+              title={t('logoutBtn')}
             >
               <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                 <path d="M5 2H2a1 1 0 00-1 1v7a1 1 0 001 1h3M9 9l3-3-3-3M12 6.5H5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              로그아웃
+              {t('logoutBtn')}
             </button>
           )}
           <button
@@ -391,13 +412,20 @@ export default function ChatWidget() {
               localStorage.removeItem('pickit_onboarding');
               window.dispatchEvent(new CustomEvent('pickit-restart-onboarding'));
             }}
-            title="채널 구성을 다시 설정합니다"
           >
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
               <path d="M1 6.5a5.5 5.5 0 015.5-5.5 5.5 5.5 0 014.4 2.2M12 6.5a5.5 5.5 0 01-5.5 5.5 5.5 5.5 0 01-4.4-2.2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
               <path d="M10 2l1.2 1.7L13 2.3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            채널 변경
+            {t('reOnboardBtn')}
+          </button>
+          {/* 언어 토글 */}
+          <button
+            className={styles.sidebarLangToggle}
+            onClick={() => setLang(lang === 'ko' ? 'en' : 'ko')}
+            title="Switch language"
+          >
+            {lang === 'ko' ? 'EN' : '한'}
           </button>
         </div>
       </aside>
@@ -417,7 +445,7 @@ export default function ChatWidget() {
               <rect x="1" y="13" width="16" height="1.5" rx="0.75" fill="currentColor"/>
             </svg>
           </button>
-          <span className={styles.topbarTitle}>PICKIT Assistant</span>
+          <span className={styles.topbarTitle}>{t('topbarTitle')}</span>
         </header>
 
         {/* 연동 끊김 배너 */}
@@ -429,12 +457,14 @@ export default function ChatWidget() {
             /* 빈 상태: 환영 화면 */
             <div className={styles.emptyState}>
               <div className={styles.emptyLogo}>P</div>
-              <h2 className={styles.emptyTitle}>무엇을 도와드릴까요?</h2>
+              <h2 className={styles.emptyTitle}>{t('emptyTitle')}</h2>
               <p className={styles.emptyDesc}>
-                주문 조회, 재고 수정, 송장 전송을<br />말 한마디로 처리하세요.
+                {t('emptyDesc').split('\n').map((line, i) => (
+                  <span key={i}>{line}{i === 0 && <br />}</span>
+                ))}
               </p>
               <div className={styles.quickGrid}>
-                {QUICK_ACTIONS.map((q) => (
+                {t('quickActions').map((q) => (
                   <button key={q} className={styles.quickBtn} onClick={() => sendMessage(q)}>
                     {q}
                   </button>
@@ -528,7 +558,7 @@ export default function ChatWidget() {
               value={input}
               rows={1}
               disabled={loading || !!pendingAction}
-              placeholder={pendingAction ? '승인 또는 취소 후 입력 가능합니다' : '주문 조회, 재고 수정, 송장 전송... 무엇이든 말씀하세요'}
+              placeholder={pendingAction ? t('inputPlaceholderLocked') : t('inputPlaceholder')}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -548,7 +578,7 @@ export default function ChatWidget() {
               </svg>
             </button>
           </div>
-          <p className={styles.inputHint}>Enter로 전송 &middot; Shift+Enter로 줄바꿈</p>
+          <p className={styles.inputHint}>{t('inputHint')}</p>
         </div>
       </main>
 

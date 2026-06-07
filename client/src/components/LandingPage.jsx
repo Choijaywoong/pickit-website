@@ -1,4 +1,5 @@
 import styles from './LandingPage.module.css';
+import { useLanguage } from '../i18n';
 
 /* ── 채널 로고 SVG ── */
 const ChannelLogos = {
@@ -45,47 +46,42 @@ const CHANNELS = [
   { id: 'zigzag',  label: '지그재그' },
 ];
 
-const PAINS = [
-  {
-    icon: '🗂️',
-    title: '탭이 6개',
-    desc: '채널마다 파트너 센터를 따로 열고, 같은 작업을 6번 반복합니다.',
-  },
-  {
-    icon: '📋',
-    title: '엑셀 복붙',
-    desc: '주문 데이터를 내려받아 취합하다 실수가 생깁니다.',
-  },
-  {
-    icon: '⏰',
-    title: '하루가 운영에 다 간다',
-    desc: '정작 중요한 상품 기획·CS·마케팅에 쓸 시간이 없습니다.',
-  },
-];
-
-const DEMO_MESSAGES = [
-  { role: 'user',      text: '오늘 전체 채널 주문 보여줘' },
-  { role: 'assistant', text: '오늘 쿠팡 12건, 네이버 8건, 카페24 3건 — 총 23건입니다. 엑셀로 뽑아드릴까요?' },
-  { role: 'user',      text: '블랙 L 사이즈 품절 처리해줘' },
-  { role: 'assistant', text: '⚠️ 방화벽 — 3개 채널 × 1개 상품 재고 수정입니다. 최종 승인하시겠어요?' },
-];
-
 const SUPPORTERS = [
   {
-    name: '서울대학교 공과대학',
+    name:   '서울대학교 공과대학',
     nameEn: 'SNU College of Engineering',
-    color: '#003876',
-    initial: 'SNU',
+    color:  '#003876',
+    initial:'SNU',
   },
   {
-    name: '아산나눔재단',
+    name:   '아산나눔재단',
     nameEn: 'Asan Nanum Foundation',
-    color: '#005BAC',
-    initial: 'AN',
+    color:  '#005BAC',
+    initial:'AN',
   },
 ];
 
 export default function LandingPage({ onStart }) {
+  const { lang, setLang, t } = useLanguage();
+
+  const PAINS = [
+    { icon: '🗂️', title: t('pain1Title'), desc: t('pain1Desc') },
+    { icon: '📋', title: t('pain2Title'), desc: t('pain2Desc') },
+    { icon: '⏰', title: t('pain3Title'), desc: t('pain3Desc') },
+  ];
+
+  const DEMO_MESSAGES = lang === 'ko' ? [
+    { role: 'user',      text: '오늘 전체 채널 주문 보여줘' },
+    { role: 'assistant', text: '오늘 쿠팡 12건, 네이버 8건, 카페24 3건 — 총 23건입니다. 엑셀로 뽑아드릴까요?' },
+    { role: 'user',      text: '블랙 L 사이즈 품절 처리해줘' },
+    { role: 'assistant', text: '⚠️ 방화벽 — 3개 채널 × 1개 상품 재고 수정입니다. 최종 승인하시겠어요?' },
+  ] : [
+    { role: 'user',      text: "Show me all channel orders today" },
+    { role: 'assistant', text: "Today: Coupang 12, Naver 8, Cafe24 3 — 23 orders total. Export to Excel?" },
+    { role: 'user',      text: "Mark Black L size as sold out" },
+    { role: 'assistant', text: "⚠️ Firewall — 3 channels × 1 product stock change. Confirm to proceed?" },
+  ];
+
   return (
     <div className={styles.page}>
 
@@ -95,29 +91,39 @@ export default function LandingPage({ onStart }) {
           <span className={styles.navLogoMark}>P</span>
           <span className={styles.navLogoText}>PICKIT</span>
         </div>
-        <button className={styles.navCta} onClick={onStart}>무료로 시작하기</button>
+        <div className={styles.navRight}>
+          <button
+            className={styles.langToggle}
+            onClick={() => setLang(lang === 'ko' ? 'en' : 'ko')}
+            title="Switch language"
+          >
+            {lang === 'ko' ? 'EN' : '한'}
+          </button>
+          <button className={styles.navCta} onClick={onStart}>{t('navCta')}</button>
+        </div>
       </nav>
 
       {/* ── 히어로 ── */}
       <section className={styles.hero}>
-        <div className={styles.heroBadge}>의류 셀러를 위한 AI 운영 서비스</div>
+        <div className={styles.heroBadge}>{t('heroBadge')}</div>
         <h1 className={styles.heroTitle}>
-          말 한마디로<br />
-          <span className={styles.heroAccent}>6개 채널</span>을 한 번에
+          {t('heroTitle1')}<br />
+          <span className={styles.heroAccent}>{t('heroAccentText')}</span>{t('heroTitle2')}
         </h1>
         <p className={styles.heroDesc}>
-          주문 조회, 재고 수정, 송장 전송까지.<br />
-          채팅창에 입력하면 PICKIT이 알아서 처리합니다.
+          {t('heroDesc').split('\n').map((line, i) => (
+            <span key={i}>{line}{i === 0 && <br />}</span>
+          ))}
         </p>
         <button className={styles.heroBtn} onClick={onStart}>
-          무료로 시작하기 →
+          {t('heroBtn')}
         </button>
-        <p className={styles.heroSub}>신용카드 불필요 · 14일 무료 체험</p>
+        <p className={styles.heroSub}>{t('heroSub')}</p>
       </section>
 
       {/* ── 채널 로고 ── */}
       <section className={styles.channels}>
-        <p className={styles.channelsLabel}>연동 채널</p>
+        <p className={styles.channelsLabel}>{t('channelsLabel')}</p>
         <div className={styles.channelList}>
           {CHANNELS.map((ch) => (
             <div key={ch.id} className={styles.channelBadge}>
@@ -130,8 +136,8 @@ export default function LandingPage({ onStart }) {
 
       {/* ── 문제 정의 ── */}
       <section className={styles.section}>
-        <p className={styles.sectionEyebrow}>지금 셀러의 현실</p>
-        <h2 className={styles.sectionTitle}>멀티채널 운영, 이렇게 힘드셨죠?</h2>
+        <p className={styles.sectionEyebrow}>{t('painEyebrow')}</p>
+        <h2 className={styles.sectionTitle}>{t('painTitle')}</h2>
         <div className={styles.painGrid}>
           {PAINS.map((p) => (
             <div key={p.title} className={styles.painCard}>
@@ -146,13 +152,17 @@ export default function LandingPage({ onStart }) {
       {/* ── 데모 ── */}
       <section className={styles.demoSection}>
         <div className={styles.demoText}>
-          <p className={styles.sectionEyebrow}>PICKIT이 하는 일</p>
-          <h2 className={styles.sectionTitle}>채팅창에 말하면<br />PICKIT이 처리합니다</h2>
+          <p className={styles.sectionEyebrow}>{t('demoEyebrow')}</p>
+          <h2 className={styles.sectionTitle}>
+            {t('demoTitle').split('\n').map((line, i) => (
+              <span key={i}>{line}{i === 0 && <br />}</span>
+            ))}
+          </h2>
           <ul className={styles.demoFeatures}>
-            <li>✓ 전체 채널 주문 한 번에 조회</li>
-            <li>✓ 재고·가격 수정 전 방화벽 검토</li>
-            <li>✓ 송장 자동 전송</li>
-            <li>✓ 주문 데이터 엑셀 추출</li>
+            <li>{t('demoF1')}</li>
+            <li>{t('demoF2')}</li>
+            <li>{t('demoF3')}</li>
+            <li>{t('demoF4')}</li>
           </ul>
         </div>
         <div className={styles.demoChat}>
@@ -174,7 +184,7 @@ export default function LandingPage({ onStart }) {
 
       {/* ── 지원기관 ── */}
       <section className={styles.supportSection}>
-        <p className={styles.supportLabel}>지원기관</p>
+        <p className={styles.supportLabel}>{t('supportLabel')}</p>
         <div className={styles.supportList}>
           {SUPPORTERS.map((s) => (
             <div key={s.name} className={styles.supportCard}>
@@ -192,17 +202,17 @@ export default function LandingPage({ onStart }) {
 
       {/* ── 최종 CTA ── */}
       <section className={styles.ctaSection}>
-        <h2 className={styles.ctaTitle}>지금 바로 시작해보세요</h2>
-        <p className={styles.ctaDesc}>설치 없이 브라우저에서 바로 사용 가능합니다.</p>
+        <h2 className={styles.ctaTitle}>{t('ctaTitle')}</h2>
+        <p className={styles.ctaDesc}>{t('ctaDesc')}</p>
         <button className={styles.ctaBtn} onClick={onStart}>
-          무료로 시작하기 →
+          {t('ctaBtn')}
         </button>
       </section>
 
       {/* ── 푸터 ── */}
       <footer className={styles.footer}>
         <span className={styles.footerLogo}>PICKIT</span>
-        <span className={styles.footerCopy}>© 2025 PICKIT. All rights reserved.</span>
+        <span className={styles.footerCopy}>{t('footerCopy')}</span>
       </footer>
 
     </div>

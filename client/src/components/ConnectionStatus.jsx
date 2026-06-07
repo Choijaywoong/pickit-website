@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import styles from './ConnectionStatus.module.css';
 import { showToast } from './Toast';
+import { authFetch } from '../auth';
+import { useLanguage } from '../i18n';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
@@ -22,29 +24,25 @@ const CHANNEL_LABEL = {
   zigzag:  '지그재그',
 };
 
-/**
- * 채널 상태 판별:
- *   ok      → 정상
- *   error   → 만료·연동 끊김
- *   warning → 무신사 API 키 만료 임박 (D-30 이내)
- */
 function getCardStatus(ch, statusMap) {
   const s = statusMap[ch];
-  if (!s) return { type: 'ok' };
-  if (s.expired)  return { type: 'error',   msg: s.message || '연동이 만료되었습니다.' };
+  if (!s || s === 'ok' || s === 'demo') return { type: 'ok', demo: s === 'demo' };
+  if (s === 'missing') return { type: 'error' };
+  if (s.expired)  return { type: 'error' };
   if (s.daysLeft != null && s.daysLeft <= 30)
-    return { type: 'warning', daysLeft: s.daysLeft, msg: `API 키 ${s.daysLeft}일 후 만료. 미리 갱신하세요.` };
+    return { type: 'warning', daysLeft: s.daysLeft };
   return { type: 'ok' };
 }
 
 export default function ConnectionStatus({ channels, onStart }) {
+  const { t } = useLanguage();
   const [statusMap, setStatusMap] = useState({});
   const [loading,   setLoading]   = useState(true);
 
   async function fetchStatus() {
     setLoading(true);
     try {
-      const res  = await fetch(`${API_BASE}/channel-status`);
+      const res  = await authFetch(`${API_BASE}/settings/channel-status`);
       if (res.ok) {
         const data = await res.json();
         setStatusMap(data);
@@ -73,30 +71,42 @@ export default function ConnectionStatus({ channels, onStart }) {
           </div>
           <p className={styles.summary}>
             {loading
-              ? '채널 상태 확인 중…'
+              ? t('connChecking')
               : errCount === 0
-              ? `${channels.length}개 채널 모두 정상`
-              : `${channels.length}개 채널 중 ${okCount}개 정상`}
+              ? t('connAllOk', channels.length)
+              : t('connSomeOk', channels.length, okCount)}
           </p>
         </div>
-        <button className={styles.refreshBtn} onClick={fetchStatus} disabled={loading} title="새로고침">
+        <button className={styles.refreshBtn} onClick={fetchStatus} disabled={loading} title={t('connRefresh')}>
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
             <path d="M1.5 7.5a6 6 0 016-6 6 6 0 014.8 2.4M13.5 7.5a6 6 0 01-6 6 6 6 0 01-4.8-2.4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             <path d="M11 2l1.3 1.8L14 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          새로고침
+          {t('connRefresh')}
         </button>
       </div>
 
       {/* 채널 카드 그리드 */}
       <div className={styles.grid}>
-        {statuses.map(({ id, type, msg, daysLeft }) => {
+        {statuses.map(({ id, type, daysLeft }) => {
           const color = CHANNEL_COLOR[id];
           const label = CHANNEL_LABEL[id] || id;
 
           let cardClass = styles.card;
           if (type === 'error')   cardClass += ` ${styles.cardError}`;
           if (type === 'warning') cardClass += ` ${styles.cardWarning}`;
+
+          const badgeText = type === 'ok'
+            ? t('connBadgeOk')
+            : type === 'warning'
+            ? `D-${daysLeft}`
+            : t('connBadgeExpired');
+
+          const errMsg = type === 'error'
+            ? t('connMissingMsg')
+            : type === 'warning'
+            ? `API key expires in ${daysLeft} days. Renew soon.`
+            : '';
 
           return (
             <div key={id} className={cardClass}>
@@ -121,27 +131,25 @@ export default function ConnectionStatus({ channels, onStart }) {
                   </span>
                 </div>
                 <span className={`${styles.badge} ${styles[`badge_${type}`]}`}>
-                  {type === 'ok'      ? '정상' :
-                   type === 'warning' ? `D-${daysLeft}` : '만료'}
+                  {badgeText}
                 </span>
               </div>
 
               {/* 에러/경고 부연 + 버튼 */}
               {type !== 'ok' && (
                 <div className={styles.cardBottom}>
-                  <p className={styles.cardMsg}>{msg}</p>
+                  <p className={styles.cardMsg}>{errMsg}</p>
                   {type === 'error' && (
                     <button
                       className={styles.reconnectBtn}
                       onClick={() => {
-                        onStart();  // 채팅 화면으로 먼저 이동
-                        // 채팅 화면 마운트 후 설정 모달 열기
+                        onStart();
                         setTimeout(() => {
                           window.dispatchEvent(new CustomEvent('pickit-open-settings', { detail: { tab: id } }));
                         }, 100);
                       }}
                     >
-                      다시 연결하기
+                      {t('connReconnectBtn')}
                     </button>
                   )}
                 </div>
@@ -153,7 +161,7 @@ export default function ConnectionStatus({ channels, onStart }) {
 
       {/* 하단 CTA */}
       <button className={styles.startBtn} onClick={onStart}>
-        채팅 시작하기
+        {t('connStartBtn')}
       </button>
     </div>
   );

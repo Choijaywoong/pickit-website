@@ -79,13 +79,17 @@ export default function SettingsModal({ onClose }) {
   const [savedKeys, setSavedKeys]   = useState({});
   const [saving, setSaving]         = useState(false);
   const [saveMsg, setSaveMsg]       = useState('');
+  const [loadErr, setLoadErr]       = useState(false);
 
   // 열릴 때 서버에서 키 설정 여부 로드
   useEffect(() => {
     authFetch(`${API_BASE}/settings/credentials`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(r.status);
+        return r.json();
+      })
       .then(setSavedKeys)
-      .catch(() => {});
+      .catch(() => setLoadErr(true));
   }, []);
 
   const channel = CHANNEL_CONFIG.find((c) => c.id === activeTab);
@@ -161,6 +165,13 @@ export default function SettingsModal({ onClose }) {
           </div>
           <button className={styles.closeBtn} onClick={onClose}>✕</button>
         </div>
+
+        {/* 설정 로드 실패 배너 */}
+        {loadErr && (
+          <div className={styles.loadErrBanner}>
+            ⚠️ 저장된 설정을 불러오지 못했습니다. 서버 연결을 확인해 주세요.
+          </div>
+        )}
 
         <div className={styles.body}>
           {/* 왼쪽 탭 */}

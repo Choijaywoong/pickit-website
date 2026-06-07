@@ -16,6 +16,33 @@
   max-width: 420px;
 }
 
+@media (max-width: 480px) {
+  .page { padding: 16px; align-items: flex-start; padding-top: 40px; }
+  .card { padding: 28px 22px 24px; border-radius: 16px; }
+}
+
+/* 언어 토글 */
+.langToggle {
+  display: block;
+  margin-left: auto;
+  margin-bottom: 16px;
+  padding: 5px 12px;
+  background: transparent;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.langToggle:hover {
+  border-color: #2563EB;
+  color: #2563EB;
+}
+
 /* 로고 */
 .logo {
   display: flex;
