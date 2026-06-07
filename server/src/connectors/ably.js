@@ -77,4 +77,15 @@ async function invoice({ productId: orderId, value }) {
   return { orderId, trackingNumber: value.trackingNumber, courier: value.courier };
 }
 
-module.exports = { query, price, stock, invoice };
+// 연결 테스트 — 주문 조회로 인증 확인 (401/403이면 키 오류)
+async function test() {
+  const today = new Date().toISOString().slice(0, 10);
+  try {
+    await ablyFetch('GET', '/v1/orders', `startDate=${today}&endDate=${today}&limit=1`);
+  } catch (err) {
+    if (/401|403|unauthorized|invalid/i.test(err.message)) throw err;
+  }
+  return true;
+}
+
+module.exports = { query, price, stock, invoice, test };

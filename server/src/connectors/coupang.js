@@ -189,4 +189,12 @@ async function invoice({ productId: orderId, value }) {
   return { orderId, trackingNumber: value.trackingNumber, courier: value.courier };
 }
 
-module.exports = { query, price, stock, invoice };
+// 연결 테스트 — 상품 1개 조회로 인증 확인
+async function test() {
+  const vendorId = cred.get('COUPANG_VENDOR_ID');
+  const path = `/v2/providers/openapi/apis/api/v4/vendors/${vendorId}/products`;
+  await coupangFetch('GET', path, 'status=APPROVED&maxPerPage=1');
+  return true;
+}
+
+module.exports = { query, price, stock, invoice, test };

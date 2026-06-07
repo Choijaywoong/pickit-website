@@ -1,6 +1,7 @@
 const router       = require('express').Router();
 const cred         = require('../core/credentialStore');
 const authMiddleware = require('../core/authMiddleware');
+const connectors   = require('../connectors');
 
 // 채널별 필수 API 키 목록
 const CHANNEL_REQUIRED_KEYS = {
@@ -62,6 +63,26 @@ router.get('/channel-status', async (req, res) => {
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/settings/test-connection — 실제 API 호출로 연결 확인
+router.post('/test-connection', async (req, res) => {
+  const { platform } = req.body;
+  const connector = connectors[platform];
+
+  if (!connector) {
+    return res.status(400).json({ ok: false, reason: '알 수 없는 채널입니다.' });
+  }
+  if (typeof connector.test !== 'function') {
+    return res.status(400).json({ ok: false, reason: '이 채널은 테스트를 지원하지 않습니다.' });
+  }
+
+  try {
+    await connector.test();
+    res.json({ ok: true });
+  } catch (err) {
+    res.json({ ok: false, reason: err.message });
   }
 });
 

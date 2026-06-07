@@ -211,4 +211,10 @@ async function invoice({ productId: orderId, value }) {
   return { orderId, trackingNumber: value.trackingNumber, courier: value.courier };
 }
 
-module.exports = { query, price, stock, invoice };
+// 연결 테스트 — 토큰 발급만으로 인증 확인
+async function test() {
+  await getNaverToken();
+  return true;
+}
+
+module.exports = { query, price, stock, invoice, test };

@@ -82,4 +82,16 @@ async function invoice({ productId: orderId, value }) {
   return { orderId, trackingNumber: value.trackingNumber, courier: value.courier };
 }
 
-module.exports = { query, price, stock, invoice };
+// 연결 테스트 — 주문 조회로 인증 확인 (401/403이면 키 오류)
+async function test() {
+  const today = new Date().toISOString().slice(0, 10);
+  try {
+    await musinsaFetch('GET', '/v1/orders', `startDate=${today}&endDate=${today}&page=1&size=1`);
+  } catch (err) {
+    // 401/403이면 인증 실패, 그 외(400, 404 등)는 키는 유효
+    if (/401|403|만료|유효하지/.test(err.message)) throw err;
+  }
+  return true;
+}
+
+module.exports = { query, price, stock, invoice, test };

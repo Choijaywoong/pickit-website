@@ -112,4 +112,14 @@ async function invoice({ productId: orderId, value }) {
   return { orderId, trackingNumber: value.trackingNumber, courier: value.courier };
 }
 
-module.exports = { query, price, stock, invoice };
+// 연결 테스트 — GraphQL __typename 인트로스펙션으로 인증 확인
+async function test() {
+  try {
+    await gql('{ __typename }');
+  } catch (err) {
+    if (/401|403|unauthorized|invalid/i.test(err.message)) throw err;
+  }
+  return true;
+}
+
+module.exports = { query, price, stock, invoice, test };

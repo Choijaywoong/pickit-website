@@ -8,24 +8,30 @@ const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 const CHANNEL_CONFIG = {
   coupang: {
     label: '쿠팡', color: '#E50029',
-    desc: '쿠팡 파트너스 > API 관리에서 발급',
+    desc: '쿠팡 Wing > 내 정보 > API 관리에서 발급',
+    link: 'https://wing.coupang.com',
+    linkText: '쿠팡 Wing 바로가기',
     fields: [
-      { key: 'COUPANG_VENDOR_ID',  label: 'Vendor ID',  type: 'text',     hint: '공급사 ID' },
+      { key: 'COUPANG_VENDOR_ID',  label: 'Vendor ID',  type: 'text',     hint: '공급사 ID (A로 시작)' },
       { key: 'COUPANG_ACCESS_KEY', label: 'Access Key', type: 'text',     hint: 'API 관리에서 발급' },
       { key: 'COUPANG_SECRET_KEY', label: 'Secret Key', type: 'password', hint: 'Access Key와 함께 발급' },
     ],
   },
   naver: {
     label: '네이버 스마트스토어', color: '#03C75A',
-    desc: 'NCP(네이버 클라우드) > Commerce API 신청 후 발급',
+    desc: 'NCP Commerce API 신청 후 발급 (Client ID + Secret)',
+    link: 'https://apicenter.commerce.naver.com',
+    linkText: 'NCP Commerce API 신청',
     fields: [
-      { key: 'NAVER_CLIENT_ID',     label: 'Client ID',     type: 'text',     hint: 'NCP > Commerce API' },
+      { key: 'NAVER_CLIENT_ID',     label: 'Client ID',     type: 'text',     hint: 'NCP Commerce API' },
       { key: 'NAVER_CLIENT_SECRET', label: 'Client Secret', type: 'password', hint: 'Client ID와 함께 발급' },
     ],
   },
   cafe24: {
     label: '카페24', color: '#2563EB',
     desc: 'Mall ID 입력 후 OAuth 인증 버튼을 눌러 연결하세요',
+    link: 'https://developers.cafe24.com',
+    linkText: '카페24 개발자센터',
     isOAuth: true,
     fields: [
       { key: 'CAFE24_MALL_ID', label: 'Mall ID', type: 'text', hint: '예: myshop.cafe24.com → myshop' },
@@ -33,33 +39,40 @@ const CHANNEL_CONFIG = {
   },
   musinsa: {
     label: '무신사', color: '#222222',
-    desc: '무신사 파트너 개발자 센터에서 발급 (1년 만료 주의)',
+    desc: '무신사 파트너센터 > 개발자 API에서 발급 (1년 만료 주의)',
+    link: 'https://partner.musinsa.com',
+    linkText: '무신사 파트너센터',
     fields: [
-      { key: 'MUSINSA_API_KEY', label: 'API Key', type: 'password', hint: '파트너 개발자 문서 참조' },
+      { key: 'MUSINSA_API_KEY', label: 'API Key', type: 'password', hint: '파트너센터 > 개발자 API' },
     ],
   },
   ably: {
     label: '에이블리', color: '#FF6B9D',
-    desc: '에이블리 셀러스 파트너 센터에서 발급',
+    desc: '에이블리 셀러스 파트너센터에서 발급 (셀러스 입점 타입만 지원)',
+    link: 'https://sellers.a-bly.com',
+    linkText: '에이블리 셀러스센터',
     fields: [
       { key: 'ABLY_API_KEY', label: 'API Key', type: 'password', hint: '셀러스(Sellers) 입점 타입만 지원' },
     ],
   },
   zigzag: {
     label: '지그재그', color: '#FF5A5A',
-    desc: '지그재그 파트너 개발자 센터에서 발급',
+    desc: '지그재그 파트너센터 > 개발자 API에서 발급',
+    link: 'https://partner.zigzag.kr',
+    linkText: '지그재그 파트너센터',
     fields: [
-      { key: 'ZIGZAG_API_KEY', label: 'API Key', type: 'password', hint: '파트너 센터에서 발급' },
+      { key: 'ZIGZAG_API_KEY', label: 'API Key', type: 'password', hint: '파트너센터 > 개발자 API' },
     ],
   },
 };
 
 export default function StepApiKeys({ channels, onComplete }) {
   const { t } = useLanguage();
-  const [idx,     setIdx]     = useState(0);
-  const [values,  setValues]  = useState({});
-  const [saving,  setSaving]  = useState(false);
-  const [error,   setError]   = useState('');
+  const [idx,        setIdx]       = useState(0);
+  const [values,     setValues]    = useState({});
+  const [saving,     setSaving]    = useState(false);
+  const [error,      setError]     = useState('');
+  const [testStatus, setTestStatus] = useState(null); // null | 'testing' | 'ok' | { error: string }
 
   const total   = channels.length;
   const chId    = channels[idx];
@@ -77,6 +90,22 @@ export default function StepApiKeys({ channels, onComplete }) {
       setIdx((i) => i + 1);
       setValues({});
       setError('');
+      setTestStatus(null);
+    }
+  }
+
+  async function runConnectionTest(platform) {
+    setTestStatus('testing');
+    try {
+      const res  = await authFetch(`${API_BASE}/settings/test-connection`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ platform }),
+      });
+      const data = await res.json();
+      setTestStatus(data.ok ? 'ok' : { error: data.reason || '연결 실패' });
+    } catch {
+      setTestStatus({ error: '연결 테스트 중 오류가 발생했습니다.' });
     }
   }
 
@@ -93,6 +122,7 @@ export default function StepApiKeys({ channels, onComplete }) {
 
     setSaving(true);
     setError('');
+    setTestStatus(null);
     try {
       const res  = await authFetch(`${API_BASE}/settings/credentials`, {
         method:  'POST',
@@ -101,7 +131,8 @@ export default function StepApiKeys({ channels, onComplete }) {
       });
       const data = await res.json();
       if (!data.ok) throw new Error(data.error || '저장 실패');
-      goNext();
+      // 카페24는 OAuth 후 연결되므로 자동 테스트 생략
+      if (!config.isOAuth) runConnectionTest(chId);
     } catch (err) {
       setError(err.message || '저장 중 오류가 발생했습니다.');
     } finally {
@@ -145,6 +176,16 @@ export default function StepApiKeys({ channels, onComplete }) {
         <div>
           <h1 className={styles.channelName}>{config.label}</h1>
           <p className={styles.channelDesc}>{config.desc}</p>
+          {config.link && (
+            <a
+              className={styles.channelLink}
+              href={config.link}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {config.linkText} →
+            </a>
+          )}
         </div>
       </div>
 
@@ -172,6 +213,17 @@ export default function StepApiKeys({ channels, onComplete }) {
         </button>
       )}
 
+      {/* 연결 테스트 결과 */}
+      {testStatus === 'testing' && (
+        <div className={styles.testStatus}>⏳ 연결 확인 중...</div>
+      )}
+      {testStatus === 'ok' && (
+        <div className={`${styles.testStatus} ${styles.testOk}`}>✓ 연결됨</div>
+      )}
+      {testStatus && testStatus.error && (
+        <div className={`${styles.testStatus} ${styles.testFail}`}>✗ {testStatus.error}</div>
+      )}
+
       {/* 에러 */}
       {error && <p className={styles.error}>{error}</p>}
 
@@ -180,8 +232,10 @@ export default function StepApiKeys({ channels, onComplete }) {
         <button className={styles.skipBtn} onClick={goNext} disabled={saving}>
           {t('ob3SkipBtn')}
         </button>
-        <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
-          {saving ? t('ob3Saving') : idx + 1 >= total ? t('ob3DoneBtn') : t('ob3SaveBtn')}
+        <button className={styles.saveBtn} onClick={testStatus === 'ok' ? goNext : handleSave} disabled={saving || testStatus === 'testing'}>
+          {saving ? t('ob3Saving')
+            : testStatus === 'ok' ? (idx + 1 >= total ? t('ob3DoneBtn') : '다음 채널 →')
+            : idx + 1 >= total ? t('ob3DoneBtn') : t('ob3SaveBtn')}
         </button>
       </div>
 
