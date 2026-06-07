@@ -117,7 +117,7 @@ export default function StepChannels({ onNext }) {
         disabled={!canStart}
         onClick={() => onNext(selected)}
       >
-        시작하기
+        다음 — API 연결하기 →
       </button>
     </div>
   );

@@ -1,0 +1,251 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  background: linear-gradient(135deg, #EFF6FF 0%, #F8FAFC 60%, #F0F4FF 100%);
+}
+
+/* 로고 */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 36px;
+}
+
+.logoMark {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563EB, #60A5FA);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: -1px;
+}
+
+.logoText {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: 1.5px;
+}
+
+/* 진행 바 */
+.progressWrap {
+  width: 100%;
+  max-width: 480px;
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.progressText {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563EB;
+  text-align: center;
+}
+
+.progressBar {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+
+.progressSegment {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: #E2E8F0;
+  transition: background 0.3s ease;
+}
+
+.progressSegmentDone {
+  background: #2563EB;
+}
+
+/* 채널 헤더 */
+.channelHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  width: 100%;
+  max-width: 480px;
+  margin-bottom: 28px;
+}
+
+.channelDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.channelName {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px;
+}
+
+.channelDesc {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* 입력 필드 */
+.fields {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.fieldRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.fieldInput {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #1e293b;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.16s, box-shadow 0.16s;
+  box-sizing: border-box;
+}
+
+.fieldInput:focus {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px #DBEAFE;
+}
+
+.fieldInput::placeholder {
+  color: #CBD5E1;
+  font-size: 13px;
+}
+
+/* 카페24 OAuth */
+.oauthBtn {
+  width: 100%;
+  max-width: 480px;
+  padding: 11px;
+  background: #EFF6FF;
+  border: 1.5px solid #BFDBFE;
+  border-radius: 10px;
+  color: #2563EB;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.oauthBtn:hover {
+  background: #DBEAFE;
+  border-color: #93C5FD;
+}
+
+/* 에러 */
+.error {
+  width: 100%;
+  max-width: 480px;
+  padding: 10px 14px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #DC2626;
+  margin-bottom: 12px;
+}
+
+/* 액션 버튼 */
+.actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 480px;
+  margin-bottom: 14px;
+}
+
+.skipBtn {
+  flex: 1;
+  padding: 12px;
+  background: #F1F5F9;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.skipBtn:hover:not(:disabled) {
+  background: #E2E8F0;
+}
+
+.skipBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.saveBtn {
+  flex: 2;
+  padding: 12px;
+  background: #2563EB;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.12s;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.28);
+}
+
+.saveBtn:hover:not(:disabled) {
+  background: #1D4ED8;
+  transform: translateY(-1px);
+}
+
+.saveBtn:disabled {
+  background: #93C5FD;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* 안내 텍스트 */
+.skipHint {
+  font-size: 12px;
+  color: #94a3b8;
+  text-align: center;
+  max-width: 380px;
+  line-height: 1.6;
+}
