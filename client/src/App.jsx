@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase }         from './supabase';
 import { setAuthToken }     from './auth';
+import LandingPage           from './components/LandingPage';
 import AuthPage              from './components/AuthPage';
 import Onboarding            from './components/Onboarding/index';
 import ConnectionStatus      from './components/ConnectionStatus';
@@ -25,7 +26,7 @@ export default function App() {
           setChannels(JSON.parse(saved).channels || []);
           setStep('chat');
         } else {
-          setStep('onboarding');
+          setStep('landing');
         }
         return;
       }
@@ -42,7 +43,7 @@ export default function App() {
           setStep('onboarding');
         }
       } else {
-        setStep('auth');
+        setStep('landing');
       }
     }
 
@@ -104,6 +105,7 @@ export default function App() {
 
   return (
     <>
+      {step === 'landing'     && <LandingPage onStart={() => setStep('auth')} />}
       {step === 'auth'        && <AuthPage onSuccess={handleAuthSuccess} />}
       {step === 'onboarding'  && <Onboarding onComplete={handleOnboardingComplete} />}
       {step === 'connection'  && <ConnectionStatus channels={channels} onStart={handleConnectionStart} />}
