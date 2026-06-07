@@ -2,13 +2,26 @@ const express = require('express');
 const router  = express.Router();
 const { handleToolCall }              = require('../core/toolHandler');
 const { chat }                        = require('../core/llm');
-const { predictDepletion, getDailySalesRate } = require('../db/salesLog');
+const { predictDepletion, getDailySalesRate, checkDbHealth } = require('../db/salesLog');
 const { syncStock }                   = require('../core/stockSync');
 const authMiddleware                  = require('../core/authMiddleware');
 
 // 헬스체크 — 인증 불필요
 router.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'PICKIT' });
+});
+
+// DB 헬스체크 — sales_log 연결 및 적재 현황 확인
+router.get('/health/db', async (req, res) => {
+  if (!process.env.DATABASE_URL) {
+    return res.status(503).json({ connected: false, reason: 'DATABASE_URL 환경변수가 설정되지 않았습니다.' });
+  }
+  try {
+    const result = await checkDbHealth();
+    res.json({ ...result, databaseUrl: process.env.DATABASE_URL.replace(/:\/\/.*@/, '://***@') });
+  } catch (err) {
+    res.status(503).json({ connected: false, reason: err.message });
+  }
 });
 
 // 채팅·Tool·예측·재고동기화는 인증 필요

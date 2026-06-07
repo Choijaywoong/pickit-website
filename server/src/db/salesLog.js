@@ -3,7 +3,10 @@
 // MVP 배포 즉시 적재 시작 필수 — 늦으면 예측 기능 영구 불가
 
 const { Pool } = require('pg');
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL?.includes('supabase') ? { rejectUnauthorized: false } : false,
+});
 
 const CREATE_TABLE_SQL = `
   CREATE TABLE IF NOT EXISTS sales_log (
@@ -98,4 +101,12 @@ async function predictDepletion({ platform, productId, currentStock, days = 120 
   });
 }
 
-module.exports = { initTable, logSale, logOrdersBatch, getDailySalesRate, predictDepletion };
+// DB 연결 + 테이블 존재 여부 확인 (헬스체크용)
+async function checkDbHealth() {
+  const { rows } = await pool.query(
+    `SELECT COUNT(*) AS total FROM sales_log`
+  );
+  return { connected: true, totalRows: Number(rows[0].total) };
+}
+
+module.exports = { initTable, logSale, logOrdersBatch, getDailySalesRate, predictDepletion, checkDbHealth };
