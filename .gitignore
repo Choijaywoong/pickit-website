@@ -6,3 +6,4 @@ build/
 *.log
 credentials.json
 server/credentials.json
+.mcp.json
