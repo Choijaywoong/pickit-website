@@ -2,6 +2,28 @@ const router       = require('express').Router();
 const cred         = require('../core/credentialStore');
 const authMiddleware = require('../core/authMiddleware');
 const connectors   = require('../connectors');
+const { createClient } = require('@supabase/supabase-js');
+
+function getServiceClient() {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
+}
+
+// 무신사 API 키 저장 시 channel_credentials에 만료일 기록 (1년 만료 정책)
+async function trackMusinsaExpiry(userId) {
+  const supabase = getServiceClient();
+  if (!supabase || !userId) return;
+  const now       = new Date();
+  const expiresAt = new Date(now.getTime() + 365 * 86400000).toISOString();
+  await supabase
+    .from('channel_credentials')
+    .upsert(
+      { user_id: userId, channel: 'musinsa', connected_at: now.toISOString(), expires_at: expiresAt, is_active: true },
+      { onConflict: 'user_id,channel' }
+    );
+}
 
 // 채널별 필수 API 키 목록
 const CHANNEL_REQUIRED_KEYS = {
@@ -34,6 +56,12 @@ router.post('/credentials', async (req, res) => {
       return res.status(400).json({ error: '잘못된 요청 형식입니다.' });
     }
     await cred.set(body, req.userId || null);
+
+    // 무신사 API 키가 포함되면 만료 추적 테이블에 기록
+    if (body.MUSINSA_API_KEY && req.userId) {
+      trackMusinsaExpiry(req.userId).catch(() => {});
+    }
+
     res.json({ ok: true });
   } catch (err) {
     console.error('[settings] 자격증명 저장 실패:', err.message);
