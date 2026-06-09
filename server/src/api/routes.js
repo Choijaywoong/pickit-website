@@ -11,8 +11,10 @@ const { syncStock }                   = require('../core/stockSync');
 const authMiddleware                  = require('../core/authMiddleware');
 const connectors                      = require('../connectors');
 const adminRoutes                     = require('./adminRoutes');
+const cronRoutes                      = require('./cronRoutes');
 
 router.use('/admin', adminRoutes);
+router.use('/cron',  cronRoutes);
 
 // 헬스체크 — 인증 불필요
 router.get('/health', (req, res) => {

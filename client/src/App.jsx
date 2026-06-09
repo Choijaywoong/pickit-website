@@ -10,22 +10,9 @@ import ChatWidget            from './components/ChatWidget';
 import DemoPanel             from './components/DemoPanel';
 import ToastContainer, { showToast } from './components/Toast';
 import CSChatButton          from './components/CS/CSChatButton';
+import { logActivity }       from './logActivity';
 
 const ONBOARDING_KEY = 'pickit_onboarding';
-
-// 활동 이벤트를 activity_log에 기록 (실패해도 앱 흐름에 영향 없음)
-async function trackEvent(eventType, metadata = null) {
-  if (!supabase) return;
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    await supabase.from('activity_log').insert({
-      user_id:  session.user.id,
-      action:   eventType,
-      metadata,
-    });
-  } catch {}
-}
 
 // 단계: 'auth' → 'onboarding' → 'connection' → 'chat'
 // Supabase 미설정 시 'auth' 단계를 건너뛰고 바로 'onboarding'부터 시작
@@ -59,7 +46,7 @@ export default function App() {
         if (saved) {
           setChannels(JSON.parse(saved).channels || []);
           setStep('chat');
-          trackEvent('session_start');
+          logActivity('session_start');
         } else {
           setStep('onboarding');
         }
@@ -80,7 +67,7 @@ export default function App() {
           if (saved) {
             setChannels(JSON.parse(saved).channels || []);
             setStep('chat');
-            trackEvent('session_start');
+            logActivity('session_start');
           } else {
             setStep('onboarding');
           }
@@ -130,12 +117,12 @@ export default function App() {
     localStorage.setItem(ONBOARDING_KEY, JSON.stringify(data));
     setChannels(data.channels);
     setStep('connection');
-    trackEvent('onboarding_complete', { channels: data.channels, channelCount: data.channels.length });
+    logActivity('onboarding_complete', { channels: data.channels, channelCount: data.channels.length });
   }
 
   function handleConnectionStart() {
     setStep('chat');
-    trackEvent('channel_connected', { channels });
+    logActivity('channel_connected', { channels });
   }
 
   if (step === 'loading') return null;

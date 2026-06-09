@@ -9,5 +9,11 @@
     "api/index.js": {
       "maxDuration": 60
     }
-  }
+  },
+  "crons": [
+    {
+      "path":     "/api/cron/check-expiry",
+      "schedule": "0 9 * * *"
+    }
+  ]
 }

@@ -2,6 +2,7 @@
 const express    = require('express');
 const router     = express.Router();
 const { createClient } = require('@supabase/supabase-js');
+const { sendEmail }    = require('../core/sendEmail');
 
 function getServiceClient() {
   const url = process.env.SUPABASE_URL;
@@ -54,7 +55,7 @@ router.patch('/tickets/:id', requireAdmin, async (req, res) => {
 
   const { data: ticket, error: fetchErr } = await supabase
     .from('cs_tickets')
-    .select('messages')
+    .select('messages, user_email, user_id')
     .eq('id', id)
     .single();
 
@@ -83,8 +84,35 @@ router.patch('/tickets/:id', requireAdmin, async (req, res) => {
     .single();
 
   if (error) return res.status(500).json({ error: error.message });
+
+  // 답변이 있고 유저 이메일이 있으면 알림 발송 (실패해도 응답에 영향 없음)
+  if (reply?.trim() && ticket.user_email) {
+    const resolvedNote = (status === 'resolved')
+      ? '<p style="color:#38a169;font-weight:600;">이 문의는 해결됨으로 처리되었습니다.</p>'
+      : '';
+    sendEmail({
+      to:      ticket.user_email,
+      subject: '[PICKIT] CS 문의에 답변이 도착했습니다',
+      html:    buildCsReplyHtml({ reply: reply.trim(), resolvedNote }),
+    }).catch(() => {});
+  }
+
   res.json({ ticket: data });
 });
+
+function buildCsReplyHtml({ reply, resolvedNote }) {
+  return `
+    <div style="font-family:-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:32px;">
+      <h2 style="color:#1a202c;">CS 문의 답변 안내</h2>
+      <p style="color:#4a5568;">안녕하세요, PICKIT 고객센터입니다. 문의하신 내용에 답변을 드립니다.</p>
+      <div style="margin:20px 0;padding:16px;background:#f7fafc;border-radius:8px;border-left:4px solid #4299e1;">
+        <p style="color:#2d3748;white-space:pre-wrap;margin:0;">${reply.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+      </div>
+      ${resolvedNote}
+      <p style="color:#718096;font-size:13px;">추가 문의사항이 있으시면 PICKIT 서비스 내 CS 채팅으로 다시 문의해 주세요.</p>
+    </div>
+  `;
+}
 
 // GET /api/admin/metrics — 사업 운영 지표 전체
 router.get('/metrics', requireAdmin, async (req, res) => {
