@@ -10,6 +10,9 @@ const { runForecast } = require('../forecast/engine');
 const { syncStock }                   = require('../core/stockSync');
 const authMiddleware                  = require('../core/authMiddleware');
 const connectors                      = require('../connectors');
+const adminRoutes                     = require('./adminRoutes');
+
+router.use('/admin', adminRoutes);
 
 // 헬스체크 — 인증 불필요
 router.get('/health', (req, res) => {
@@ -129,14 +132,16 @@ router.post('/cs/message', async (req, res) => {
         reason:    result.reason,
       });
 
-      // 2) 슬랙 알림 (저장 완료 후 전송 — 실패해도 응답에 영향 없음)
-      notifyEscalation({
-        issueType: issueType || 'other',
-        userEmail: null,          // 이메일은 이후 PATCH로 업데이트
-        reason:    result.reason,
-        messages:  fullMessages,
-        ticketId,
-      }).catch(() => {});
+      // 2) 슬랙 알림 (await — 서버리스 함수는 res.json() 직후 종료되므로 반드시 await)
+      try {
+        await notifyEscalation({
+          issueType: issueType || 'other',
+          userEmail: null,
+          reason:    result.reason,
+          messages:  fullMessages,
+          ticketId,
+        });
+      } catch {}
 
       return res.json({ escalate: true, ticketId });
     }
@@ -155,14 +160,6 @@ router.patch('/cs/ticket/:id/email', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'email이 필요합니다.' });
   await updateTicketEmail(id, email);
-  // 이메일이 추가됐음을 슬랙에 후속 알림 (실패 무시)
-  notifyEscalation({
-    issueType: 'other',
-    userEmail: email,
-    reason:    '이메일 추가됨',
-    messages:  [],
-    ticketId:  id,
-  }).catch(() => {});
   res.json({ ok: true });
 });
 

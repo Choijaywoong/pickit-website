@@ -13,6 +13,20 @@ import CSChatButton          from './components/CS/CSChatButton';
 
 const ONBOARDING_KEY = 'pickit_onboarding';
 
+// 활동 이벤트를 activity_log에 기록 (실패해도 앱 흐름에 영향 없음)
+async function trackEvent(eventType, metadata = null) {
+  if (!supabase) return;
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    await supabase.from('activity_log').insert({
+      user_id:  session.user.id,
+      action:   eventType,
+      metadata,
+    });
+  } catch {}
+}
+
 // 단계: 'auth' → 'onboarding' → 'connection' → 'chat'
 // Supabase 미설정 시 'auth' 단계를 건너뛰고 바로 'onboarding'부터 시작
 export default function App() {
@@ -22,6 +36,9 @@ export default function App() {
 
   useEffect(() => {
     async function init() {
+      // 어드민 라우트에서는 App이 렌더되지 않지만, 혹시 auth 이벤트가 흘러오는 경우 차단
+      if (window.location.pathname.startsWith('/admin')) return;
+
       // Supabase 미설정(개발 모드) → 바로 onboarding 또는 chat
       if (!supabase) {
         const saved = localStorage.getItem(ONBOARDING_KEY);
@@ -42,6 +59,7 @@ export default function App() {
         if (saved) {
           setChannels(JSON.parse(saved).channels || []);
           setStep('chat');
+          trackEvent('session_start');
         } else {
           setStep('onboarding');
         }
@@ -55,12 +73,14 @@ export default function App() {
     // 세션 변화 감지 (이메일 인증 후 자동 로그인 등)
     if (supabase) {
       const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (window.location.pathname.startsWith('/admin')) return;
         if (session) {
           setAuthToken(session.access_token);
           const saved = localStorage.getItem(ONBOARDING_KEY);
           if (saved) {
             setChannels(JSON.parse(saved).channels || []);
             setStep('chat');
+            trackEvent('session_start');
           } else {
             setStep('onboarding');
           }
@@ -110,10 +130,12 @@ export default function App() {
     localStorage.setItem(ONBOARDING_KEY, JSON.stringify(data));
     setChannels(data.channels);
     setStep('connection');
+    trackEvent('onboarding_complete', { channels: data.channels, channelCount: data.channels.length });
   }
 
   function handleConnectionStart() {
     setStep('chat');
+    trackEvent('channel_connected', { channels });
   }
 
   if (step === 'loading') return null;

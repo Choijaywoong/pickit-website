@@ -14,27 +14,33 @@ const ISSUE_LABEL = {
  */
 async function notifyEscalation({ issueType, userEmail, reason, messages, ticketId }) {
   const webhookUrl = process.env.SLACK_WEBHOOK_URL;
-  if (!webhookUrl) return; // 환경변수 미설정이면 조용히 스킵
+  console.log('[slackNotify] URL 존재:', !!webhookUrl, '/ URL 앞 20자:', webhookUrl?.slice(0, 20));
+  if (!webhookUrl) {
+    console.error('[slackNotify] SLACK_WEBHOOK_URL 환경변수 없음 — 스킵');
+    return;
+  }
 
-  const typeLabel    = ISSUE_LABEL[issueType] ?? '기타';
-  const userDisplay  = userEmail || '비로그인 유저';
-  const now          = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
-  const lastUserMsg  = [...messages].reverse().find(m => m.role === 'user')?.content ?? '';
-  const dashboardUrl = process.env.ADMIN_DASHBOARD_URL || '(대시보드 URL 미설정)';
+  const typeLabel   = ISSUE_LABEL[issueType] ?? '기타';
+  const userDisplay = userEmail || '비로그인 유저';
+  const now         = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
+  const lastUserMsg = [...messages].reverse().find(m => m.role === 'user')?.content ?? '';
 
-  const text = [
+  const lines = [
     '🚨 *PICKIT CS 에스컬레이션*',
     '',
-    `유형: ${typeLabel}`,
-    `유저: ${userDisplay}`,
-    `이유: ${reason}`,
-    `시각: ${now}`,
-    `티켓 ID: ${ticketId ?? '(저장 실패)'}`,
+    `*유형:* ${typeLabel}`,
+    `*유저:* ${userDisplay}`,
+    `*이유:* ${reason}`,
+    `*시각:* ${now}`,
+    `*티켓 ID:* ${ticketId ?? '(저장 실패)'}`,
     '',
-    `마지막 메시지: "${lastUserMsg.slice(0, 200)}"`,
-    '',
-    `<${dashboardUrl}|대시보드에서 확인하기>`,
-  ].join('\n');
+    `*마지막 메시지:* "${lastUserMsg.slice(0, 200)}"`,
+  ];
+
+  const dashboardUrl = process.env.ADMIN_DASHBOARD_URL;
+  if (dashboardUrl) lines.push('', `<${dashboardUrl}|대시보드에서 확인하기>`);
+
+  const text = lines.join('\n');
 
   try {
     const res = await fetch(webhookUrl, {
@@ -42,7 +48,10 @@ async function notifyEscalation({ issueType, userEmail, reason, messages, ticket
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ text }),
     });
-    if (!res.ok) console.error('[slackNotify] 전송 실패:', res.status);
+    const body = await res.text();
+    console.log('[slackNotify] 응답 status:', res.status, '/ body:', body);
+    if (!res.ok) console.error('[slackNotify] 전송 실패:', res.status, body);
+    else console.log('[slackNotify] 전송 성공');
   } catch (err) {
     console.error('[slackNotify] 네트워크 오류:', err.message);
   }

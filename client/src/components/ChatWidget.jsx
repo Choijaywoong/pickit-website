@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import * as XLSX from 'xlsx';
 import ReactMarkdown from 'react-markdown';
 import styles from './ChatWidget.module.css';
+import { logActivity } from '../logActivity';
 import SettingsModal      from './SettingsModal';
 import FirewallToast      from './FirewallToast';
 import ResultPanel        from './ResultPanel';
@@ -160,6 +161,7 @@ export default function ChatWidget() {
     const msg = (text ?? input).trim();
     if (!msg || loading) return;
     setInput('');
+    logActivity('message_sent');
 
     // addMsg 호출 전에 history를 먼저 스냅샷 (현재 messages 기준)
     // user/assistant 메시지만, UI 전용 필드 제거, 최근 20개로 제한 (토큰 절약)
