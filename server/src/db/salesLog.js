@@ -45,7 +45,7 @@ async function logOrdersBatch(platform, orders = []) {
     for (const item of order.items || []) {
       await logSale({
         platform,
-        productId:   item.productId || 'unknown',
+        productId:   item.productName || item.productId || 'unknown',
         orderId:     order.orderId,
         optionLabel: item.optionValue,
         quantity:    item.quantity || 1,
@@ -70,37 +70,6 @@ async function getDailySalesRate({ platform, productId, days = 120 }) {
   return rows;
 }
 
-// FR-006: 재고 소진 예측
-// currentStock: 현재 재고 수량 (셀러가 제공하거나 채널 API로 조회)
-async function predictDepletion({ platform, productId, currentStock, days = 120 }) {
-  const salesData = await getDailySalesRate({ platform, productId, days });
-
-  if (salesData.length === 0) {
-    return { status: 'no_data', message: '아직 판매 데이터가 없습니다. 데이터가 누적되면 예측이 가능합니다.' };
-  }
-
-  return salesData.map((row) => {
-    const dailyRate = row.active_days > 0 ? row.total / row.active_days : 0;
-
-    if (dailyRate === 0) {
-      return { optionLabel: row.option_label, dailyRate: 0, depletionDate: null, message: '판매 이력이 없습니다.' };
-    }
-
-    const daysLeft      = Math.floor(currentStock / dailyRate);
-    const depletionDate = new Date(Date.now() + daysLeft * 86_400_000).toISOString().slice(0, 10);
-    const isUrgent      = daysLeft <= 30; // 30일 이내면 긴급
-
-    return {
-      optionLabel:    row.option_label || '전체',
-      dailyRate:      parseFloat(dailyRate.toFixed(2)),
-      daysLeft,
-      depletionDate,
-      isUrgent,
-      recommendOrder: Math.ceil(dailyRate * 90), // 90일치 권장 발주량
-    };
-  });
-}
-
 // DB 연결 + 테이블 존재 여부 확인 (헬스체크용)
 async function checkDbHealth() {
   const { rows } = await pool.query(
@@ -109,4 +78,4 @@ async function checkDbHealth() {
   return { connected: true, totalRows: Number(rows[0].total) };
 }
 
-module.exports = { initTable, logSale, logOrdersBatch, getDailySalesRate, predictDepletion, checkDbHealth };
+module.exports = { initTable, logSale, logOrdersBatch, getDailySalesRate, checkDbHealth };

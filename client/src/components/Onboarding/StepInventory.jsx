@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styles from './StepInventory.module.css';
 import { useLanguage } from '../../i18n';
+import WeaveLogo from '../WeaveLogo';
 
 export default function StepInventory({ onNext }) {
   const { t } = useLanguage();
@@ -16,8 +17,7 @@ export default function StepInventory({ onNext }) {
 
       {/* 로고 */}
       <div className={styles.logo}>
-        <span className={styles.logoMark}>P</span>
-        <span className={styles.logoText}>PICKIT</span>
+        <WeaveLogo />
       </div>
 
       {/* 진행 표시 */}

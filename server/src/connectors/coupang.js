@@ -189,6 +189,29 @@ async function invoice({ productId: orderId, value }) {
   return { orderId, trackingNumber: value.trackingNumber, courier: value.courier };
 }
 
+// ─── getStock (재고 조회) ─────────────────────────────────────────────────────
+// FR-009 자동 동기화용: 현재 채널 재고를 읽어 다른 채널 push 값으로 사용
+async function getStock({ productId, optionLabel }) {
+  const resolution = await resolveProductId(productId);
+  if (resolution.needsClarification) return [];
+
+  const path        = `/v2/providers/openapi/apis/api/v4/vendors/${cred.get('COUPANG_VENDOR_ID')}/products/${resolution.resolved}`;
+  const productData = await coupangFetch('GET', path);
+  const items       = productData.data?.items || [];
+
+  const keywords = (optionLabel || '').toLowerCase().split(/\s+/).filter(Boolean);
+  return items
+    .filter((item) => {
+      if (!keywords.length) return true;
+      const label = (item.optionName || '').toLowerCase();
+      return keywords.every((kw) => label.includes(kw));
+    })
+    .map((item) => ({
+      optionLabel: item.optionName || '전체',
+      quantity:    item.maximumBuyCount ?? 0,
+    }));
+}
+
 // 연결 테스트 — 상품 1개 조회로 인증 확인
 async function test() {
   const vendorId = cred.get('COUPANG_VENDOR_ID');
@@ -197,4 +220,4 @@ async function test() {
   return true;
 }
 
-module.exports = { query, price, stock, invoice, test };
+module.exports = { query, price, stock, invoice, getStock, test };

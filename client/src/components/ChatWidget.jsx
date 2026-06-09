@@ -5,11 +5,13 @@ import styles from './ChatWidget.module.css';
 import SettingsModal      from './SettingsModal';
 import FirewallToast      from './FirewallToast';
 import ResultPanel        from './ResultPanel';
+import InvoicePanel       from './InvoicePanel';
 import ExcelBar           from './ExcelBar';
 import FileCard           from './FileCard';
 import ConnectionBanner   from './ConnectionBanner';
 import PredictionAlert    from './PredictionAlert';
 import { showToast }      from './Toast';
+import WeaveLogo          from './WeaveLogo';
 import { authFetch }      from '../auth';
 import { supabase }       from '../supabase';
 import { useLanguage }    from '../i18n';
@@ -61,15 +63,19 @@ export default function ChatWidget() {
   const [showSettings, setShowSettings]   = useState(false);
   const [panelData, setPanelData]         = useState(null);  // ResultPanel 데이터
   const [panelOpen, setPanelOpen]         = useState(false); // ResultPanel 열림 여부
+  const [panelMode, setPanelMode]         = useState('order'); // 'order' | 'excel' | 'invoice'
+  const [invoiceOrders, setInvoiceOrders] = useState(null);  // InvoicePanel 주문 데이터
   const [connErrors, setConnErrors]       = useState([]);    // 연동 끊김 에러 목록
   const [predictions, setPredictions]     = useState([]);    // 발주 예측 알림
 
   const bottomRef  = useRef(null);
   const textareaRef = useRef(null);
 
-  // 온보딩에서 저장한 채널 목록 읽기
+  // 온보딩에서 저장한 설정 읽기
   const onboarding = JSON.parse(localStorage.getItem('pickit_onboarding') || '{}');
   const connectedChannels = onboarding.channels || [];
+  const hasInventory      = onboarding.hasInventory ?? false;
+  const stockMode         = onboarding.stockMode ?? null; // 'shared' | 'split' | null
 
   // 활성화된 채널: 연결된 채널 중 사용자가 켜둔 것만 (처음엔 전부 ON)
   const [activeChannels, setActiveChannels] = useState(connectedChannels);
@@ -169,13 +175,41 @@ export default function ChatWidget() {
       .slice(-20);
 
     addMsg({ role: 'user', content: msg });
+
+    // 송장 키워드 감지 → /api/invoice/pending으로 실제 주문 조회 후 InvoicePanel 오픈
+    if (/송장/.test(msg)) {
+      setLoading(true);
+      try {
+        const res  = await authFetch(`${API_BASE}/invoice/pending`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ channels: activeChannels }),
+        });
+        const data = await res.json();
+        const orders     = data.orders || [];
+        const selfOrders = orders.filter((o) => o.deliveryType === 'self');
+        addMsg({
+          role: 'assistant',
+          content: `오늘 미처리 주문 ${selfOrders.length}건입니다. 우측에서 송장 번호를 입력해 주세요.`,
+        });
+        setInvoiceOrders(orders);
+        setPanelMode('invoice');
+        setPanelOpen(true);
+      } catch {
+        addMsg({ role: 'assistant', content: '주문 조회 중 오류가 발생했습니다. 채널 연동 상태를 확인해 주세요.', isError: true });
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     setLoading(true);
 
     try {
       const res  = await authFetch(`${API_BASE}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg, activeChannels, history }),
+        body: JSON.stringify({ message: msg, activeChannels, history, stockMode }),
       });
 
       // 401은 auth.js가 이미 'pickit-session-expired' 이벤트로 처리
@@ -216,9 +250,10 @@ export default function ChatWidget() {
       // FR-005: 엑셀 추출 → 메시지에 fileData 포함
       if (data.excelData) {
         const orders   = data.excelData.orders || [];
-        const filename = data.filename || 'pickit_주문내역.xlsx';
+        const filename = data.filename || 'weave_주문내역.xlsx';
         const panelInfo = { orders, filename, mode: 'excel' };
         setPanelData(panelInfo);
+        setPanelMode('excel');
         addMsg({ role: 'assistant', content: data.reply || '엑셀 파일이 준비되었습니다.',
           fileData: { orders, filename, count: orders.length, mode: 'excel' } });
       } else if (data.orders?.length) {
@@ -227,6 +262,7 @@ export default function ChatWidget() {
         const filename = `${now.getFullYear()}_${String(now.getMonth()+1).padStart(2,'0')}_전체채널_주문.xlsx`;
         const panelInfo = { orders: data.orders, filename, mode: 'orders' };
         setPanelData(panelInfo);
+        setPanelMode('order');
         addMsg({ role: 'assistant', content: data.reply || '처리가 완료되었습니다.',
           fileData: { orders: data.orders, filename, count: data.orders.length, mode: 'orders' } });
       } else {
@@ -290,6 +326,25 @@ export default function ChatWidget() {
     showToast(t('toastCancelled'), 'info');
   }
 
+  // InvoicePanel 전송 완료 콜백 → 채팅에 채널별 결과 요약 출력
+  function handleInvoiceSendResult(results) {
+    // 채널별로 성공/실패 집계
+    const summary = {};
+    results.forEach(({ channel, status }) => {
+      if (!summary[channel]) summary[channel] = { ok: 0, fail: 0 };
+      if (status === 'success') summary[channel].ok++;
+      else                      summary[channel].fail++;
+    });
+
+    const LABEL = { coupang: '쿠팡', naver: '네이버', cafe24: '카페24', musinsa: '무신사', ably: '에이블리', zigzag: '지그재그' };
+    const okParts   = Object.entries(summary).filter(([, v]) => v.ok   > 0).map(([k, v]) => `${LABEL[k] || k} ${v.ok}건`);
+    const failParts = Object.entries(summary).filter(([, v]) => v.fail > 0).map(([k, v]) => `${LABEL[k] || k} ${v.fail}건`);
+
+    let content = okParts.length   ? `${okParts.join(', ')} 송장 전송 완료.` : '';
+    if (failParts.length) content += ` ${failParts.join(', ')} 실패 — 재시도하시겠어요?`;
+    if (content) addMsg({ role: 'assistant', content });
+  }
+
   // 채널 블록 토글: 연결된 채널만 켜고 끌 수 있다
   function toggleChannel(id) {
     if (!connectedChannels.includes(id)) return;
@@ -315,11 +370,8 @@ export default function ChatWidget() {
         <div className={styles.sidebarTop}>
           {/* 브랜드 */}
           <div className={styles.brand}>
-            <div className={styles.brandLogo}>P</div>
-            <div>
-              <div className={styles.brandName}>PICKIT</div>
-              <div className={styles.brandSub}>{t('brandSub')}</div>
-            </div>
+            <WeaveLogo />
+            <div className={styles.brandSub}>{t('brandSub')}</div>
           </div>
 
           <button className={styles.newChatBtn} onClick={newConversation}>
@@ -474,8 +526,8 @@ export default function ChatWidget() {
           ) : (
             /* 메시지 목록 */
             <div className={styles.msgList}>
-              {/* 발주 예측 알림 (hasInventory = true 셀러만) */}
-              {predictions.length > 0 && (
+              {/* 발주 예측 알림 (hasInventory = true 셀러만, FR-001 AC) */}
+              {hasInventory && predictions.length > 0 && (
                 <PredictionAlert
                   predictions={predictions}
                   onClickItem={(name) => setInput(`${name} 재고 조회해줘`)}
@@ -582,13 +634,22 @@ export default function ChatWidget() {
         </div>
       </main>
 
-      {/* ResultPanel — 우측 슬라이드 패널 (main 오른쪽) */}
-      <ResultPanel
-        open={panelOpen}
-        onClose={() => setPanelOpen(false)}
-        data={panelData}
-        connectedChannels={connectedChannels}
-      />
+      {/* 우측 슬라이드 패널 — panelMode에 따라 주문결과 또는 송장입력 */}
+      {panelMode === 'invoice' ? (
+        <InvoicePanel
+          open={panelOpen}
+          onClose={() => setPanelOpen(false)}
+          orders={invoiceOrders}
+          onSendResult={handleInvoiceSendResult}
+        />
+      ) : (
+        <ResultPanel
+          open={panelOpen}
+          onClose={() => setPanelOpen(false)}
+          data={panelData}
+          connectedChannels={connectedChannels}
+        />
+      )}
     </div>
   );
 }

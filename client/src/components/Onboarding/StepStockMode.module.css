@@ -1,0 +1,156 @@
+/* StepStockMode — 온보딩 1-b단계: 공유/분리 재고 선택 */
+/* StepInventory.module.css와 동일한 구조, 공유 카드만 파란 강조 추가 */
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  background: #ffffff;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+.logoMark {
+  width: 36px;
+  height: 36px;
+  background: #2563EB;
+  color: #fff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.logoText {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: -0.5px;
+}
+
+.progress {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563EB;
+  letter-spacing: 0.02em;
+  margin: 0 0 20px;
+  background: #EFF6FF;
+  padding: 4px 14px;
+  border-radius: 20px;
+}
+
+.question {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0F172A;
+  text-align: center;
+  margin: 0 0 10px;
+  letter-spacing: -0.5px;
+  line-height: 1.3;
+}
+
+.desc {
+  font-size: 15px;
+  color: #64748B;
+  text-align: center;
+  margin: 0 0 40px;
+}
+
+.cards {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  max-width: 540px;
+}
+
+.card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 20px 28px;
+  border-radius: 16px;
+  border: 2px solid #E2E8F0;
+  background: #ffffff;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.1s;
+  text-align: center;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.1);
+}
+
+.card:active {
+  transform: translateY(0);
+}
+
+/* 공유 창고 카드: 파란 테두리로 권장 표시 */
+.cardShared {
+  border-color: #2563EB;
+}
+
+.cardShared .iconWrap {
+  color: #2563EB;
+  background: #EFF6FF;
+}
+
+/* 기본 아이콘 (분리 카드) */
+.iconWrap {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: #F8FAFC;
+  color: #94A3B8;
+  transition: background 0.15s;
+}
+
+/* 선택 시 활성 */
+.cardActive {
+  background: #EFF6FF !important;
+  border-color: #2563EB !important;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12) !important;
+}
+
+.cardActive .iconWrap {
+  background: #DBEAFE !important;
+  color: #2563EB !important;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.cardSub {
+  font-size: 13px;
+  color: #64748B;
+  line-height: 1.6;
+}
+
+@media (max-width: 480px) {
+  .cards {
+    flex-direction: column;
+  }
+
+  .question {
+    font-size: 22px;
+  }
+}

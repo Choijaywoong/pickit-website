@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { authFetch } from '../../auth';
 import styles from './StepApiKeys.module.css';
 import { useLanguage } from '../../i18n';
+import WeaveLogo from '../WeaveLogo';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
@@ -153,8 +154,7 @@ export default function StepApiKeys({ channels, onComplete }) {
 
       {/* 로고 */}
       <div className={styles.logo}>
-        <span className={styles.logoMark}>P</span>
-        <span className={styles.logoText}>PICKIT</span>
+        <WeaveLogo />
       </div>
 
       {/* 진행 상태 */}

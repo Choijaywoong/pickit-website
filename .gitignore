@@ -7,3 +7,4 @@ build/
 credentials.json
 server/credentials.json
 .mcp.json
+.vercel/

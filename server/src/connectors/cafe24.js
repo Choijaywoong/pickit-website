@@ -239,4 +239,27 @@ async function invoice({ productId: orderId, value }) {
   };
 }
 
-module.exports = { query, price, stock, invoice };
+// ─── getStock (재고 조회) ─────────────────────────────────────────────────────
+// FR-009 자동 동기화용: 현재 채널 재고를 읽어 다른 채널 push 값으로 사용
+async function getStock({ productId, optionLabel }) {
+  const resolution = await resolveProductId(productId);
+  if (resolution.needsClarification) return [];
+
+  const [productNo] = resolution.resolved.split(':');
+  const data        = await cafe24Fetch(`/products/${productNo}/variants`);
+  const variants    = data.variants || [];
+  const keywords    = (optionLabel || '').toLowerCase().split(/\s+/).filter(Boolean);
+
+  return variants
+    .filter((v) => {
+      if (!keywords.length) return true;
+      const label = (v.options || []).map((o) => String(o.option_value)).join(' ').toLowerCase();
+      return keywords.every((kw) => label.includes(kw));
+    })
+    .map((v) => ({
+      optionLabel: (v.options || []).map((o) => o.option_value).join(' / ') || '전체',
+      quantity:    v.quantity ?? 0,
+    }));
+}
+
+module.exports = { query, price, stock, invoice, getStock };

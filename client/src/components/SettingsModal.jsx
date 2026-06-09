@@ -238,7 +238,7 @@ export default function SettingsModal({ onClose }) {
                     <>
                       <p className={styles.oauthDesc}>
                         Mall ID를 저장한 후 아래 버튼을 누르면 카페24 로그인 페이지로 이동합니다.
-                        로그인 후 PICKIT에 권한을 허용하면 자동으로 연결됩니다.
+                        로그인 후 weave에 권한을 허용하면 자동으로 연결됩니다.
                       </p>
                       <button className={styles.oauthBtn} onClick={handleOAuthCafe24}>
                         카페24 OAuth 인증하기 →

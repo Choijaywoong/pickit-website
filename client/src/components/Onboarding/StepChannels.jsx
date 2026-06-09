@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styles from './StepChannels.module.css';
 import { useLanguage } from '../../i18n';
+import WeaveLogo from '../WeaveLogo';
 
 const CHANNELS = [
   { id: 'coupang', label: '쿠팡',              tier: 'core' },
@@ -47,8 +48,7 @@ export default function StepChannels({ onNext }) {
 
       {/* 로고 */}
       <div className={styles.logo}>
-        <span className={styles.logoMark}>P</span>
-        <span className={styles.logoText}>PICKIT</span>
+        <WeaveLogo />
       </div>
 
       {/* 진행 표시 */}

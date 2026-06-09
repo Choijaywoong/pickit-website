@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from '../supabase';
 import styles from './AuthPage.module.css';
 import { useLanguage } from '../i18n';
+import WeaveLogo from './WeaveLogo';
 
 export default function AuthPage({ onSuccess }) {
   const { lang, setLang, t } = useLanguage();
@@ -94,11 +95,8 @@ export default function AuthPage({ onSuccess }) {
 
         {/* 로고 */}
         <div className={styles.logo}>
-          <div className={styles.logoMark}>P</div>
-          <div>
-            <div className={styles.logoName}>PICKIT</div>
-            <div className={styles.logoSub}>{t('authLogoSub')}</div>
-          </div>
+          <WeaveLogo size="lg" />
+          <div className={styles.logoSub}>{t('authLogoSub')}</div>
         </div>
 
         {/* 소셜 로그인 버튼 */}

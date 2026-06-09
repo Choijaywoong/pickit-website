@@ -211,10 +211,32 @@ async function invoice({ productId: orderId, value }) {
   return { orderId, trackingNumber: value.trackingNumber, courier: value.courier };
 }
 
+// ─── getStock (재고 조회) ─────────────────────────────────────────────────────
+// FR-009 자동 동기화용: 현재 채널 재고를 읽어 다른 채널 push 값으로 사용
+async function getStock({ productId, optionLabel }) {
+  const resolution = await resolveProductId(productId);
+  if (resolution.needsClarification) return [];
+
+  const productData = await naverFetch('GET', `/external/v1/products/${resolution.resolved}`);
+  const options     = productData.detailAttribute?.optionInfo?.optionCombinations || [];
+  const keywords    = (optionLabel || '').toLowerCase().split(/\s+/).filter(Boolean);
+
+  return options
+    .filter((opt) => {
+      if (!keywords.length) return true;
+      const label = [opt.optionName1, opt.optionName2].filter(Boolean).join(' ').toLowerCase();
+      return keywords.every((kw) => label.includes(kw));
+    })
+    .map((opt) => ({
+      optionLabel: [opt.optionName1, opt.optionName2].filter(Boolean).join(' / ') || '전체',
+      quantity:    opt.stockQuantity ?? 0,
+    }));
+}
+
 // 연결 테스트 — 토큰 발급만으로 인증 확인
 async function test() {
   await getNaverToken();
   return true;
 }
 
-module.exports = { query, price, stock, invoice, test };
+module.exports = { query, price, stock, invoice, getStock, test };

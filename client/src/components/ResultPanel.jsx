@@ -61,11 +61,11 @@ export default function ResultPanel({ open, onClose, data, connectedChannels = [
   );
 
   function handleSaveAll() {
-    downloadXlsx(orders, data?.filename || 'pickit_주문내역.xlsx');
+    downloadXlsx(orders, data?.filename || 'weave_주문내역.xlsx');
   }
 
   function handleSaveSelected() {
-    downloadXlsx(filtered, (data?.filename || 'pickit_선택항목').replace('.xlsx', '_선택.xlsx'));
+    downloadXlsx(filtered, (data?.filename || 'weave_선택항목').replace('.xlsx', '_선택.xlsx'));
   }
 
   return (

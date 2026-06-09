@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import styles from './Onboarding.module.css';
+import WeaveLogo from './WeaveLogo';
 
 const CHANNELS = [
   { id: 'coupang', label: '쿠팡',              tier: 'core' },
@@ -40,8 +41,7 @@ export default function Onboarding({ onComplete }) {
     <div className={styles.overlay}>
       <div className={styles.card}>
         <div className={styles.logo}>
-          <div className={styles.logoIcon}>P</div>
-          <span className={styles.logoText}>PICKIT</span>
+          <WeaveLogo />
         </div>
         <p className={styles.tagline}>멀티채널 AI 운영 도우미</p>
 

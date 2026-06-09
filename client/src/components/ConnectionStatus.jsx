@@ -3,6 +3,7 @@ import styles from './ConnectionStatus.module.css';
 import { showToast } from './Toast';
 import { authFetch } from '../auth';
 import { useLanguage } from '../i18n';
+import WeaveLogo from './WeaveLogo';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
@@ -66,8 +67,7 @@ export default function ConnectionStatus({ channels, onStart }) {
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <div className={styles.logo}>
-            <span className={styles.logoMark}>P</span>
-            <span className={styles.logoText}>PICKIT</span>
+            <WeaveLogo />
           </div>
           <p className={styles.summary}>
             {loading
