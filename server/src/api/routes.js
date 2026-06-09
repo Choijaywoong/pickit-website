@@ -2,6 +2,9 @@ const express = require('express');
 const router  = express.Router();
 const { handleToolCall }              = require('../core/toolHandler');
 const { chat }                        = require('../core/llm');
+const { csAutoReply }                 = require('../core/csAutoReply');
+const { saveTicket, updateTicketEmail } = require('../db/csTickets');
+const { notifyEscalation }              = require('../core/slackNotify');
 const { getDailySalesRate, checkDbHealth } = require('../db/salesLog');
 const { runForecast } = require('../forecast/engine');
 const { syncStock }                   = require('../core/stockSync');
@@ -103,6 +106,65 @@ function detectDeliveryType(channel, order) {
   }
   return 'self';
 }
+
+// ── CS 1차 자동 답변 (인증 불필요 — 비로그인 유저도 접근) ──────────────────────
+// POST /api/cs/message  body: { message, issueType?, history? }
+router.post('/cs/message', async (req, res) => {
+  const { message, issueType, history } = req.body;
+  if (!message) return res.status(400).json({ error: '메시지가 없습니다.' });
+  try {
+    const result = await csAutoReply({ message, history: history || [], issueType });
+
+    if (result.escalate) {
+      // 에스컬레이션 시 cs_tickets에 저장 (슬랙 알림은 4단계에서 추가)
+      const fullMessages = [
+        ...(history || []),
+        { role: 'user', content: message },
+      ];
+      // 1) Supabase 저장 (반드시 먼저 — 슬랙 실패해도 저장은 보장)
+      const ticketId = await saveTicket({
+        userId:    req.userId || null,
+        issueType: issueType || 'other',
+        messages:  fullMessages,
+        reason:    result.reason,
+      });
+
+      // 2) 슬랙 알림 (저장 완료 후 전송 — 실패해도 응답에 영향 없음)
+      notifyEscalation({
+        issueType: issueType || 'other',
+        userEmail: null,          // 이메일은 이후 PATCH로 업데이트
+        reason:    result.reason,
+        messages:  fullMessages,
+        ticketId,
+      }).catch(() => {});
+
+      return res.json({ escalate: true, ticketId });
+    }
+
+    res.json(result);
+  } catch (err) {
+    console.error('[/api/cs/message 오류]', err.message);
+    res.json({ escalate: true, reason: '서버 오류 — 수동 처리 필요' });
+  }
+});
+
+// CS 티켓 이메일 업데이트 (비로그인 유저가 에스컬레이션 후 이메일 입력 시)
+// PATCH /api/cs/ticket/:id/email  body: { email }
+router.patch('/cs/ticket/:id/email', async (req, res) => {
+  const { id }    = req.params;
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'email이 필요합니다.' });
+  await updateTicketEmail(id, email);
+  // 이메일이 추가됐음을 슬랙에 후속 알림 (실패 무시)
+  notifyEscalation({
+    issueType: 'other',
+    userEmail: email,
+    reason:    '이메일 추가됨',
+    messages:  [],
+    ticketId:  id,
+  }).catch(() => {});
+  res.json({ ok: true });
+});
 
 // 채팅 메시지 처리 (프론트 ChatWidget → 여기로 POST)
 router.post('/chat', async (req, res) => {

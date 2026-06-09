@@ -4,18 +4,41 @@
 - [x] `server/src/forecast/engine.js` 생성 (카테고리 무관 단일 예측 엔진)
 - [x] `server/src/db/salesLog.js` — predictDepletion() 제거, 적재·조회 전용으로 정리
 - [x] `server/src/api/routes.js` — /api/predict가 engine.runForecast() 호출
+- [x] Vercel 배포 (weave-synchub.vercel.app)
+- [x] landing/index.html → client/public/landing.html 이식 (iframe 방식)
 
 ---
 
-## FR-009 재고 자동 동기화 + stockMode 게이트
+## CS 챗봇 구현
 
-### 0. PRD.md 갱신 (코드 전에 먼저)
-- [ ] FR-001 상세 동작: 공유/분리 재고 후속 질문 추가 (hasInventory=Yes일 때만)
-- [ ] FR-001 AC: 공유→동기화 활성, 분리→동기화 비활성(나머지 기능 정상) 추가
-- [ ] FR-009 상세: "공유 재고 모드에서만 자동 push" 명시
-- [ ] FR-009 AC: "공유 재고 모드 전제" 조건 수정
-- [ ] 7절 채널별 지원 범위: "상품 단위 공유/분리 예외 = Phase 2" 한 줄
-- [ ] 8절 스코프 Out-of-Scope: "상품 단위 재고 모드 예외 = Phase 2" 추가
+### 1단계 — UI (API 없음)
+- [ ] `client/src/components/CS/` 폴더 생성
+- [ ] `client/src/components/CS/CSChatButton.jsx` — 플로팅 버튼
+- [ ] `client/src/components/CS/CSChatWidget.jsx` — 채팅 팝업창
+- [ ] `client/src/components/CS/CS.module.css` — 스타일 (CSS Modules)
+- [ ] `client/src/App.jsx` — `<CSChatButton />` 추가 (항상 렌더)
+- [ ] 로컬 확인: 버튼 토글, 인사 메시지, 유형 태그, 말풍선 스타일
+
+### 2단계 — Claude API 연동
+- [ ] `server/src/core/csAutoReply.js` — AI 1차 답변 + 에스컬레이션 판단
+- [ ] `server/src/api/routes.js` — POST /api/cs/message 라우트 추가
+- [ ] `client/src/components/CS/CSChatWidget.jsx` — 실제 API 호출 연결
+- [ ] Claude API 오류 시 자동 에스컬레이션 처리 확인
+
+### 3단계 — Supabase cs_tickets
+- [ ] Supabase에 cs_tickets 테이블 생성 (SQL 마이그레이션)
+- [ ] `server/src/core/csAutoReply.js` — 에스컬레이션 시 Supabase insert
+- [ ] 저장 확인: 대화 JSON, issue_type, escalated_at
+
+### 4단계 — 슬랙 알림 + 이메일 수집
+- [ ] `server/src/core/slackNotify.js` — 슬랙 웹훅 전송
+- [ ] csAutoReply.js에서 slackNotify 호출 (슬랙 실패해도 Supabase 저장 보장)
+- [ ] CSChatWidget에 비로그인 이메일 수집 UI (에스컬레이션 직후 1회만)
+- [ ] Vercel 환경 변수 SLACK_WEBHOOK_URL 설정
+
+---
+
+## FR-009 재고 자동 동기화 + stockMode 게이트 (보류)
 
 ### 1. 온보딩 StepStockMode 추가 (프론트)
 - [ ] `client/src/components/Onboarding/StepStockMode.jsx` 신규 생성
@@ -29,31 +52,12 @@
 - [ ] `server/src/core/llm.js` — chat() 파라미터에 stockMode 추가, handleToolCall에 전달
 - [ ] `server/src/core/toolHandler.js` — handleToolCall에 stockMode 파라미터 추가
 
-### 3. 커넥터 getStock() 추가 (핵심 3사만)
-- [ ] `server/src/connectors/coupang.js` — getStock({ productId, optionLabel }) 추가
-- [ ] `server/src/connectors/naver.js` — getStock({ productId, optionLabel }) 추가
-- [ ] `server/src/connectors/cafe24.js` — getStock({ productId, optionLabel }) 추가
-
-### 4. 판매 감지 → 자동 syncStock
-- [ ] `server/src/core/toolHandler.js` — query 결과에서 유니크 (productId, optionLabel) 추출
-- [ ] stockMode==='shared'일 때만 getStock → syncStock 자동 호출
-- [ ] syncStock 실패는 조용히 무시 (FR-005 logOrdersBatch 패턴 동일)
-
-### 5. 동작 확인
-- [ ] 공유 재고 셀러: query 후 자동 syncStock 호출 로그 확인
-- [ ] 분리 재고 셀러: syncStock 호출 없음, 나머지 기능 정상
-- [ ] 서버 기동 오류 없음
-
 ---
 
-## FR-006 발주 예측 파이프 연결 (stockMode 결정 + 분리재고 처리 결정 후 진행)
-
-### 6. 게이트 + 호출 경로
-- [ ] `client/src/components/ChatWidget.jsx` — hasInventory=false 셀러는 PredictionAlert 비활성
-- [ ] 분리 재고: 채널별 독립 예측 (A안 확정 2026-06-09)
-- [ ] shared: 전체 기준 단일 예측 / split: 채널별 getStock → 채널별 runForecast
+## FR-006 발주 예측 (보류)
+- [ ] 분리 재고: 채널별 독립 예측
 - [ ] 4개월(120일) 이내 소진 채널만 PredictionAlert 카드 표시
-- [ ] /api/predict 자동 호출 로직 연결 (대화 시작 시 또는 query 완료 후)
+- [ ] /api/predict 자동 호출 로직 연결
 
 ---
 

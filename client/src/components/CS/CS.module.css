@@ -1,0 +1,305 @@
+/* CS 챗봇 플로팅 버튼 + 팝업 위젯 스타일 — CSS Modules로 메인 ChatWidget과 완전 격리 */
+
+/* ── 플로팅 버튼 ── */
+.floatBtn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9998;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #1A6FD4;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(26, 111, 212, 0.4);
+  transition: background 0.15s, transform 0.15s;
+}
+.floatBtn:hover {
+  background: #1559b0;
+  transform: scale(1.08);
+}
+.floatBtn svg {
+  width: 22px;
+  height: 22px;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── 팝업 위젯 ── */
+.widget {
+  position: fixed;
+  bottom: 84px;
+  right: 24px;
+  z-index: 9998;
+  width: 360px;
+  max-height: 560px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+@media (max-width: 480px) {
+  .widget {
+    width: calc(100vw - 32px);
+    right: 16px;
+    bottom: 80px;
+  }
+}
+
+/* ── 헤더 ── */
+.header {
+  background: #1A6FD4;
+  color: #fff;
+  padding: 14px 16px 12px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.headerTitle {
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.headerTitle svg {
+  width: 16px;
+  height: 16px;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+.headerSub {
+  font-size: 12px;
+  opacity: 0.82;
+}
+.closeBtn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.8);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: color 0.1s;
+}
+.closeBtn:hover {
+  color: #fff;
+}
+.closeBtn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+/* ── 메시지 목록 ── */
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 14px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 320px;
+  min-height: 160px;
+}
+.messages::-webkit-scrollbar {
+  width: 4px;
+}
+.messages::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 4px;
+}
+
+/* ── 말풍선 — UI_SPEC 섹션 4 기준 그대로 ── */
+.bubbleUser {
+  align-self: flex-end;
+  background: #1A6FD4;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 12px 12px 2px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  max-width: 80%;
+  word-break: break-word;
+}
+.bubbleCs {
+  align-self: flex-start;
+  background: none;
+  color: #1a1a2e;
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 90%;
+  word-break: break-word;
+}
+
+/* ── 로딩 점 ── */
+.dots {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 4px 0;
+}
+.dots span {
+  width: 6px;
+  height: 6px;
+  background: #bbb;
+  border-radius: 50%;
+  animation: dotBounce 1.2s infinite ease-in-out;
+}
+.dots span:nth-child(2) { animation-delay: 0.2s; }
+.dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotBounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40% { transform: translateY(-5px); opacity: 1; }
+}
+
+/* ── 유형 태그 버튼 영역 ── */
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 14px 10px;
+  flex-shrink: 0;
+}
+.tagBtn {
+  background: #fff;
+  border: 1px solid #d0d8e8;
+  color: #1A6FD4;
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  white-space: nowrap;
+}
+.tagBtn:hover {
+  background: #E8F1FB;
+  border-color: #1A6FD4;
+}
+
+/* ── 이메일 수집 영역 (에스컬레이션 직후 1회) ── */
+.emailRow {
+  padding: 8px 14px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #f7f9ff;
+  border-top: 1px solid #e8f0fb;
+  flex-shrink: 0;
+}
+.emailInput {
+  border: 1px solid #d0d8e8;
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.12s;
+}
+.emailInput:focus {
+  border-color: #1A6FD4;
+}
+.emailBtns {
+  display: flex;
+  gap: 6px;
+}
+.emailConfirmBtn {
+  flex: 1;
+  background: #1A6FD4;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 0;
+  font-size: 12px;
+  cursor: pointer;
+}
+.emailSkipBtn {
+  flex: 1;
+  background: none;
+  color: #888;
+  border: 1px solid #d0d8e8;
+  border-radius: 8px;
+  padding: 7px 0;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* ── 입력창 ── */
+.inputRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+.textInput {
+  flex: 1;
+  border: 1px solid #e0e6f0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  transition: border-color 0.12s;
+  max-height: 80px;
+}
+.textInput:focus {
+  border-color: #1A6FD4;
+}
+.sendBtn {
+  background: #1A6FD4;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.12s;
+}
+.sendBtn:hover {
+  background: #1559b0;
+}
+.sendBtn:disabled {
+  background: #c0cfe8;
+  cursor: default;
+}
+.sendBtn svg {
+  width: 16px;
+  height: 16px;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

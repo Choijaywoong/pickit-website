@@ -9,6 +9,7 @@ import ConnectionStatus      from './components/ConnectionStatus';
 import ChatWidget            from './components/ChatWidget';
 import DemoPanel             from './components/DemoPanel';
 import ToastContainer, { showToast } from './components/Toast';
+import CSChatButton          from './components/CS/CSChatButton';
 
 const ONBOARDING_KEY = 'pickit_onboarding';
 
@@ -125,6 +126,7 @@ export default function App() {
       {step === 'connection'  && <ConnectionStatus channels={channels} onStart={handleConnectionStart} />}
       {step === 'chat'        && <ChatWidget />}
       <DemoPanel />
+      <CSChatButton />
       <ToastContainer />
     </>
   );
