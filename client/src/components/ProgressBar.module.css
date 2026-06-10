@@ -1,0 +1,40 @@
+/* 온보딩 진행바 스타일 */
+
+.wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stepLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ob-text);
+}
+
+.stepCount {
+  font-size: 12px;
+  color: var(--ob-text-sub);
+}
+
+.track {
+  width: 100%;
+  height: 4px;
+  background: var(--ob-track);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  background: var(--ob-brand);
+  border-radius: 4px;
+  transition: width 0.35s ease;
+}

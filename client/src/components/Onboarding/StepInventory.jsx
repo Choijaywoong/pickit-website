@@ -1,7 +1,10 @@
+// 온보딩 1단계: 재고 직접 보유 여부 선택 화면
+// 선택 즉시 다음 단계로 분기 (직접보유 → 2단계, 위탁 → 3단계 스킵)
+// 1단계에서는 총 단계 수가 미확정이므로 ProgressBar 미표시
 import { useState } from 'react';
 import styles from './StepInventory.module.css';
 import { useLanguage } from '../../i18n';
-import WeaveLogo from '../WeaveLogo';
+import Logo from '../Logo';
 
 export default function StepInventory({ onNext }) {
   const { t } = useLanguage();
@@ -17,11 +20,8 @@ export default function StepInventory({ onNext }) {
 
       {/* 로고 */}
       <div className={styles.logo}>
-        <WeaveLogo />
+        <Logo size="md" />
       </div>
-
-      {/* 진행 표시 */}
-      <p className={styles.progress}>{t('ob1Progress')}</p>
 
       {/* 질문 */}
       <h1 className={styles.question}>{t('ob1Question')}</h1>

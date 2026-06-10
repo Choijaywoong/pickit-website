@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
+import './styles/tokens.css';
 import App from './App';
 import { LanguageProvider } from './i18n';
 import AdminLogin     from './components/Admin/AdminLogin';

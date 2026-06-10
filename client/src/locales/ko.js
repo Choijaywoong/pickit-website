@@ -90,9 +90,9 @@ export default {
   cancelled:          '취소되었습니다.',
 
   ob1Progress:        '1 / 3 단계',
-  ob1Question:        '재고 관리를 하고 계신가요?',
-  ob1Desc:            '운영 방식을 파악해 weave을 최적화합니다.',
-  ob1YesTitle:        '네, 직접 재고 관리해요',
+  ob1Question:        '재고를 직접 보유하고 계신가요?',
+  ob1Desc:            '답에 따라 발주·재고 예측 기능을 켤지 정해요',
+  ob1YesTitle:        '네, 직접 보유해요',
   ob1YesSub:          '발주·재고 예측 기능을 활성화합니다.',
   ob1NoTitle:         '아니요, 위탁 판매예요',
   ob1NoSub:           '주문·송장·CS 중심으로 구성합니다.',

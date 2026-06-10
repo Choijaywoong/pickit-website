@@ -1,0 +1,186 @@
+/* 온보딩 완료 화면 — CSS 토큰 기반, 라이트모드 고정 */
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 24px 40px;
+  background: var(--ob-bg);
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', -apple-system, sans-serif;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 480px;
+}
+
+/* ── 로고 ── */
+.logo {
+  margin-bottom: 36px;
+}
+
+/* ── 성공 아이콘 ── */
+.iconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-bottom: 20px;
+}
+
+.iconAll {
+  background: var(--ob-success-bg);
+  color: var(--ob-success-text);
+}
+
+.iconPartial {
+  background: var(--ob-warning-bg);
+  color: var(--ob-warning-text);
+}
+
+.iconNone {
+  background: var(--ob-bg-secondary);
+  color: var(--ob-text-hint);
+}
+
+/* ── 헤드라인 ── */
+.headline {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--ob-text);
+  text-align: center;
+  margin: 0 0 10px;
+  letter-spacing: -0.5px;
+  line-height: 1.25;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--ob-text-sub);
+  text-align: center;
+  margin: 0 0 36px;
+  line-height: 1.65;
+  max-width: 340px;
+}
+
+/* ── 채널 카드 그리드 ── */
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 36px;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: var(--ob-radius-card);
+  border: 1.5px solid var(--ob-border);
+  background: var(--ob-bg);
+}
+
+/* 연결됨: 초록 테두리 + 배경 */
+.card_connected {
+  border-color: #86EFAC;
+  background: #F0FDF4;
+}
+
+/* 연결 대기: 회색 (기본) — 오류 색상 사용 금지 */
+.card_pending {
+  border-color: var(--ob-border);
+  background: var(--ob-bg-secondary);
+}
+
+/* 만료: 빨강 (초기 온보딩에서는 미발생, 설정 화면에서 사용) */
+.card_expired {
+  border-color: #FECACA;
+  background: #FEF2F2;
+}
+
+.cardLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ob-text);
+  line-height: 1.3;
+}
+
+/* ── 상태 배지 ── */
+.badge {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.badgeConnected {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.badgePending {
+  background: var(--ob-track);
+  color: var(--ob-text-hint);
+}
+
+.badgeExpired {
+  background: #FEE2E2;
+  color: #B91C1C;
+}
+
+/* ── CTA 버튼 ── */
+.startBtn {
+  width: 100%;
+  padding: 16px 0;
+  background: var(--ob-brand);
+  color: #fff;
+  border: none;
+  border-radius: var(--ob-radius-card);
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  margin-bottom: 14px;
+}
+
+.startBtn:hover {
+  opacity: 0.88;
+}
+
+/* 연결 0개: 살짝 흐리게 하되 비활성 처리는 안 함 (건너뛰기 허용) */
+.startBtnWarn {
+  background: var(--ob-text-sub);
+}
+
+/* ── 하단 안내 ── */
+.note {
+  font-size: 12px;
+  color: var(--ob-text-hint);
+  text-align: center;
+  line-height: 1.6;
+  max-width: 360px;
+  margin: 0;
+}
+
+/* ── 모바일: 1열로 축소 ── */
+@media (max-width: 380px) {
+  .cardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .headline {
+    font-size: 22px;
+  }
+}

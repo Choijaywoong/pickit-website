@@ -1,5 +1,4 @@
-/* StepInventory — 온보딩 1단계: 재고 보유 질문 */
-/* CLAUDE.md 규칙 ④: CSS Modules로 스타일 격리 */
+/* 온보딩 1단계: 재고 보유 여부 화면 — CSS 토큰 기반, 라이트모드 고정 */
 
 .container {
   min-height: 100vh;
@@ -8,55 +7,20 @@
   align-items: center;
   justify-content: center;
   padding: 40px 24px;
-  background: #ffffff;
+  background: var(--ob-bg);
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', -apple-system, sans-serif;
 }
 
 /* ── 로고 ── */
 .logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
   margin-bottom: 40px;
-}
-
-.logoMark {
-  width: 36px;
-  height: 36px;
-  background: #2563EB;
-  color: #fff;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-}
-
-.logoText {
-  font-size: 22px;
-  font-weight: 800;
-  color: #0F172A;
-  letter-spacing: -0.5px;
-}
-
-/* ── 진행 표시 ── */
-.progress {
-  font-size: 13px;
-  font-weight: 600;
-  color: #2563EB;
-  letter-spacing: 0.02em;
-  margin: 0 0 20px;
-  background: #EFF6FF;
-  padding: 4px 14px;
-  border-radius: 20px;
 }
 
 /* ── 질문·설명 ── */
 .question {
   font-size: 26px;
   font-weight: 800;
-  color: #0F172A;
+  color: var(--ob-text);
   text-align: center;
   margin: 0 0 10px;
   letter-spacing: -0.5px;
@@ -65,7 +29,7 @@
 
 .desc {
   font-size: 15px;
-  color: #64748B;
+  color: var(--ob-text-sub);
   text-align: center;
   margin: 0 0 40px;
 }
@@ -86,9 +50,9 @@
   align-items: center;
   gap: 12px;
   padding: 32px 20px 28px;
-  border-radius: 16px;
-  border: 2px solid #E2E8F0;
-  background: #ffffff;
+  border-radius: var(--ob-radius-container);
+  border: 2px solid var(--ob-border);
+  background: var(--ob-bg);
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.1s;
   text-align: center;
@@ -96,40 +60,38 @@
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 8px 24px rgba(26, 111, 212, 0.1);
 }
 
 .card:active {
   transform: translateY(0);
 }
 
-/* 카드 A: 항상 파란 테두리 (권장 옵션 강조) */
+/* 직접보유 카드: 파란 테두리로 시각적 강조 */
 .cardYes {
-  border-color: #2563EB;
+  border-color: var(--ob-brand);
 }
 
 .cardYes .iconWrap {
-  color: #2563EB;
+  color: var(--ob-brand);
+  background: var(--ob-brand-light);
 }
 
-/* 카드 B: 기본 회색 테두리 */
-.cardNo {
-  border-color: #E2E8F0;
-}
-
+/* 위탁 카드: 기본 테두리 */
 .cardNo .iconWrap {
-  color: #94A3B8;
+  color: var(--ob-text-hint);
 }
 
-/* 선택 시 활성 상태 (클릭 피드백) */
+/* 선택 시 클릭 피드백 */
 .cardActive {
-  background: #EFF6FF !important;
-  border-color: #2563EB !important;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12) !important;
+  background: var(--ob-brand-light) !important;
+  border-color: var(--ob-brand) !important;
+  box-shadow: 0 0 0 4px rgba(26, 111, 212, 0.12) !important;
 }
 
 .cardActive .iconWrap {
-  color: #2563EB !important;
+  color: var(--ob-brand) !important;
+  background: #DBEAFE !important;
 }
 
 /* ── 아이콘 ── */
@@ -140,28 +102,21 @@
   align-items: center;
   justify-content: center;
   border-radius: 14px;
-  background: #F8FAFC;
-  transition: background 0.15s;
-}
-
-.cardYes .iconWrap {
-  background: #EFF6FF;
-}
-
-.cardActive .iconWrap {
-  background: #DBEAFE !important;
+  background: var(--ob-bg-secondary);
+  color: var(--ob-text-hint);
+  transition: background 0.15s, color 0.15s;
 }
 
 /* ── 카드 텍스트 ── */
 .cardTitle {
   font-size: 16px;
   font-weight: 700;
-  color: #0F172A;
+  color: var(--ob-text);
 }
 
 .cardSub {
   font-size: 13px;
-  color: #64748B;
+  color: var(--ob-text-sub);
   line-height: 1.6;
 }
 

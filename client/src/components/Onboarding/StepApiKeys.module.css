@@ -1,162 +1,100 @@
+/* 온보딩 4단계: API 연결 화면 — CSS 토큰 기반, 라이트모드 고정 */
+
 .container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 40px 24px;
-  background: linear-gradient(135deg, #EFF6FF 0%, #F8FAFC 60%, #F0F4FF 100%);
+  padding: 40px 24px 32px;
+  background: var(--ob-bg);
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', -apple-system, sans-serif;
 }
 
-/* 로고 */
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 36px;
-}
-
-.logoMark {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #2563EB, #60A5FA);
-  color: #fff;
-  font-size: 18px;
-  font-weight: 900;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  letter-spacing: -1px;
-}
-
-.logoText {
-  font-size: 18px;
-  font-weight: 800;
-  color: #1e293b;
-  letter-spacing: 1.5px;
-}
-
-/* 진행 바 */
-.progressWrap {
-  width: 100%;
-  max-width: 480px;
-  margin-bottom: 32px;
+.main {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-}
-
-.progressText {
-  font-size: 13px;
-  font-weight: 600;
-  color: #2563EB;
-  text-align: center;
-}
-
-.progressBar {
-  display: flex;
-  gap: 6px;
-  width: 100%;
-}
-
-.progressSegment {
-  flex: 1;
-  height: 4px;
-  border-radius: 2px;
-  background: #E2E8F0;
-  transition: background 0.3s ease;
-}
-
-.progressSegmentDone {
-  background: #2563EB;
-}
-
-/* 채널 헤더 */
-.channelHeader {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
+  align-items: center;
   width: 100%;
   max-width: 480px;
-  margin-bottom: 28px;
 }
 
-.channelDot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  margin-top: 5px;
-  flex-shrink: 0;
+/* ── 로고 ── */
+.logo {
+  margin-bottom: 32px;
+}
+
+/* ── 메인 진행바 ── */
+.progressWrap {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+/* ── 채널 서브 스텝 브레드크럼 ── */
+.subStep {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  width: 100%;
+  margin-bottom: 32px;
+  padding: 10px 14px;
+  background: var(--ob-bg-secondary);
+  border-radius: var(--ob-radius-card);
+}
+
+.subStepArrow {
+  font-size: 12px;
+  color: var(--ob-text-hint);
+}
+
+.subStepCurrent {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ob-brand);
+  background: var(--ob-brand-light);
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.subStepOther {
+  font-size: 13px;
+  color: var(--ob-text-hint);
+}
+
+.subStepCount {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--ob-text-hint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 채널 헤더 ── */
+.channelHeader {
+  width: 100%;
+  margin-bottom: 24px;
 }
 
 .channelName {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
-  color: #1e293b;
-  margin: 0 0 4px;
+  color: var(--ob-text);
+  margin: 0 0 6px;
 }
 
 .channelDesc {
   font-size: 13px;
-  color: #64748b;
+  color: var(--ob-text-sub);
   margin: 0;
   line-height: 1.5;
 }
 
-/* 입력 필드 */
-.fields {
-  width: 100%;
-  max-width: 480px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.fieldRow {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.fieldLabel {
-  font-size: 13px;
-  font-weight: 600;
-  color: #475569;
-}
-
-.fieldInput {
-  width: 100%;
-  padding: 11px 14px;
-  border: 1.5px solid #E2E8F0;
-  border-radius: 10px;
-  font-size: 14px;
-  font-family: inherit;
-  color: #1e293b;
-  background: #ffffff;
-  outline: none;
-  transition: border-color 0.16s, box-shadow 0.16s;
-  box-sizing: border-box;
-}
-
-.fieldInput:focus {
-  border-color: #2563EB;
-  box-shadow: 0 0 0 3px #DBEAFE;
-}
-
-.fieldInput::placeholder {
-  color: #CBD5E1;
-  font-size: 13px;
-}
-
-/* 발급처 바로가기 링크 */
 .channelLink {
   display: inline-block;
   margin-top: 6px;
   font-size: 12px;
   font-weight: 600;
-  color: #2563EB;
+  color: var(--ob-brand);
   text-decoration: none;
 }
 
@@ -164,24 +102,134 @@
   text-decoration: underline;
 }
 
-/* 연결 테스트 상태 */
+/* ── 입력 필드 ── */
+.fields {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.fieldRow {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ob-text-sub);
+}
+
+.fieldInput {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--ob-border);
+  border-radius: var(--ob-radius-card);
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--ob-text);
+  background: var(--ob-bg);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+
+.fieldInput:focus {
+  border-color: var(--ob-brand);
+  box-shadow: 0 0 0 3px var(--ob-brand-light);
+}
+
+.fieldInput::placeholder {
+  color: var(--ob-text-hint);
+  font-size: 13px;
+}
+
+/* ── 카페24 OAuth 버튼 ── */
+.oauthBtn {
+  width: 100%;
+  padding: 11px;
+  background: var(--ob-brand-light);
+  border: 1.5px solid var(--ob-brand);
+  border-radius: var(--ob-radius-card);
+  color: var(--ob-brand);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: opacity 0.15s;
+}
+
+.oauthBtn:hover {
+  opacity: 0.85;
+}
+
+/* ── 준비 중 채널 ── */
+.pendingNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  background: var(--ob-bg-secondary);
+  border-radius: var(--ob-radius-card);
+  padding: 16px;
+  margin-bottom: 16px;
+  color: var(--ob-text-sub);
+}
+
+.pendingNotice svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.pendingTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ob-text);
+  margin: 0 0 4px;
+}
+
+.pendingDesc {
+  font-size: 13px;
+  color: var(--ob-text-sub);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── 보안 안내 ── */
+.securityNote {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  font-size: 12px;
+  color: var(--ob-text-hint);
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  background: var(--ob-bg-secondary);
+  border-radius: var(--ob-radius-card);
+}
+
+/* ── 연결 테스트 결과 ── */
 .testStatus {
   width: 100%;
-  max-width: 480px;
   padding: 10px 14px;
-  border-radius: 8px;
+  border-radius: var(--ob-radius-card);
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 12px;
-  background: #F1F5F9;
-  color: #64748b;
-  border: 1px solid #E2E8F0;
+  background: var(--ob-bg-secondary);
+  color: var(--ob-text-sub);
+  border: 1px solid var(--ob-border);
 }
 
 .testOk {
-  background: #F0FDF4;
-  color: #16A34A;
-  border-color: #BBF7D0;
+  background: var(--ob-success-bg);
+  color: var(--ob-success-text);
+  border-color: var(--ob-success-bg);
 }
 
 .testFail {
@@ -190,64 +238,42 @@
   border-color: #FECACA;
 }
 
-/* 카페24 OAuth */
-.oauthBtn {
+/* ── 에러 ── */
+.errorMsg {
   width: 100%;
-  max-width: 480px;
-  padding: 11px;
-  background: #EFF6FF;
-  border: 1.5px solid #BFDBFE;
-  border-radius: 10px;
-  color: #2563EB;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-bottom: 16px;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-.oauthBtn:hover {
-  background: #DBEAFE;
-  border-color: #93C5FD;
-}
-
-/* 에러 */
-.error {
-  width: 100%;
-  max-width: 480px;
   padding: 10px 14px;
   background: #FEF2F2;
   border: 1px solid #FECACA;
-  border-radius: 8px;
+  border-radius: var(--ob-radius-card);
   font-size: 13px;
   color: #DC2626;
   margin-bottom: 12px;
 }
 
-/* 액션 버튼 */
+/* ── 액션 버튼 ── */
 .actions {
   display: flex;
   gap: 10px;
   width: 100%;
-  max-width: 480px;
   margin-bottom: 14px;
 }
 
 .skipBtn {
   flex: 1;
   padding: 12px;
-  background: #F1F5F9;
+  background: var(--ob-bg-secondary);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--ob-radius-card);
   font-size: 14px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--ob-text-sub);
+  font-family: inherit;
   cursor: pointer;
   transition: background 0.15s;
 }
 
 .skipBtn:hover:not(:disabled) {
-  background: #E2E8F0;
+  background: var(--ob-track);
 }
 
 .skipBtn:disabled {
@@ -258,41 +284,39 @@
 .saveBtn {
   flex: 2;
   padding: 12px;
-  background: #2563EB;
+  background: var(--ob-brand);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--ob-radius-card);
   font-size: 14px;
   font-weight: 700;
   color: #fff;
+  font-family: inherit;
   cursor: pointer;
-  transition: background 0.15s, transform 0.12s;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.28);
+  transition: opacity 0.15s;
 }
 
 .saveBtn:hover:not(:disabled) {
-  background: #1D4ED8;
-  transform: translateY(-1px);
+  opacity: 0.88;
 }
 
 .saveBtn:disabled {
-  background: #93C5FD;
+  opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
 }
 
-/* 안내 텍스트 */
+/* ── 하단 안내 ── */
 .skipHint {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--ob-text-hint);
   text-align: center;
   max-width: 380px;
   line-height: 1.6;
+  margin: 0;
 }
 
+/* ── 모바일 ── */
 @media (max-width: 480px) {
-  .container { padding: 32px 16px; justify-content: flex-start; padding-top: 40px; }
-  .channelName { font-size: 18px; }
+  .container { padding: 32px 16px; }
   .actions { flex-direction: column; }
   .skipBtn, .saveBtn { flex: none; width: 100%; }
 }
