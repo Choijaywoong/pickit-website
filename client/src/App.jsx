@@ -136,7 +136,7 @@ export default function App() {
   return (
     <>
       {step === 'landing'     && <LandingPage onStart={() => setStep('auth')} />}
-      {step === 'auth'        && <AuthPage onSuccess={handleAuthSuccess} />}
+      {step === 'auth'        && <AuthPage onSuccess={handleAuthSuccess} onBack={() => setStep('landing')} />}
       {step === 'onboarding'  && <Onboarding onComplete={handleOnboardingComplete} />}
       {step === 'connection'  && <ConnectionStatus channels={channels} onStart={handleConnectionStart} />}
       {step === 'chat'        && <ChatWidget />}

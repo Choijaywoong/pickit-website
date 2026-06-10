@@ -4,7 +4,7 @@ import styles from './AuthPage.module.css';
 import { useLanguage } from '../i18n';
 import WeaveLogo from './WeaveLogo';
 
-export default function AuthPage({ onSuccess }) {
+export default function AuthPage({ onSuccess, onBack }) {
   const { lang, setLang, t } = useLanguage();
   const [tab,      setTab]      = useState('login');
   const [email,    setEmail]    = useState('');
@@ -85,13 +85,23 @@ export default function AuthPage({ onSuccess }) {
     <div className={styles.page}>
       <div className={styles.card}>
 
-        {/* 언어 토글 */}
-        <button
-          className={styles.langToggle}
-          onClick={() => setLang(lang === 'ko' ? 'en' : 'ko')}
-        >
-          {lang === 'ko' ? 'EN' : '한'}
-        </button>
+        {/* 카드 상단 행: 뒤로가기 + 언어 토글 */}
+        <div className={styles.cardTopRow}>
+          {onBack && (
+            <button className={styles.backArrowBtn} onClick={onBack} title="뒤로가기">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span>돌아가기</span>
+            </button>
+          )}
+          <button
+            className={styles.langToggle}
+            onClick={() => setLang(lang === 'ko' ? 'en' : 'ko')}
+          >
+            {lang === 'ko' ? 'EN' : '한'}
+          </button>
+        </div>
 
         {/* 로고 */}
         <div className={styles.logo}>
