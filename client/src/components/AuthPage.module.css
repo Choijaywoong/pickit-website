@@ -33,22 +33,21 @@
 .backArrowBtn {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 10px 5px 7px;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   background: transparent;
-  border: 1.5px solid #CBD5E1;
-  border-radius: 7px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #64748b;
+  border: none;
+  border-radius: 8px;
+  color: #94a3b8;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  transition: background 0.15s, color 0.15s;
 }
 
 .backArrowBtn:hover {
-  border-color: #2563EB;
-  color: #2563EB;
-  background: #EFF6FF;
+  background: #F1F5F9;
+  color: #1e293b;
 }
 
 /* 언어 토글 */

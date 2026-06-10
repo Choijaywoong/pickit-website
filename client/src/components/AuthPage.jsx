@@ -89,10 +89,9 @@ export default function AuthPage({ onSuccess, onBack }) {
         <div className={styles.cardTopRow}>
           {onBack && (
             <button className={styles.backArrowBtn} onClick={onBack} title="뒤로가기">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M12.5 5L7.5 10l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span>돌아가기</span>
             </button>
           )}
           <button
