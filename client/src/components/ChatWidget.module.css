@@ -70,6 +70,125 @@
   margin-top: 1px;
 }
 
+/* 사이드바 내 햄버거 버튼 */
+.sidebarMenuBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  color: #94a3b8;
+  cursor: pointer;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sidebarMenuBtn:hover {
+  background: #DBEAFE;
+  color: #2563EB;
+}
+
+/* 섹션 래퍼 */
+.sidebarSection {
+  margin-bottom: 4px;
+}
+
+/* 접기/펼치기 헤더 버튼 */
+.sidebarSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 6px 6px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+  transition: background 0.13s, color 0.13s;
+  text-align: left;
+}
+
+.sidebarSectionHeader:hover {
+  background: #EFF6FF;
+  color: #64748b;
+}
+
+/* 섹션 헤더 안 라벨 (채널 선택 + activeCount 같이 쓸 때) */
+.sectionLabelInner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 섹션 콘텐츠 영역 */
+.sidebarSectionContent {
+  padding: 4px 0 8px;
+}
+
+/* 접기 화살표 */
+.chevron {
+  color: #94a3b8;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+  transform: rotate(-90deg);
+}
+
+.chevronOpen {
+  transform: rotate(0deg);
+}
+
+/* 채팅 내역 아이템 */
+.chatHistoryItem {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 7px 10px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #64748b;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.13s, color 0.13s;
+  margin-bottom: 2px;
+}
+
+.chatHistoryItem:hover {
+  background: #EFF6FF;
+  color: #1e293b;
+}
+
+.chatHistoryItemActive {
+  background: #DBEAFE;
+  color: #2563EB;
+  font-weight: 600;
+}
+
+.chatHistoryTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.emptyChatHint {
+  font-size: 11px;
+  color: #CBD5E1;
+  text-align: center;
+  padding: 10px 8px 4px;
+  margin: 0;
+}
+
 .newChatBtn {
   display: flex;
   align-items: center;
@@ -86,6 +205,7 @@
   cursor: pointer;
   transition: background 0.15s;
   white-space: nowrap;
+  margin-bottom: 6px;
 }
 
 .newChatBtn:hover {

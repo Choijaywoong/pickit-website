@@ -80,6 +80,13 @@ export default function ChatWidget() {
 
   // 활성화된 채널: 연결된 채널 중 사용자가 켜둔 것만 (처음엔 전부 ON)
   const [activeChannels, setActiveChannels] = useState(connectedChannels);
+  const [channelSectionOpen, setChannelSectionOpen] = useState(true);
+  const [chatSectionOpen, setChatSectionOpen]       = useState(true);
+  const [chatHistory, setChatHistory] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('pickit_chat_history') || '[]'); }
+    catch { return []; }
+  });
+  const [currentChatId, setCurrentChatId] = useState(() => Date.now().toString());
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -146,12 +153,40 @@ export default function ChatWidget() {
     setMessages((prev) => [...prev, msg]);
   }
 
+  function saveChatToHistory() {
+    if (messages.length === 0) return;
+    const firstUserMsg = messages.find((m) => m.role === 'user');
+    const title = firstUserMsg?.content?.slice(0, 28) || '새 대화';
+    const entry = {
+      id: currentChatId,
+      title,
+      messages: messages.slice(0, 50).map((m) => ({ role: m.role, content: m.content })),
+      createdAt: Date.now(),
+    };
+    setChatHistory((prev) => {
+      const updated = [entry, ...prev.filter((c) => c.id !== currentChatId)].slice(0, 20);
+      try { localStorage.setItem('pickit_chat_history', JSON.stringify(updated)); } catch {}
+      return updated;
+    });
+  }
+
   function newConversation() {
+    saveChatToHistory();
+    setCurrentChatId(Date.now().toString());
     setMessages([]);
     setPendingAction(null);
     setPanelData(null);
     setPanelOpen(false);
     setTimeout(() => textareaRef.current?.focus(), 50);
+  }
+
+  function loadConversation(entry) {
+    saveChatToHistory();
+    setCurrentChatId(entry.id);
+    setMessages(entry.messages || []);
+    setPendingAction(null);
+    setPanelData(null);
+    setPanelOpen(false);
   }
 
   const sendMessage = useCallback(async (text) => {
@@ -370,66 +405,119 @@ export default function ChatWidget() {
           {/* 브랜드 */}
           <div className={styles.brand}>
             <WeaveLogo />
-            <div className={styles.brandSub}>{t('brandSub')}</div>
+            <button
+              className={styles.sidebarMenuBtn}
+              onClick={() => setSidebarOpen((o) => !o)}
+              title="사이드바 닫기"
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <rect x="1" y="3.5"  width="16" height="1.5" rx="0.75" fill="currentColor"/>
+                <rect x="1" y="8.25" width="16" height="1.5" rx="0.75" fill="currentColor"/>
+                <rect x="1" y="13"   width="16" height="1.5" rx="0.75" fill="currentColor"/>
+              </svg>
+            </button>
           </div>
-
-          <button className={styles.newChatBtn} onClick={newConversation}>
-            <span>+</span> {t('newChat')}
-          </button>
         </div>
 
         <div className={styles.sidebarBody}>
-          <p className={styles.sectionLabel}>
-            {t('channelSection')}
-            {activeChannels.length > 0 && (
-              <span className={styles.activeCount}>{t('activeCount', activeChannels.length)}</span>
-            )}
-          </p>
-
-          <div className={styles.channelBlocks}>
-            {ALL_CHANNELS.map((ch) => {
-              const isConnected = connectedChannels.includes(ch.id);
-              const isActive    = isConnected && activeChannels.includes(ch.id);
-
-              // 블록 상태에 따른 클래스
-              let blockClass = styles.chBlock;
-              if (!isConnected)      blockClass += ` ${styles.chBlockUnlinked}`;
-              else if (isActive)     blockClass += ` ${styles.chBlockOn}`;
-              else                   blockClass += ` ${styles.chBlockOff}`;
-
-              return (
-                <button
-                  key={ch.id}
-                  className={blockClass}
-                  style={isActive ? {
-                    borderColor: ch.color,
-                    backgroundColor: `${ch.color}18`, // 채널 색상 ~10% 투명도 배경
-                  } : undefined}
-                  onClick={() => toggleChannel(ch.id)}
-                  disabled={!isConnected}
-                  title={!isConnected ? '온보딩에서 선택되지 않은 채널입니다' : isActive ? '클릭하면 비활성화됩니다' : '클릭하면 활성화됩니다'}
-                >
-                  {/* 채널 컬러 점 */}
-                  <span
-                    className={styles.chDot}
-                    style={{ background: isConnected ? ch.color : '#D1D5DB' }}
-                  />
-
-                  {/* 채널명 */}
-                  <span className={styles.chLabel}>{ch.label}</span>
-
-                  {/* 상태 표시 */}
-                  {!isConnected ? (
-                    <span className={styles.chBadgeUnlinked}>{t('unlinked')}</span>
-                  ) : (
-                    <span
-                      className={`${styles.chToggle} ${isActive ? styles.chToggleOn : ''}`}
-                      style={isActive ? { background: ch.color } : undefined}
-                    />
-                  )}
+          {/* ── 채팅 섹션 ── */}
+          <div className={styles.sidebarSection}>
+            <button
+              className={styles.sidebarSectionHeader}
+              onClick={() => setChatSectionOpen((o) => !o)}
+            >
+              <span>채팅</span>
+              <svg
+                className={`${styles.chevron} ${chatSectionOpen ? styles.chevronOpen : ''}`}
+                width="12" height="12" viewBox="0 0 12 12" fill="none"
+              >
+                <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            {chatSectionOpen && (
+              <div className={styles.sidebarSectionContent}>
+                <button className={styles.newChatBtn} onClick={newConversation}>
+                  <span>+</span> {t('newChat')}
                 </button>
-              );
-            })}
+                {chatHistory.length === 0 ? (
+                  <p className={styles.emptyChatHint}>대화 내역이 없습니다.</p>
+                ) : (
+                  chatHistory.map((entry) => (
+                    <button
+                      key={entry.id}
+                      className={`${styles.chatHistoryItem} ${entry.id === currentChatId ? styles.chatHistoryItemActive : ''}`}
+                      onClick={() => loadConversation(entry)}
+                    >
+                      <span className={styles.chatHistoryTitle}>{entry.title}</span>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* ── 채널 선택 섹션 ── */}
+          <div className={styles.sidebarSection}>
+            <button
+              className={styles.sidebarSectionHeader}
+              onClick={() => setChannelSectionOpen((o) => !o)}
+            >
+              <span className={styles.sectionLabelInner}>
+                {t('channelSection')}
+                {activeChannels.length > 0 && (
+                  <span className={styles.activeCount}>{t('activeCount', activeChannels.length)}</span>
+                )}
+              </span>
+              <svg
+                className={`${styles.chevron} ${channelSectionOpen ? styles.chevronOpen : ''}`}
+                width="12" height="12" viewBox="0 0 12 12" fill="none"
+              >
+                <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            {channelSectionOpen && (
+              <div className={styles.sidebarSectionContent}>
+                <div className={styles.channelBlocks}>
+                  {ALL_CHANNELS.map((ch) => {
+                    const isConnected = connectedChannels.includes(ch.id);
+                    const isActive    = isConnected && activeChannels.includes(ch.id);
+
+                    let blockClass = styles.chBlock;
+                    if (!isConnected)  blockClass += ` ${styles.chBlockUnlinked}`;
+                    else if (isActive) blockClass += ` ${styles.chBlockOn}`;
+                    else               blockClass += ` ${styles.chBlockOff}`;
+
+                    return (
+                      <button
+                        key={ch.id}
+                        className={blockClass}
+                        style={isActive ? {
+                          borderColor: ch.color,
+                          backgroundColor: `${ch.color}18`,
+                        } : undefined}
+                        onClick={() => toggleChannel(ch.id)}
+                        disabled={!isConnected}
+                        title={!isConnected ? '온보딩에서 선택되지 않은 채널입니다' : isActive ? '클릭하면 비활성화됩니다' : '클릭하면 활성화됩니다'}
+                      >
+                        <span
+                          className={styles.chDot}
+                          style={{ background: isConnected ? ch.color : '#D1D5DB' }}
+                        />
+                        <span className={styles.chLabel}>{ch.label}</span>
+                        {!isConnected ? (
+                          <span className={styles.chBadgeUnlinked}>{t('unlinked')}</span>
+                        ) : (
+                          <span
+                            className={`${styles.chToggle} ${isActive ? styles.chToggleOn : ''}`}
+                            style={isActive ? { background: ch.color } : undefined}
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
