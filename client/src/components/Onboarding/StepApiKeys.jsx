@@ -1,7 +1,7 @@
 // 온보딩 4단계: 채널별 API 키 연결
 // 채널 서브 스텝(브레드크럼) + 메인 ProgressBar(채널 진행에 따라 점진 증가)
 // 의류 3사(무신사·에이블리·지그재그): API 미확정 → "준비 중" UI (TODO)
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import { authFetch } from '../../auth';
 import styles from './StepApiKeys.module.css';
 import { useLanguage } from '../../i18n';
@@ -84,6 +84,23 @@ export default function StepApiKeys({ channels, totalSteps, onComplete, onBack }
   const chId    = channels[idx];
   const config  = CHANNEL_CONFIG[chId];
   const isPending = config?.status === 'pending';
+
+  // Cafe24 OAuth 팝업에서 보낸 결과 수신
+  useEffect(() => {
+    function handleOAuthMessage(e) {
+      if (e.origin !== window.location.origin) return;
+      if (e.data?.type !== 'cafe24-oauth') return;
+      if (e.data.result === 'success') {
+        setConnectedSet(prev => new Set([...prev, 'cafe24']));
+        setTestStatus('ok');
+        setError('');
+      } else {
+        setError(`카페24 연동 실패: ${e.data.reason || '알 수 없는 오류'}`);
+      }
+    }
+    window.addEventListener('message', handleOAuthMessage);
+    return () => window.removeEventListener('message', handleOAuthMessage);
+  }, []);
 
   // ProgressBar progress 계산:
   // 마지막 단계 진입 시 (totalSteps-1)/totalSteps 에서 출발, 채널 완료마다 점진 증가

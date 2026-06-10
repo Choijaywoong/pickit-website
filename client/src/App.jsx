@@ -26,8 +26,28 @@ export default function App() {
       // 어드민 라우트에서는 App이 렌더되지 않지만, 혹시 auth 이벤트가 흘러오는 경우 차단
       if (window.location.pathname.startsWith('/admin')) return;
 
+      // Cafe24 OAuth 팝업 콜백 처리 — 팝업이면 부모에 결과 전달 후 닫기
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('oauth')) {
+        if (window.opener) {
+          window.opener.postMessage(
+            { type: 'cafe24-oauth', result: params.get('oauth'), mallId: params.get('mall_id'), reason: params.get('reason') },
+            window.location.origin
+          );
+          window.close();
+          return;
+        }
+        // 팝업이 아닌 경우(리다이렉트로 온 경우) 토스트 표시 후 파라미터 제거
+        if (params.get('oauth') === 'success') {
+          showToast('카페24 연동이 완료됐어요.', 'success');
+        } else {
+          showToast(`카페24 연동 실패: ${params.get('reason') || '알 수 없는 오류'}`, 'error');
+        }
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+
       // 외부 랜딩 페이지(weave-synchub)에서 ?start=1로 진입 시 바로 로그인 화면으로
-      if (new URLSearchParams(window.location.search).get('start') === '1') {
+      if (params.get('start') === '1') {
         setStep('auth');
         return;
       }

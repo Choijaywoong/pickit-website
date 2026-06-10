@@ -16,4 +16,15 @@ app.use('/api/settings', settingsRoutes);
 
 app.get('/', (req, res) => res.json({ service: 'PICKIT API', status: 'ok' }));
 
+// 404 핸들러 — 존재하지 않는 라우트는 JSON으로 반환
+app.use((req, res) => {
+  res.status(404).json({ error: `Not found: ${req.method} ${req.path}` });
+});
+
+// 전역 에러 핸들러 — 처리되지 않은 예외를 JSON으로 반환
+app.use((err, req, res, _next) => {
+  console.error('[PICKIT ERROR]', err);
+  res.status(err.status || 500).json({ error: err.message || '서버 오류가 발생했습니다.' });
+});
+
 module.exports = app;
