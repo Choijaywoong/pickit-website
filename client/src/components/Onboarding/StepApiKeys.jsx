@@ -71,7 +71,7 @@ const CHANNEL_CONFIG = {
   },
 };
 
-export default function StepApiKeys({ channels, totalSteps, onComplete }) {
+export default function StepApiKeys({ channels, totalSteps, onComplete, onBack }) {
   const { t } = useLanguage();
   const [idx,          setIdx]          = useState(0);
   const [values,       setValues]       = useState({});
@@ -171,6 +171,19 @@ export default function StepApiKeys({ channels, totalSteps, onComplete }) {
   return (
     <div className={styles.container}>
       <div className={styles.main}>
+
+        {/* 뒤로가기 */}
+        {(idx === 0 ? onBack : true) && (
+          <button
+            className={styles.backBtn}
+            onClick={idx === 0 ? onBack : () => { setIdx(i => i - 1); setValues({}); setError(''); setTestStatus(null); }}
+            title="이전 단계"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M12.5 5L7.5 10l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        )}
 
         {/* 로고 */}
         <div className={styles.logo}>

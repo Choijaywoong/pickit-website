@@ -19,6 +19,29 @@
   max-width: 480px;
 }
 
+/* ── 뒤로가기 버튼 ── */
+.backBtn {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 4px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  color: #94a3b8;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+}
+
+.backBtn:hover {
+  background: #F1F5F9;
+  color: #1e293b;
+}
+
 /* ── 로고 ── */
 .logo {
   margin-bottom: 32px;

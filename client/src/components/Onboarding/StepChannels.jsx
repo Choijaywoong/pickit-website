@@ -16,7 +16,7 @@ const CHANNELS = [
   { id: 'zigzag',  label: '지그재그',             tier: 'vertical', particle: '은' },
 ];
 
-export default function StepChannels({ onNext, displayStep, totalSteps }) {
+export default function StepChannels({ onNext, onBack, displayStep, totalSteps }) {
   const { t } = useLanguage();
   const [selected,     setSelected]     = useState([]);
   const [modalChannel, setModalChannel] = useState(null); // null | channel object
@@ -46,6 +46,16 @@ export default function StepChannels({ onNext, displayStep, totalSteps }) {
     <div className={styles.container}>
 
       <div className={styles.main}>
+
+        {/* 뒤로가기 */}
+        {onBack && (
+          <button className={styles.backBtn} onClick={onBack} title="이전 단계">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M12.5 5L7.5 10l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        )}
+
         {/* 로고 */}
         <div className={styles.logo}>
           <Logo size="md" />
