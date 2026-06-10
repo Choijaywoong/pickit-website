@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import styles from './SettingsPanel.module.css';
 import { authFetch } from '../auth';
-import { useLanguage } from '../i18n';
+import { useLanguage, SUPPORTED_LANGS } from '../i18n';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
@@ -280,25 +280,20 @@ export default function SettingsPanel({ onClose, initialChannel = null }) {
           {/* 언어 섹션 */}
           {section === 'language' && (
             <div className={styles.langSection}>
-              <h2 className={styles.sectionTitle}>언어 설정</h2>
-              <p className={styles.sectionDesc}>채팅 인터페이스와 시스템 메시지에 사용할 언어를 선택합니다.</p>
+              <h2 className={styles.sectionTitle}>언어 설정 / Language</h2>
+              <p className={styles.sectionDesc}>인터페이스 언어를 선택합니다. / Select your interface language.</p>
               <div className={styles.langOptions}>
-                <button
-                  className={`${styles.langOption} ${lang === 'ko' ? styles.langOptionActive : ''}`}
-                  onClick={() => setLang('ko')}
-                >
-                  <span className={styles.langFlag}>🇰🇷</span>
-                  <span className={styles.langName}>한국어</span>
-                  {lang === 'ko' && <span className={styles.langCheck}>✓</span>}
-                </button>
-                <button
-                  className={`${styles.langOption} ${lang === 'en' ? styles.langOptionActive : ''}`}
-                  onClick={() => setLang('en')}
-                >
-                  <span className={styles.langFlag}>🇺🇸</span>
-                  <span className={styles.langName}>English</span>
-                  {lang === 'en' && <span className={styles.langCheck}>✓</span>}
-                </button>
+                {SUPPORTED_LANGS.map((l) => (
+                  <button
+                    key={l.code}
+                    className={`${styles.langOption} ${lang === l.code ? styles.langOptionActive : ''}`}
+                    onClick={() => setLang(l.code)}
+                  >
+                    <span className={styles.langFlag}>{l.flag}</span>
+                    <span className={styles.langName}>{l.nativeName}</span>
+                    {lang === l.code && <span className={styles.langCheck}>✓</span>}
+                  </button>
+                ))}
               </div>
             </div>
           )}
