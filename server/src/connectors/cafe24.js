@@ -262,4 +262,10 @@ async function getStock({ productId, optionLabel }) {
     }));
 }
 
-module.exports = { query, price, stock, invoice, getStock };
+// 연결 테스트 — 상품 1개 조회로 OAuth 토큰 및 Mall ID 유효성 확인
+async function test() {
+  await cafe24Fetch('/products?limit=1');
+  return true;
+}
+
+module.exports = { query, price, stock, invoice, getStock, test };

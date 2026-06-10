@@ -7,7 +7,6 @@ import SettingsModal      from './SettingsModal';
 import FirewallToast      from './FirewallToast';
 import ResultPanel        from './ResultPanel';
 import InvoicePanel       from './InvoicePanel';
-import ExcelBar           from './ExcelBar';
 import FileCard           from './FileCard';
 import ConnectionBanner   from './ConnectionBanner';
 import PredictionAlert    from './PredictionAlert';
