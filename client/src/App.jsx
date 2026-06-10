@@ -26,6 +26,12 @@ export default function App() {
       // 어드민 라우트에서는 App이 렌더되지 않지만, 혹시 auth 이벤트가 흘러오는 경우 차단
       if (window.location.pathname.startsWith('/admin')) return;
 
+      // 외부 랜딩 페이지(weave-synchub)에서 ?start=1로 진입 시 바로 로그인 화면으로
+      if (new URLSearchParams(window.location.search).get('start') === '1') {
+        setStep('auth');
+        return;
+      }
+
       // Supabase 미설정(개발 모드) → 바로 onboarding 또는 chat
       if (!supabase) {
         const saved = localStorage.getItem(ONBOARDING_KEY);
