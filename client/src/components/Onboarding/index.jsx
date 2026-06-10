@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import StepInventory  from './StepInventory';
-import StepStockMode  from './StepStockMode';
-import StepChannels   from './StepChannels';
-import StepApiKeys    from './StepApiKeys';
-import StepComplete   from './StepComplete';
+import StepInventory    from './StepInventory';
+import StepStockMode    from './StepStockMode';
+import StepChannels     from './StepChannels';
+import StepApiKeys      from './StepApiKeys';
+import ConnectionStatus from '../ConnectionStatus';
 
 // 온보딩 흐름:
 //   재고여부(1) → [Yes] 공유/분리 선택(1-b) → 채널선택(2) → API키 입력(3) → 완료(complete)
@@ -38,9 +38,8 @@ export default function Onboarding({ onComplete }) {
   }
 
   if (step === 'complete') return (
-    <StepComplete
+    <ConnectionStatus
       channels={channels}
-      connectedChannels={connectedChannels}
       onStart={() => onComplete({ hasInventory, stockMode, channels, connectedChannels })}
     />
   );
