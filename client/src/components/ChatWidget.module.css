@@ -274,6 +274,12 @@
   color: #2563EB;
 }
 
+.settingsBtnActive {
+  background: #DBEAFE;
+  color: #2563EB;
+  font-weight: 600;
+}
+
 /* 로그아웃 버튼 */
 .logoutBtn {
   display: flex;

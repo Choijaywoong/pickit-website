@@ -3,7 +3,7 @@ import * as XLSX from 'xlsx';
 import ReactMarkdown from 'react-markdown';
 import styles from './ChatWidget.module.css';
 import { logActivity } from '../logActivity';
-import SettingsModal      from './SettingsModal';
+import SettingsPanel      from './SettingsPanel';
 import FirewallToast      from './FirewallToast';
 import ResultPanel        from './ResultPanel';
 import InvoicePanel       from './InvoicePanel';
@@ -60,7 +60,8 @@ export default function ChatWidget() {
   const [loading, setLoading]             = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
   const [sidebarOpen, setSidebarOpen]     = useState(() => window.innerWidth > 768);
-  const [showSettings, setShowSettings]   = useState(false);
+  const [settingsOpen, setSettingsOpen]         = useState(false);
+  const [settingsInitChannel, setSettingsInitChannel] = useState(null);
   const [panelData, setPanelData]         = useState(null);  // ResultPanel 데이터
   const [panelOpen, setPanelOpen]         = useState(false); // ResultPanel 열림 여부
   const [panelMode, setPanelMode]         = useState('order'); // 'order' | 'excel' | 'invoice'
@@ -84,14 +85,11 @@ export default function ChatWidget() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // ConnectionStatus "다시 연결하기" → SettingsModal 특정 탭으로 열기
+  // ConnectionBanner "다시 연결하기" → 설정 패널의 특정 채널 탭으로 열기
   useEffect(() => {
     function handleOpenSettings(e) {
-      setShowSettings(true);
-      // SettingsModal에 초기 탭 전달 (CustomEvent detail.tab)
-      if (e.detail?.tab) {
-        window.__pickit_settings_tab = e.detail.tab;
-      }
+      setSettingsInitChannel(e.detail?.tab || null);
+      setSettingsOpen(true);
     }
     window.addEventListener('pickit-open-settings', handleOpenSettings);
     return () => window.removeEventListener('pickit-open-settings', handleOpenSettings);
@@ -435,9 +433,12 @@ export default function ChatWidget() {
           </div>
         </div>
 
-        {/* 사이드바 하단: 설정 버튼 + 채널 변경 */}
+        {/* 사이드바 하단: 설정 + 로그아웃 + 기타 */}
         <div className={styles.sidebarFooter}>
-          <button className={styles.settingsBtn} onClick={() => setShowSettings(true)}>
+          <button
+            className={`${styles.settingsBtn} ${settingsOpen ? styles.settingsBtnActive : ''}`}
+            onClick={() => setSettingsOpen((o) => !o)}
+          >
             <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
               <path d="M7.5 9.5a2 2 0 100-4 2 2 0 000 4z" fill="currentColor"/>
               <path fillRule="evenodd" clipRule="evenodd" d="M6.02 1.5a.5.5 0 00-.49.4l-.23 1.13A5.5 5.5 0 003.7 3.96l-1.1-.4a.5.5 0 00-.6.23l-1.5 2.6a.5.5 0 00.12.64l.9.72a5.5 5.5 0 000 1.5l-.9.72a.5.5 0 00-.12.64l1.5 2.6a.5.5 0 00.6.23l1.1-.4a5.5 5.5 0 001.6.93l.22 1.13a.5.5 0 00.49.4h3a.5.5 0 00.49-.4l.23-1.13a5.5 5.5 0 001.6-.93l1.1.4a.5.5 0 00.6-.23l1.5-2.6a.5.5 0 00-.12-.64l-.9-.72a5.5 5.5 0 000-1.5l.9-.72a.5.5 0 00.12-.64l-1.5-2.6a.5.5 0 00-.6-.23l-1.1.4a5.5 5.5 0 00-1.6-.93L9.48 1.9a.5.5 0 00-.49-.4h-3zm.98 1h1l.2 1.02.5.22a4.5 4.5 0 011.3.76l.44.35.98-.36.5.87-.8.64.07.54a4.5 4.5 0 010 1.2l-.07.54.8.64-.5.87-.98-.36-.44.35a4.5 4.5 0 01-1.3.76l-.5.22-.2 1.02h-1l-.2-1.02-.5-.22a4.5 4.5 0 01-1.3-.76l-.44-.35-.98.36-.5-.87.8-.64-.07-.54a4.5 4.5 0 010-1.2l.07-.54-.8-.64.5-.87.98.36.44-.35a4.5 4.5 0 011.3-.76l.5-.22.2-1.02z" fill="currentColor"/>
@@ -483,11 +484,19 @@ export default function ChatWidget() {
         </div>
       </aside>
 
-      {/* 설정 모달 */}
-      {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
-
       {/* ── 메인 영역 ── */}
       <main className={styles.main}>
+
+        {/* 설정 페이지 — settingsOpen 시 채팅 뷰 전체 대체 */}
+        {settingsOpen && (
+          <SettingsPanel
+            onClose={() => { setSettingsOpen(false); setSettingsInitChannel(null); }}
+            initialChannel={settingsInitChannel}
+          />
+        )}
+
+        {/* 채팅 뷰 — 설정 열릴 때 숨김 (언마운트 아닌 hidden으로 메시지 유지) */}
+        <div style={settingsOpen ? { display: 'none' } : { display: 'contents' }}>
 
         {/* 상단 바 */}
         <header className={styles.topbar}>
@@ -633,6 +642,7 @@ export default function ChatWidget() {
           </div>
           <p className={styles.inputHint}>{t('inputHint')}</p>
         </div>
+        </div>{/* end 채팅 뷰 wrapper */}
       </main>
 
       {/* 우측 슬라이드 패널 — panelMode에 따라 주문결과 또는 송장입력 */}

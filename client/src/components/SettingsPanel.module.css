@@ -1,0 +1,412 @@
+/* 설정 패널 — 메인 영역을 대체하는 전체 페이지 설정 화면 */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #F8FAFC;
+  overflow: hidden;
+}
+
+/* 헤더 */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 56px;
+  background: #fff;
+  border-bottom: 1px solid #E2E8F0;
+  flex-shrink: 0;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #64748B;
+  cursor: pointer;
+  transition: background 0.13s, color 0.13s;
+  width: 80px;
+}
+
+.backBtn:hover {
+  background: #F1F5F9;
+  color: #1E293B;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0F172A;
+  margin: 0;
+}
+
+/* 바디 */
+.body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 왼쪽 섹션 네비게이션 */
+.sectionNav {
+  width: 180px;
+  flex-shrink: 0;
+  padding: 20px 10px;
+  border-right: 1px solid #E2E8F0;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sectionBtn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 9px 12px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #64748B;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s, color 0.12s;
+}
+
+.sectionBtn:hover {
+  background: #F1F5F9;
+  color: #1E293B;
+}
+
+.sectionBtnActive {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  font-weight: 600;
+}
+
+/* 오른쪽 콘텐츠 */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px;
+}
+
+/* ── 채널 연결 섹션 ── */
+
+.loadErrBanner {
+  padding: 10px 14px;
+  background: #FEF3C7;
+  border: 1px solid #FCD34D;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #92400E;
+  margin-bottom: 16px;
+}
+
+.channelsLayout {
+  display: flex;
+  gap: 20px;
+  height: 100%;
+}
+
+.channelNav {
+  width: 160px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.channelNavBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #475569;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s, color 0.12s;
+}
+
+.channelNavBtn:hover {
+  background: #F1F5F9;
+  color: #1E293B;
+}
+
+.channelNavBtnActive {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  font-weight: 600;
+}
+
+.channelDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.channelNavLabel {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.checkBadge {
+  font-size: 11px;
+  color: #16A34A;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* 채널 폼 */
+.channelForm {
+  flex: 1;
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 20px 24px;
+  overflow-y: auto;
+}
+
+.channelFormHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.channelFormDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.channelFormName {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0F172A;
+  margin: 0 0 3px;
+}
+
+.channelFormDesc {
+  font-size: 12.5px;
+  color: #64748B;
+  margin: 0;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.fieldRow {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fieldLabel {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.setTag {
+  font-size: 10.5px;
+  font-weight: 500;
+  background: #D1FAE5;
+  color: #065F46;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.fieldInput {
+  width: 100%;
+  max-width: 380px;
+  padding: 8px 11px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1E293B;
+  background: #fff;
+  transition: border-color 0.14s;
+  outline: none;
+}
+
+.fieldInput:focus {
+  border-color: #3B82F6;
+}
+
+.fieldHint {
+  font-size: 11.5px;
+  color: #94A3B8;
+  margin: 0;
+}
+
+/* OAuth 섹션 */
+.oauthSection {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.oauthOk {
+  font-size: 13px;
+  font-weight: 600;
+  color: #15803D;
+  margin: 0;
+}
+
+.oauthDesc {
+  font-size: 12.5px;
+  color: #475569;
+  margin: 0 0 10px;
+  line-height: 1.6;
+}
+
+.oauthBtn {
+  padding: 8px 14px;
+  background: #1155CC;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.14s;
+}
+
+.oauthBtn:hover {
+  background: #0D47A1;
+}
+
+/* 폼 하단 */
+.formFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid #F1F5F9;
+}
+
+.saveMsg {
+  font-size: 12.5px;
+}
+
+.saveMsgOk { color: #15803D; }
+.saveMsgErr { color: #DC2626; }
+
+.saveBtn {
+  padding: 8px 20px;
+  background: #2563EB;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.14s;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background: #1D4ED8;
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── 언어 섹션 ── */
+
+.langSection {
+  max-width: 480px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0F172A;
+  margin: 0 0 6px;
+}
+
+.sectionDesc {
+  font-size: 13px;
+  color: #64748B;
+  margin: 0 0 20px;
+}
+
+.langOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.langOption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.13s, background 0.13s;
+  width: 100%;
+}
+
+.langOption:hover {
+  border-color: #93C5FD;
+  background: #F8FAFC;
+}
+
+.langOptionActive {
+  border-color: #2563EB;
+  background: #EFF6FF;
+  color: #1D4ED8;
+}
+
+.langFlag {
+  font-size: 20px;
+}
+
+.langName {
+  flex: 1;
+  font-weight: 500;
+}
+
+.langCheck {
+  font-size: 13px;
+  font-weight: 700;
+  color: #2563EB;
+}
