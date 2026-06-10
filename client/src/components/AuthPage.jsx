@@ -96,7 +96,6 @@ export default function AuthPage({ onSuccess }) {
         {/* 로고 */}
         <div className={styles.logo}>
           <WeaveLogo size="lg" />
-          <div className={styles.logoSub}>{t('authLogoSub')}</div>
         </div>
 
         {/* 소셜 로그인 버튼 */}
