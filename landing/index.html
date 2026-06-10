@@ -1,1767 +1,588 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>weave — 멀티채널 AI 운영</title>
-  <meta name="description" content="쿠팡, 네이버, 카페24… 흩어진 채널을 채팅창 한 줄로 움직이세요.">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230D1117'/><rect x='5' y='7' width='18' height='4' rx='2' fill='%234A9EE8'/><rect x='8' y='14' width='18' height='4' rx='2' fill='%234A9EE8' opacity='.6'/><rect x='5' y='21' width='18' height='4' rx='2' fill='%234A9EE8' opacity='.3'/></svg>">
-  <link rel="preconnect" href="https://cdn.jsdelivr.net">
-  <link rel="stylesheet" as="style" onload="this.rel='stylesheet'" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-  <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"></noscript>
-  <style>
-    /* ── 변수 ── */
-    :root {
-      --blue:     #1A6FD4;
-      --blue-lt:  #E8F1FB;
-      --blue-dk:  #0D4FA0;
-      --gray-900: #0D1117;
-      --gray-700: #374151;
-      --gray-600: #4B5563;
-      --gray-400: #9CA3AF;
-      --gray-200: #E5E7EB;
-      --gray-100: #F3F4F6;
-      --bg:       #FFFFFF;
-      --bg-lt:    #F6F9FF;
-      --bg-md:    #EEF3FA;
-      --r-card:   16px;
-      --r-btn:    12px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>weave — 흩어진 채널을 채팅 한 줄로</title>
+<meta name="description" content="쿠팡, 네이버, 카페24 등 6개 채널을 채팅창 한 줄로 운영하세요.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.47.0/tabler-icons.min.css">
+<style>
+  :root {
+    --blue:#1A6FD4; --blue-deep:#0B4FA8; --blue-ink:#0A2540; --blue-bright:#4A9EE8;
+    --tint:#F4F8FE; --tint-2:#EAF2FD; --ink:#111827; --gray:#6B7280; --line:#E5E9F0; --white:#fff;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'Pretendard',sans-serif; color:var(--ink); background:var(--white); -webkit-font-smoothing:antialiased; line-height:1.5; }
+  @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} .reveal{opacity:1!important;transform:none!important} }
+  section { position:relative; }
+  .wrap { max-width:1180px; margin:0 auto; padding-left:40px; padding-right:40px; }
 
-    /* ── 리셋 ── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-    body {
-      font-family: 'Pretendard', 'Apple SD Gothic Neo', -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: 16px; color: var(--gray-900); background: var(--bg);
-      line-height: 1.7; overflow-x: hidden;
-    }
-    a { text-decoration: none; color: inherit; }
-    button { font-family: inherit; cursor: pointer; }
+  .logo { display:flex; align-items:center; gap:9px; }
+  .logo .ico path { fill:none; stroke:var(--blue); stroke-linecap:round; }
+  .logo .txt { font-family:'Nunito',sans-serif; font-weight:900; font-size:25px; letter-spacing:-.03em; color:var(--blue-ink); }
 
-    /* ── 레이아웃 ── */
-    .container { max-width: 1120px; margin: 0 auto; padding: 0 28px; }
+  nav { position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between;
+    padding:14px 40px; background:rgba(255,255,255,.82); backdrop-filter:saturate(180%) blur(12px); border-bottom:1px solid var(--line); }
+  .nav-mid { display:flex; gap:6px; }
+  .nav-mid a { font-size:14.5px; font-weight:600; color:var(--gray); text-decoration:none; padding:8px 14px; border-radius:9px; transition:.15s; cursor:pointer; }
+  .nav-mid a:hover { color:var(--blue-ink); background:var(--tint); }
+  .nav-right { display:flex; align-items:center; gap:8px; }
+  .nav-login { font-size:14.5px; font-weight:700; color:var(--blue-ink); text-decoration:none; padding:9px 14px; border-radius:10px; transition:.15s; cursor:pointer; }
+  .nav-login:hover { background:var(--tint); }
+  .nav-cta { padding:10px 18px; border-radius:10px; background:var(--blue); color:#fff; font-size:14px; font-weight:700; border:none; cursor:pointer; transition:.15s; }
+  .nav-cta:hover { background:var(--blue-deep); transform:translateY(-1px); }
 
-    /* ── 로고 ── */
-    .logo { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; }
-    .logo-text {
-      font-family: 'Inter', 'Pretendard', sans-serif;
-      font-size: 20px; font-weight: 700; line-height: 1;
-      letter-spacing: -0.02em; color: var(--gray-900);
-    }
+  .hero { overflow:hidden; display:grid; grid-template-columns:0.92fr 1fr; gap:24px; align-items:center; padding:84px 0 100px; }
+  .hero-copy { padding-left:48px; }
+  .hero-outer::before { content:""; position:absolute; top:-120px; right:-80px; width:540px; height:540px; border-radius:50%;
+    background:radial-gradient(circle, rgba(26,111,212,.09), transparent 70%); z-index:0; animation:breathe 7s ease-in-out infinite; }
+  .hero-outer::after { content:""; position:absolute; bottom:-100px; left:-60px; width:360px; height:360px; border-radius:50%;
+    background:radial-gradient(circle, rgba(74,158,232,.07), transparent 70%); z-index:0; animation:breathe 9s ease-in-out infinite reverse; }
+  .hero > * { position:relative; z-index:1; }
+  h1 { font-size:56px; line-height:1.16; letter-spacing:-.045em; font-weight:800; color:var(--blue-ink); margin-bottom:22px; }
+  h1 .line { display:block; opacity:0; animation:rise .8s ease forwards; }
+  h1 .line:nth-child(1){animation-delay:.12s} h1 .line:nth-child(2){animation-delay:.24s}
+  h1 .hl { position:relative; color:var(--blue); white-space:nowrap; }
+  h1 .hl::after { content:""; position:absolute; left:0; right:0; bottom:6px; height:12px; background:rgba(26,111,212,.16); z-index:-1; border-radius:3px; transform:scaleX(0); transform-origin:left; animation:swipe .6s ease .6s forwards; }
+  .sub { font-size:18px; line-height:1.6; color:var(--gray); margin-bottom:34px; font-weight:500; opacity:0; animation:rise .8s ease .36s forwards; }
+  .cta-row { display:flex; align-items:center; gap:16px; opacity:0; animation:rise .8s ease .48s forwards; }
+  .btn-primary { padding:16px 28px; border-radius:14px; background:var(--blue); color:#fff; font-size:16px; font-weight:700; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 8px 24px rgba(26,111,212,.3); transition:.18s; position:relative; overflow:hidden; text-decoration:none; }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 14px 32px rgba(26,111,212,.42); }
+  .btn-primary .arrow { transition:transform .18s; } .btn-primary:hover .arrow { transform:translateX(4px); }
+  .btn-primary::after { content:""; position:absolute; top:0; left:-120%; width:60%; height:100%; background:linear-gradient(120deg,transparent,rgba(255,255,255,.35),transparent); transform:skewX(-20deg); transition:left .6s; }
+  .btn-primary:hover::after { left:140%; }
 
-    /* ── 버튼 ── */
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center;
-      padding: 14px 28px; border-radius: var(--r-btn);
-      font-size: 15px; font-weight: 600; border: none;
-      transition: all 0.2s; white-space: nowrap; letter-spacing: -0.01em;
-    }
-    .btn-primary { background: var(--blue); color: #fff; }
-    .btn-primary:hover {
-      background: var(--blue-dk);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(26,111,212,0.3);
-    }
-    .btn-outline { background: transparent; color: var(--blue); border: 1.5px solid var(--blue); }
-    .btn-outline:hover { background: var(--blue-lt); transform: translateY(-1px); }
-    .btn-white { background: #fff; color: var(--blue); }
-    .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.14); }
+  .visual { position:relative; height:480px; opacity:0; animation:rise .9s ease .4s forwards; }
+  .flow { position:absolute; inset:0; width:100%; height:100%; z-index:1; }
+  .chat-card { position:absolute; left:120px; top:50%; transform:translateY(-50%); z-index:4; width:330px; background:#fff; border-radius:20px; border:1px solid var(--line); box-shadow:0 24px 60px rgba(10,37,64,.16); overflow:hidden; opacity:0; animation:cardIn .7s ease .5s forwards; }
+  .chat-card.floaty { animation:cardIn .7s ease .5s forwards, floaty 5s ease-in-out 1.3s infinite; }
+  .chat-head { display:flex; align-items:center; justify-content:space-between; padding:13px 16px; border-bottom:1px solid var(--line); }
+  .chat-head .who { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:800; color:var(--blue-ink); font-family:'Nunito',sans-serif; }
+  .chat-head .who .av { width:22px; height:18px; } .chat-head .who .av path { fill:none; stroke:var(--blue); stroke-width:5; stroke-linecap:round; }
+  .chat-body { padding:16px; display:flex; flex-direction:column; gap:11px; min-height:200px; }
+  .b-user { align-self:flex-end; max-width:80%; background:var(--blue); color:#fff; font-size:13.5px; font-weight:600; line-height:1.45; padding:11px 14px; border-radius:14px 14px 4px 14px; opacity:0; animation:pop .5s ease 1.5s forwards; }
+  .typing { align-self:flex-start; display:inline-flex; gap:4px; padding:4px 0; opacity:0; animation:pop .35s ease 2s forwards; }
+  .typing.gone { animation:fade .3s ease 2.5s forwards; }
+  .typing span { width:6px; height:6px; border-radius:50%; background:#C2CEDD; animation:blink 1.2s infinite; }
+  .typing span:nth-child(2){animation-delay:.2s} .typing span:nth-child(3){animation-delay:.4s}
+  .b-bot { align-self:flex-start; max-width:90%; color:var(--ink); font-size:13.5px; line-height:1.5; opacity:0; animation:pop .5s ease 2.6s forwards; }
+  .res { margin-top:8px; border:1px solid var(--line); border-radius:12px; padding:11px; background:var(--tint); font-size:12.5px; font-weight:700; }
+  .res .r { display:flex; justify-content:space-between; padding:3px 0; color:var(--blue-ink); } .res .r .c { color:var(--gray); font-weight:600; }
+  .chat-input { display:flex; align-items:center; gap:9px; padding:11px 14px; border-top:1px solid var(--line); }
+  .chat-input .fk { flex:1; height:34px; border-radius:10px; background:var(--tint); }
+  .chat-input .sd { width:34px; height:34px; border-radius:10px; background:var(--blue); display:flex; align-items:center; justify-content:center; color:#fff; font-size:15px; }
 
-    /* ── 배지 ── */
-    .badge {
-      display: inline-block; padding: 6px 14px;
-      background: var(--blue-lt); color: var(--blue);
-      font-size: 13px; font-weight: 600; border-radius: 999px;
-      margin-bottom: 20px;
-    }
+  .strip { border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:var(--tint); }
+  .strip .wrap { padding-top:28px; padding-bottom:28px; text-align:center; }
+  .strip-label { font-size:12.5px; font-weight:700; color:var(--gray); margin-bottom:18px; }
+  .strip-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:14px 18px; }
+  .logo-slot { height:34px; min-width:96px; padding:0 16px; display:flex; align-items:center; justify-content:center; gap:7px; border:1px dashed #C4D2E4; border-radius:9px; background:rgba(255,255,255,.5); font-size:12px; font-weight:700; color:#9AA7B8; } .logo-slot i { font-size:15px; }
 
-    /* ── 섹션 헤더 ── */
-    .section-header { text-align: center; margin-bottom: 60px; }
-    .section-header h2 {
-      font-size: 38px; font-weight: 800;
-      line-height: 1.3; letter-spacing: -0.03em;
-    }
-    .section-header p {
-      font-size: 17px; color: var(--gray-600);
-      margin-top: 12px; line-height: 1.65;
-    }
+  .sec { padding:96px 0; }
+  .sec.tinted { background:var(--tint); }
+  .sec-eyebrow { text-align:center; font-size:13px; font-weight:700; color:var(--blue); margin-bottom:14px; }
+  .sec-title { text-align:center; font-size:36px; font-weight:800; letter-spacing:-.035em; color:var(--blue-ink); line-height:1.3; margin-bottom:16px; }
+  .sec-sub { text-align:center; font-size:17px; color:var(--gray); font-weight:500; max-width:600px; margin:0 auto 54px; line-height:1.6; }
 
-    /* ── 스크롤 애니메이션 ── */
-    .fade-up {
-      opacity: 0; transform: translateY(28px);
-      transition: opacity 0.6s cubic-bezier(.16,1,.3,1),
-                  transform 0.6s cubic-bezier(.16,1,.3,1);
-    }
-    .fade-up.visible { opacity: 1; transform: translateY(0); }
-    @media (prefers-reduced-motion: reduce) {
-      .fade-up { transition: none !important; opacity: 1 !important; transform: none !important; }
-      .bubble, .bubble-line, .loading-dots span, .chat-cursor,
-      .hero-card { animation: none !important; }
-    }
+  .reveal { opacity:0; transform:translateY(28px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in { opacity:1; transform:none; }
+  .reveal.d1{transition-delay:.08s} .reveal.d2{transition-delay:.16s} .reveal.d3{transition-delay:.24s} .reveal.d4{transition-delay:.32s} .reveal.d5{transition-delay:.4s}
 
-    /* ── wave divider ── */
-    .wave { line-height: 0; overflow: hidden; }
-    .wave svg { display: block; width: 100%; }
+  .pain { position:relative; min-height:430px; max-width:980px; margin:0 auto; }
+  .pain-bubble { position:absolute; white-space:nowrap; background:#fff; border:1px solid var(--line); border-radius:18px; padding:15px 22px; font-size:15.5px; font-weight:600; color:var(--blue-ink); box-shadow:0 10px 30px rgba(10,37,64,.08); }
+  .pain-bubble::after { content:""; position:absolute; width:15px; height:15px; background:#fff; border-right:1px solid var(--line); border-bottom:1px solid var(--line); transform:rotate(45deg); }
+  .pain-bubble.l::after { left:28px; bottom:-8px; } .pain-bubble.r::after { right:28px; bottom:-8px; }
+  .pb1 { top:0; left:0; } .pb2 { top:78px; right:0; } .pb3 { top:196px; left:20px; } .pb4 { top:262px; right:10px; } .pb5 { top:372px; left:50%; transform:translateX(-50%); }
 
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       ① 헤더
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    #header {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(255,255,255,0.96);
-      border-bottom: 1px solid rgba(229,231,235,0.7);
-      transition: background 0.3s, box-shadow 0.3s;
-    }
-    #header.scrolled {
-      background: rgba(255,255,255,0.82);
-      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-      box-shadow: 0 1px 24px rgba(0,0,0,0.06);
-      border-bottom-color: transparent;
-    }
-    .nav {
-      display: flex; align-items: center;
-      justify-content: space-between; height: 66px;
-    }
-    .nav-cta { padding: 10px 22px; font-size: 14px; border-radius: 10px; }
+  .cap-hero { text-align:center; max-width:760px; margin:0 auto 54px; }
+  .cap-hero .big { font-size:28px; font-weight:800; color:var(--blue-ink); letter-spacing:-.03em; line-height:1.5; }
+  .cap-hero .big .hl { color:var(--blue); }
+  .cap-layout { display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start; }
+  .cap-list { display:flex; flex-direction:column; gap:10px; }
+  .cap-item { text-align:left; background:#fff; border:1px solid var(--line); border-radius:15px; padding:18px 20px; cursor:pointer; transition:.2s; display:flex; gap:14px; align-items:flex-start; position:relative; }
+  .cap-item:hover { border-color:var(--blue-bright); transform:translateX(3px); }
+  .cap-item.active { border-color:var(--blue); background:var(--tint); box-shadow:0 8px 24px rgba(26,111,212,.1); }
+  .cap-item.active::before { content:""; position:absolute; left:0; top:14px; bottom:14px; width:3px; border-radius:2px; background:var(--blue); }
+  .cap-item .ico { flex-shrink:0; width:40px; height:40px; border-radius:11px; background:var(--tint-2); color:var(--blue); display:flex; align-items:center; justify-content:center; font-size:21px; transition:.2s; }
+  .cap-item.active .ico { background:var(--blue); color:#fff; transform:scale(1.05); }
+  .cap-item .tx b { display:block; font-size:16px; font-weight:800; color:var(--blue-ink); margin-bottom:3px; letter-spacing:-.02em; }
+  .cap-item .tx span { font-size:13.5px; color:var(--gray); font-weight:500; line-height:1.5; }
+  .cap-chat { position:sticky; top:90px; }
+  .cap-chat .chat-card { position:static; transform:none; width:100%; animation:none; opacity:1; box-shadow:0 20px 50px rgba(10,37,64,.12); }
 
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       ② 히어로
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    #hero {
-      padding-top: 66px;
-      min-height: 100vh; display: flex; align-items: center;
-      background: var(--bg);
-    }
-    .hero-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 64px; align-items: center; padding: 80px 0;
-    }
-    .hero-eyebrow {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-size: 13px; font-weight: 700; color: var(--blue);
-      letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 20px;
-    }
-    .hero-eyebrow::before {
-      content: ''; display: block;
-      width: 20px; height: 2px; background: var(--blue);
-      border-radius: 999px;
-    }
-    .hero-title {
-      font-size: 54px; font-weight: 800;
-      line-height: 1.12; letter-spacing: -0.035em; margin-bottom: 22px;
-    }
-    .hero-title .hl {
-      color: var(--blue);
-      background: linear-gradient(90deg, #1A6FD4, #2563EB);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    .hero-desc {
-      font-size: 17px; color: var(--gray-600);
-      line-height: 1.8; margin-bottom: 36px;
-    }
-    .hero-desc strong { color: var(--gray-900); font-weight: 600; }
-    .hero-sub { font-size: 12px; color: var(--gray-400); margin-top: 14px; }
+  .band { background:linear-gradient(135deg,#0A2540,#0B4FA8); border-radius:24px; padding:48px 44px; color:#fff; display:grid; grid-template-columns:1.1fr 1fr; gap:40px; align-items:center; position:relative; overflow:hidden; }
+  .band::before { content:""; position:absolute; top:-60px; right:-40px; width:240px; height:240px; border-radius:50%; background:radial-gradient(circle,rgba(156,198,242,.18),transparent 70%); }
+  .band > * { position:relative; z-index:1; }
+  .band .eyebrow-w { display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:800; color:#9CC6F2; margin-bottom:14px; }
+  .band h2 { font-size:30px; font-weight:800; letter-spacing:-.03em; line-height:1.32; margin-bottom:14px; }
+  .band p { font-size:15.5px; color:rgba(255,255,255,.82); font-weight:500; line-height:1.65; }
+  .band-stat { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); border-radius:16px; padding:24px; }
+  .band-stat .row { display:flex; align-items:center; gap:14px; padding:11px 0; }
+  .band-stat .row:not(:last-child) { border-bottom:1px solid rgba(255,255,255,.1); }
+  .band-stat .ic { width:38px; height:38px; border-radius:10px; background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; font-size:19px; color:#9CC6F2; flex-shrink:0; }
+  .band-stat .tx b { display:block; font-size:15px; font-weight:800; } .band-stat .tx span { font-size:12.5px; color:rgba(255,255,255,.7); font-weight:500; }
 
-    /* ── 히어로 채팅 카드 (simplified, static) ── */
-    .chat-card {
-      background: #fff; border-radius: 20px; overflow: hidden;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.10), 0 4px 16px rgba(0,0,0,0.06);
-    }
-    .hero-card {
-      animation: heroFloat 5s ease-in-out infinite;
-      transform-origin: center;
-    }
-    @keyframes heroFloat {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      33%       { transform: translateY(-8px) rotate(0.4deg); }
-      66%       { transform: translateY(-4px) rotate(-0.3deg); }
-    }
-    .chat-bar {
-      background: var(--gray-100); padding: 10px 16px;
-      display: flex; align-items: center; gap: 6px;
-      border-bottom: 1px solid var(--gray-200);
-    }
-    .chat-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .chat-bar-title { font-size: 12.5px; font-weight: 600; color: var(--gray-600); margin-left: 6px; flex: 1; }
-    .chat-bar-logo { display: flex; align-items: center; gap: 5px; }
-    .chat-bar-logo-text { font-size: 12px; font-weight: 700; color: var(--blue); letter-spacing: -0.02em; }
-    .chat-msgs {
-      padding: 18px 16px; min-height: 240px;
-      display: flex; flex-direction: column; gap: 8px;
-    }
-    .chat-footer {
-      padding: 10px 16px; border-top: 1px solid var(--gray-200);
-      display: flex; align-items: center; gap: 10px;
-    }
-    .chat-input-mock {
-      flex: 1; height: 38px; background: var(--gray-100);
-      border-radius: 999px; padding: 0 14px;
-      display: flex; align-items: center;
-      font-size: 13.5px; color: var(--gray-900);
-    }
-    .chat-cursor {
-      display: inline-block; width: 2px; height: 14px;
-      background: var(--blue); margin-left: 1px; vertical-align: middle;
-      animation: blink 0.75s steps(1) infinite;
-    }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-    .chat-send {
-      width: 38px; height: 38px; border-radius: 50%;
-      background: var(--blue); border: none;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-      transition: transform 0.15s, background 0.15s;
-    }
-    .chat-send:hover { background: var(--blue-dk); transform: scale(1.1); }
+  .safety-head { text-align:center; max-width:700px; margin:0 auto 50px; }
+  .safety-head .badge-top { display:inline-flex; align-items:center; gap:7px; padding:8px 16px; border-radius:999px; background:#FDECEC; color:#C0392B; font-size:13px; font-weight:800; margin-bottom:20px; }
+  .safety-head h2 { font-size:39px; font-weight:800; letter-spacing:-.035em; color:var(--blue-ink); line-height:1.26; margin-bottom:18px; }
+  .safety-head h2 .hl { color:#C0392B; }
+  .safety-head p { font-size:17px; color:var(--gray); font-weight:500; line-height:1.6; }
+  .safety-grid { display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:center; }
+  .fw { border:1.5px solid #F0B5B5; border-radius:16px; overflow:hidden; box-shadow:0 18px 44px rgba(192,57,43,.1); }
+  .fw-h { background:#FDECEC; color:#C0392B; padding:13px 16px; font-size:13.5px; font-weight:800; display:flex; align-items:center; gap:8px; }
+  .fw-h .lock { margin-left:auto; animation:shake 3s ease-in-out infinite; }
+  .fw-b { padding:16px; background:#fff; }
+  .fw-info { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+  .fw-info .x { background:var(--tint); border-radius:11px; padding:11px; text-align:center; }
+  .fw-info .x .l { font-size:11px; color:var(--gray); font-weight:700; margin-bottom:5px; } .fw-info .x .v { font-size:15px; font-weight:800; color:var(--blue-ink); } .fw-info .x .v.danger { color:#D64545; }
+  .fw-btns { display:flex; gap:10px; } .fw-btns button { flex:1; padding:11px; border-radius:10px; font-size:13.5px; font-weight:700; cursor:pointer; border:1px solid; transition:.15s; }
+  .fw-cancel { background:#fff; border-color:var(--line)!important; color:var(--gray); } .fw-cancel:hover { background:var(--tint); }
+  .fw-ok { background:#fff; border-color:#E2A0A0!important; color:#C0392B; } .fw-ok:hover { background:#FDECEC; }
 
-    /* ── 말풍선 ── */
-    .bubble {
-      max-width: 88%; padding: 10px 14px;
-      border-radius: 16px; font-size: 13.5px; line-height: 1.6;
-      animation: bubbleIn 0.35s cubic-bezier(.16,1,.3,1) forwards;
-    }
-    @keyframes bubbleIn {
-      from { opacity:0; transform:translateY(12px); }
-      to   { opacity:1; transform:translateY(0); }
-    }
-    .bubble-user {
-      align-self: flex-end; background: var(--blue); color: #fff;
-      border-radius: 16px 4px 16px 16px;
-    }
-    .bubble-ai {
-      align-self: flex-start; background: var(--gray-100); color: var(--gray-900);
-      border-radius: 4px 16px 16px 16px;
-    }
-    .bubble-fw {
-      align-self: flex-start; max-width: 96%;
-      background: #FFF7ED; color: #92400E;
-      border-radius: 4px 16px 16px 16px;
-      border-left: 3px solid #F59E0B; padding: 12px 14px;
-    }
-    .bubble-line {
-      opacity: 0; transform: translateY(5px);
-      transition: opacity 0.22s ease, transform 0.22s ease;
-    }
-    .bubble-line.in { opacity: 1; transform: translateY(0); }
-    .fw-btns { display: flex; gap: 8px; margin-top: 10px; }
-    .fw-btn { padding: 7px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 600; border: none; }
-    .fw-btn-ok { background: var(--blue); color: #fff; }
-    .fw-btn-no { background: var(--gray-200); color: var(--gray-600); }
-    .loading-dots {
-      display: flex; gap: 5px; padding: 10px 14px; align-self: flex-start;
-    }
-    .loading-dots span {
-      width: 7px; height: 7px; border-radius: 50%; background: var(--gray-400);
-      animation: dot-bounce 1.1s ease-in-out infinite;
-    }
-    .loading-dots span:nth-child(2) { animation-delay: 0.18s; }
-    .loading-dots span:nth-child(3) { animation-delay: 0.36s; }
-    @keyframes dot-bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
-    .file-chip {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--blue-lt); color: var(--blue);
-      border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 600;
-    }
+  .timesave { text-align:center; }
+  .timesave .big { font-size:42px; font-weight:900; letter-spacing:-.04em; color:var(--blue-ink); line-height:1.3; }
+  .timesave .big .strike { color:var(--gray); text-decoration:line-through; text-decoration-color:#D64545; text-decoration-thickness:3px; }
+  .timesave .big .hl { color:var(--blue); }
+  .timesave .note { font-size:14px; color:var(--gray); font-weight:500; margin-top:18px; }
 
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       ③ 채널 스트립
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    #channels {
-      padding: 48px 0 40px;
-      background: var(--bg);
-    }
-    .ch-label {
-      text-align: center; font-size: 11px; font-weight: 700;
-      color: var(--gray-400); letter-spacing: 0.1em;
-      text-transform: uppercase; margin-bottom: 24px;
-    }
-    .ch-list {
-      display: flex; flex-wrap: wrap;
-      justify-content: center; gap: 12px; margin-bottom: 20px;
-    }
-    /* 각 칩: 기본 grayscale → hover 시 컬러 복원 */
-    .ch-chip {
-      display: flex; align-items: center; justify-content: center;
-      gap: 8px; padding: 10px 20px;
-      background: #fff; border: 1px solid var(--gray-200);
-      border-radius: 12px; cursor: default;
-      filter: grayscale(1) opacity(0.55);
-      transition: filter 0.28s ease, transform 0.22s ease,
-                  box-shadow 0.22s ease, border-color 0.22s ease;
-    }
-    .ch-chip:hover {
-      filter: grayscale(0) opacity(1);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-      border-color: transparent;
-    }
-    /* 채널별 hover 테두리 색상 */
-    .ch-coupang:hover  { box-shadow: 0 8px 24px rgba(229,0,41,0.15); }
-    .ch-naver:hover    { box-shadow: 0 8px 24px rgba(3,199,90,0.15); }
-    .ch-cafe24:hover   { box-shadow: 0 8px 24px rgba(37,99,235,0.15); }
-    .ch-musinsa:hover  { box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
-    .ch-ably:hover     { box-shadow: 0 8px 24px rgba(255,107,157,0.15); }
-    .ch-zigzag:hover   { box-shadow: 0 8px 24px rgba(255,90,90,0.15); }
-    /* 로고 워드마크 스타일 */
-    .ch-wordmark {
-      font-size: 14px; font-weight: 800; letter-spacing: -0.03em;
-      white-space: nowrap;
-    }
-    .ch-coupang  .ch-wordmark { color: #E50029; }
-    .ch-naver    .ch-wordmark { color: #03C75A; }
-    .ch-cafe24   .ch-wordmark { color: #2563EB; }
-    .ch-musinsa  .ch-wordmark { color: #1A1A1A; }
-    .ch-ably     .ch-wordmark { color: #FF6B9D; }
-    .ch-zigzag   .ch-wordmark { color: #FF5A5A; }
-    /* 네이버 N 박스 */
-    .naver-n {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 18px; height: 18px; background: #03C75A;
-      color: #fff; font-size: 11px; font-weight: 900;
-      border-radius: 4px; flex-shrink: 0;
-    }
-    /* 법적 디스클레이머 */
-    .ch-disclaimer {
-      text-align: center; font-size: 11px; color: var(--gray-400);
-      line-height: 1.5; max-width: 600px; margin: 0 auto;
-    }
+  .mob { display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:center; }
+  .mob h2 { font-size:32px; font-weight:800; letter-spacing:-.03em; color:var(--blue-ink); line-height:1.32; margin-bottom:18px; }
+  .mob .lead { font-size:16px; color:var(--gray); font-weight:500; line-height:1.6; margin-bottom:24px; }
+  .mob-vis { display:flex; justify-content:center; }
+  .phone { width:210px; height:410px; background:#fff; border:1px solid var(--line); border-radius:30px; box-shadow:0 24px 60px rgba(10,37,64,.16); padding:15px; position:relative; }
+  .phone::before { content:""; position:absolute; top:13px; left:50%; transform:translateX(-50%); width:46px; height:5px; border-radius:3px; background:var(--line); }
+  .phone .pbody { margin-top:22px; display:flex; flex-direction:column; gap:9px; }
+  .phone .pu { align-self:flex-end; max-width:80%; background:var(--blue); color:#fff; font-size:11.5px; font-weight:600; padding:8px 11px; border-radius:11px 11px 3px 11px; }
+  .phone .pb { align-self:flex-start; max-width:88%; font-size:11.5px; color:var(--ink); line-height:1.45; }
 
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       ④ 문제 제기
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    #problem { background: var(--bg-md); }
-    .cards-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
-    .card {
-      background: #fff; border-radius: var(--r-card);
-      padding: 32px; position: relative; overflow: hidden;
-      border: 1.5px solid transparent;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-      transition: border-color 0.25s, transform 0.3s cubic-bezier(.16,1,.3,1),
-                  box-shadow 0.3s ease;
-    }
-    .card:hover {
-      border-color: var(--blue); transform: translateY(-6px);
-      box-shadow: 0 16px 40px rgba(26,111,212,0.12);
-    }
-    .card-icon {
-      width: 56px; height: 56px; border-radius: 16px;
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 22px; position: relative;
-    }
-    /* 아이콘 컬러 변형 */
-    .icon-orange { background: #FFF7ED; }
-    .icon-blue   { background: var(--blue-lt); }
-    .icon-red    { background: #FEF2F2; }
-    .card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.02em; }
-    .card p  { font-size: 14px; color: var(--gray-600); line-height: 1.7; }
+  .trust-row { display:flex; align-items:center; justify-content:center; gap:24px; flex-wrap:wrap; }
+  .trust-slot { display:flex; align-items:center; gap:13px; padding:20px 28px; background:#fff; border:1px dashed #C4D2E4; border-radius:16px; transition:.2s; } .trust-slot:hover { border-color:var(--blue-bright); transform:translateY(-3px); }
+  .trust-slot .ic { width:44px; height:44px; border-radius:11px; background:var(--tint-2); display:flex; align-items:center; justify-content:center; font-size:22px; color:var(--blue); }
+  .trust-slot .tx b { display:block; font-size:15px; font-weight:800; color:var(--blue-ink); } .trust-slot .tx span { font-size:12.5px; color:var(--gray); font-weight:600; }
 
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       ⑤ 데모
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    #demo {
-      background: linear-gradient(180deg, #F0F7FF 0%, var(--bg-lt) 100%);
-      padding: 120px 0;
-    }
-    .demo-grid {
-      display: grid; grid-template-columns: 1fr 1.1fr;
-      gap: 64px; align-items: start;
-    }
-    .demo-tabs { display: flex; flex-direction: column; gap: 4px; margin-top: 32px; }
-    .demo-tab {
-      display: flex; align-items: center; gap: 12px;
-      padding: 14px 16px; border-radius: 10px; cursor: pointer;
-      border: none; background: transparent; text-align: left;
-      border-left: 3px solid transparent;
-      transition: background 0.15s, border-color 0.15s;
-    }
-    .demo-tab:hover { background: rgba(255,255,255,0.7); }
-    .demo-tab.active { background: #fff; border-left-color: var(--blue); box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-    .demo-tab-ico {
-      width: 38px; height: 38px; background: var(--bg-lt);
-      border-radius: 9px; display: flex; align-items: center;
-      justify-content: center; font-size: 20px; flex-shrink: 0;
-    }
-    .demo-tab.active .demo-tab-ico { background: var(--blue-lt); }
-    .demo-tab-title { font-size: 15px; font-weight: 600; color: var(--gray-700); }
-    .demo-tab.active .demo-tab-title { color: var(--blue); }
-    .demo-tab-sub { font-size: 12.5px; color: var(--gray-400); margin-top: 2px; }
-    .demo-chat-wrap { position: sticky; top: 90px; }
-    .demo-chat {
-      background: #fff; border-radius: 20px; overflow: hidden;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.10);
-    }
-    .demo-msgs {
-      padding: 18px 16px; min-height: 340px; max-height: 430px;
-      overflow-y: auto; display: flex; flex-direction: column; gap: 8px;
-    }
-    .demo-note { margin-top: 24px; }
-    .demo-note li {
-      display: flex; align-items: flex-start; gap: 8px;
-      font-size: 14px; color: var(--gray-600); list-style: none;
-      padding: 5px 0;
-    }
-    .demo-note li::before { content: '✓'; color: var(--blue); font-weight: 700; flex-shrink: 0; }
+  .test-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  .test-card { background:#fff; border:1px solid var(--line); border-radius:18px; padding:28px 26px; transition:.2s; } .test-card:hover { transform:translateY(-4px); box-shadow:0 16px 40px rgba(10,37,64,.09); }
+  .test-card .q { font-size:28px; font-weight:900; color:var(--blue-bright); line-height:1; font-family:'Nunito',sans-serif; margin-bottom:12px; }
+  .test-card p { font-size:14.5px; color:var(--ink); line-height:1.65; font-weight:500; margin-bottom:18px; }
+  .test-card .who { font-size:13px; color:var(--gray); font-weight:700; }
 
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       ⑥ 기능 그리드
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    #features { background: var(--bg-lt); padding: 100px 0; }
-    .cards-6 { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+  .price-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; align-items:start; }
+  .price-card { background:#fff; border:1px solid var(--line); border-radius:20px; padding:32px 28px; position:relative; transition:transform .2s, box-shadow .2s; }
+  .price-card:hover { transform:translateY(-4px); box-shadow:0 16px 40px rgba(10,37,64,.08); } .price-card.feat { border:2px solid var(--blue); box-shadow:0 18px 44px rgba(26,111,212,.16); }
+  .price-tag { position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:var(--blue); color:#fff; font-size:12px; font-weight:700; padding:5px 14px; border-radius:999px; white-space:nowrap; }
+  .price-card .pn { font-size:14px; font-weight:700; color:var(--gray); margin-bottom:8px; }
+  .price-card .pp { font-size:34px; font-weight:900; color:var(--blue-ink); letter-spacing:-.03em; font-family:'Nunito',sans-serif; margin-bottom:4px; } .price-card .pp small { font-size:15px; font-weight:700; color:var(--gray); }
+  .price-card .pd { font-size:13px; color:var(--gray); font-weight:500; margin-bottom:22px; min-height:20px; }
+  .price-card ul { list-style:none; margin-bottom:24px; display:flex; flex-direction:column; gap:11px; }
+  .price-card li { font-size:14px; color:var(--ink); font-weight:500; display:flex; gap:9px; align-items:flex-start; } .price-card li i { color:var(--blue); font-size:17px; margin-top:1px; flex-shrink:0; }
+  .price-btn { width:100%; padding:13px; border-radius:12px; font-size:14.5px; font-weight:700; cursor:pointer; transition:.15s; text-decoration:none; display:block; text-align:center; }
+  .price-btn.solid { background:var(--blue); color:#fff; border:none; } .price-btn.solid:hover { background:var(--blue-deep); }
+  .price-btn.ghost { background:#fff; color:var(--blue); border:1px solid var(--blue); } .price-btn.ghost:hover { background:var(--tint-2); }
+  .price-foot { text-align:center; font-size:13px; color:var(--gray); font-weight:500; margin-top:34px; line-height:1.7; }
 
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       ⑦ 함께하는 기관 (신규)
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    #institutions {
-      background: var(--bg);
-      padding: 96px 0;
-    }
-    .inst-sub {
-      font-size: 15px; color: var(--gray-600);
-      text-align: center; margin-top: 12px; line-height: 1.65;
-    }
-    .inst-grid {
-      display: flex; justify-content: center;
-      align-items: stretch; gap: 24px; flex-wrap: wrap;
-    }
-    .inst-card {
-      display: flex; flex-direction: column; align-items: center;
-      gap: 16px; padding: 36px 48px;
-      background: #fff; border: 1px solid var(--gray-200);
-      border-radius: 20px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.05);
-      transition: transform 0.3s, box-shadow 0.3s;
-      min-width: 240px;
-    }
-    .inst-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.08);
-    }
-    .inst-logo {
-      height: 52px; display: flex; align-items: center; justify-content: center;
-    }
-    /* SNU 로고 — 텍스트 대체 (실제 로고 교체 가능) */
-    .snu-logo {
-      display: flex; align-items: center; gap: 10px;
-    }
-    .snu-shield {
-      width: 40px; height: 48px;
-      background: linear-gradient(160deg, #003DA5 0%, #002980 100%);
-      border-radius: 4px 4px 20px 20px;
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; font-size: 18px; font-weight: 900; font-style: italic;
-      box-shadow: 0 3px 10px rgba(0,61,165,0.3);
-    }
-    .snu-text {
-      display: flex; flex-direction: column;
-      line-height: 1.2;
-    }
-    .snu-text span:first-child {
-      font-size: 16px; font-weight: 800; color: #003DA5; letter-spacing: 0.05em;
-    }
-    .snu-text span:last-child {
-      font-size: 10px; font-weight: 600; color: var(--gray-600); letter-spacing: 0.06em;
-    }
-    /* AN 로고 — 텍스트 대체 (실제 로고 교체 가능) */
-    .an-logo {
-      display: flex; align-items: center; gap: 10px;
-    }
-    .an-mark {
-      width: 44px; height: 44px; border-radius: 12px;
-      background: linear-gradient(135deg, #E05C20 0%, #C94D14 100%);
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; gap: 2px;
-      box-shadow: 0 3px 10px rgba(224,92,32,0.3);
-    }
-    .an-mark span {
-      display: block; height: 3px; border-radius: 2px;
-      background: rgba(255,255,255,0.9);
-    }
-    .an-mark span:nth-child(1) { width: 22px; }
-    .an-mark span:nth-child(2) { width: 16px; }
-    .an-mark span:nth-child(3) { width: 10px; }
-    .an-text {
-      display: flex; flex-direction: column; line-height: 1.2;
-    }
-    .an-text span:first-child { font-size: 13px; font-weight: 800; color: #E05C20; letter-spacing: 0.02em; }
-    .an-text span:last-child  { font-size: 10px; font-weight: 600; color: var(--gray-600); letter-spacing: 0.04em; }
-    .inst-name { font-size: 15px; font-weight: 600; color: var(--gray-700); text-align: center; line-height: 1.4; }
-    .inst-note {
-      /* 각 기관의 공식 CI를 확인하고 실제 로고로 교체하십시오 */
-      text-align: center; font-size: 11px; color: var(--gray-400);
-      margin-top: 32px;
-    }
+  .final { background:linear-gradient(135deg, #1A6FD4, #0B4FA8); text-align:center; padding:92px 0; position:relative; overflow:hidden; }
+  .final::before { content:""; position:absolute; top:-80px; left:50%; transform:translateX(-50%); width:600px; height:300px; background:radial-gradient(circle,rgba(255,255,255,.1),transparent 70%); }
+  .final > * { position:relative; z-index:1; }
+  .final h2 { font-size:40px; font-weight:800; color:#fff; letter-spacing:-.035em; line-height:1.3; margin-bottom:30px; }
+  .final .btn-white { padding:17px 34px; border-radius:14px; background:#fff; color:var(--blue); font-size:17px; font-weight:800; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:.18s; box-shadow:0 10px 30px rgba(0,0,0,.18); text-decoration:none; }
+  .final .btn-white:hover { transform:translateY(-2px) scale(1.02); } .final .btn-white .arrow { transition:transform .18s; } .final .btn-white:hover .arrow { transform:translateX(4px); }
 
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       ⑧ 소셜 프루프 (후기만)
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    #social { background: var(--bg-lt); padding: 100px 0; }
-    .reviews { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
-    .review {
-      background: #fff; border-radius: var(--r-card); padding: 28px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.05);
-      transition: transform 0.28s, box-shadow 0.28s;
-      border: 1px solid transparent;
-    }
-    .review:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.08);
-      border-color: var(--blue-lt);
-    }
-    .review-q  { font-size: 40px; color: var(--blue); font-family: Georgia,serif; line-height: 1; margin-bottom: 14px; }
-    .review-body { font-size: 15px; line-height: 1.75; margin-bottom: 20px; }
-    .review-who  { font-size: 13px; color: var(--gray-400); }
+  footer { background:#0A1622; padding:54px 0 40px; }
+  .foot-top { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:24px; margin-bottom:40px; }
+  .foot-logo .txt { color:#fff; } .foot-logo .ico path { stroke:var(--blue-bright); }
+  .foot-tag { font-size:13px; color:#7A8A9C; font-weight:500; margin-top:10px; max-width:280px; line-height:1.6; }
+  .foot-links { display:flex; gap:48px; }
+  .foot-col h4 { font-size:12px; color:#5C6B7A; font-weight:700; margin-bottom:14px; }
+  .foot-col a { display:block; font-size:13.5px; color:#A8B5C2; text-decoration:none; margin-bottom:9px; font-weight:500; transition:color .15s; cursor:pointer; } .foot-col a:hover { color:#fff; }
+  .foot-bot { border-top:1px solid rgba(255,255,255,.08); padding-top:22px; font-size:12.5px; color:#5C6B7A; font-weight:500; }
 
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       ⑨ 요금제
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    #pricing { background: var(--bg); padding: 120px 0; }
-    .price-grid {
-      display: grid; grid-template-columns: repeat(3,1fr);
-      gap: 24px; align-items: start;
-    }
-    .price-card {
-      background: #fff; border-radius: var(--r-card);
-      padding: 32px; border: 1.5px solid var(--gray-200);
-      box-shadow: 0 2px 16px rgba(0,0,0,0.05);
-      position: relative; transition: border-color 0.2s, transform 0.25s, box-shadow 0.25s;
-    }
-    .price-card:hover { border-color: var(--blue); transform: translateY(-4px); }
-    .price-card.feat {
-      border-color: var(--blue);
-      transform: scale(1.04);
-      box-shadow: 0 8px 40px rgba(26,111,212,0.15);
-    }
-    .price-card.feat:hover { transform: scale(1.04) translateY(-4px); }
-    .feat-badge {
-      position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
-      background: var(--blue); color: #fff;
-      font-size: 11.5px; font-weight: 700;
-      padding: 4px 14px; border-radius: 999px; white-space: nowrap;
-    }
-    .price-tier   { font-size: 13px; font-weight: 600; color: var(--gray-600); margin-bottom: 4px; }
-    .price-name   { font-size: 22px; font-weight: 700; }
-    .price-amount { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; margin: 14px 0; }
-    .price-amount .unit { font-size: 15px; font-weight: 500; color: var(--gray-600); }
-    .price-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin: 24px 0; }
-    .price-list li { font-size: 14px; color: var(--gray-600); display: flex; align-items: flex-start; gap: 8px; }
-    .price-list li::before { content:'·'; color: var(--blue); font-weight: 700; flex-shrink: 0; }
-    .price-notes { text-align: center; margin-top: 48px; display: flex; flex-direction: column; gap: 6px; }
-    .price-notes p { font-size: 13px; color: var(--gray-400); }
-    .price-notes p::before { content:'· '; }
+  @keyframes rise { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+  @keyframes pop { from{opacity:0;transform:translateY(8px) scale(.98)} to{opacity:1;transform:none} }
+  @keyframes cardIn { from{opacity:0;transform:translateY(-50%) scale(.96)} to{opacity:1;transform:translateY(-50%) scale(1)} }
+  @keyframes floaty { 0%,100%{transform:translateY(-50%)} 50%{transform:translateY(calc(-50% - 10px))} }
+  @keyframes blink { 0%,60%,100%{opacity:.35} 30%{opacity:1} }
+  @keyframes fade { to{opacity:0;height:0;padding:0;margin:0;overflow:hidden} }
+  @keyframes swipe { to{transform:scaleX(1)} }
+  @keyframes breathe { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.12);opacity:.7} }
+  @keyframes shake { 0%,90%,100%{transform:rotate(0)} 93%{transform:rotate(-12deg)} 96%{transform:rotate(12deg)} }
+  .phone { animation:phoneFloat 5s ease-in-out infinite; }
+  @keyframes phoneFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
 
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       ⑩ 마지막 CTA
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    #cta {
-      padding: 128px 0; text-align: center;
-      background: linear-gradient(135deg, #1A6FD4 0%, #0D4FA0 100%);
-      position: relative; overflow: hidden;
-    }
-    .cta-deco {
-      position: absolute; border-radius: 50%;
-      background: rgba(255,255,255,0.05); pointer-events: none;
-    }
-    .cta-d1 { width: 480px; height: 480px; bottom: -130px; right: -90px; }
-    .cta-d2 { width: 280px; height: 280px; bottom: 20px; right: 50px; }
-    .cta-d3 { width: 160px; height: 160px; top: 30px; left: -40px; }
-    #cta h2 { font-size: 42px; font-weight: 800; color: #fff; letter-spacing: -0.03em; margin-bottom: 16px; }
-    #cta p  { font-size: 18px; color: rgba(255,255,255,0.8); margin-bottom: 42px; }
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       ⑪ 푸터
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    footer { background: var(--gray-900); padding: 52px 0; color: var(--gray-400); }
-    .footer-grid {
-      display: grid; grid-template-columns: 2fr 1fr 1fr;
-      gap: 40px; padding-bottom: 36px;
-      border-bottom: 1px solid #1F2937; margin-bottom: 28px;
-    }
-    .footer-sub { font-size: 13px; margin-top: 10px; line-height: 1.65; }
-    .footer-links { display: flex; flex-direction: column; gap: 10px; }
-    .footer-links a { font-size: 13px; color: var(--gray-400); }
-    .footer-links a:hover { color: #fff; }
-    .footer-copy { font-size: 12px; text-align: center; }
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       발주 예측 섹션
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    #forecast { background: var(--bg); padding: 120px 0; }
-    .forecast-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
-
-    /* 예측 카드 */
-    .pred-card {
-      background: #fff; border-radius: 20px; overflow: hidden;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.10); border: 1px solid var(--gray-200);
-    }
-    .pred-card-hd {
-      background: var(--gray-100); padding: 12px 18px;
-      display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid var(--gray-200);
-    }
-    .pred-hd-left { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
-    .pred-urgent-tag {
-      background: #FEE2E2; color: #DC2626;
-      font-size: 11px; font-weight: 700;
-      padding: 2px 9px; border-radius: 999px;
-    }
-    .pred-card-bd { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
-    .pred-item { border-radius: 12px; padding: 12px 14px; }
-    .pred-item.urgent { background: #FFF5F5; border-left: 3px solid #EF4444; }
-    .pred-item.warn   { background: #FFFBF0; border-left: 3px solid #F59E0B; }
-    .pred-item.ok     { background: #F0FDF8; border-left: 3px solid #10B981; }
-    .pred-item-top {
-      display: flex; align-items: center;
-      justify-content: space-between; margin-bottom: 8px;
-    }
-    .pred-pname { font-size: 13.5px; font-weight: 600; }
-    .pred-badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
-    .urgent .pred-badge { background: #FEE2E2; color: #DC2626; }
-    .warn   .pred-badge { background: #FEF3C7; color: #D97706; }
-    .ok     .pred-badge { background: #D1FAE5; color: #059669; }
-    .pred-bar { height: 5px; background: var(--gray-200); border-radius: 999px; overflow: hidden; margin-bottom: 8px; }
-    .pred-bar-fill { height: 100%; border-radius: 999px; }
-    .urgent .pred-bar-fill { background: linear-gradient(90deg,#EF4444,#FCA5A5); }
-    .warn   .pred-bar-fill { background: linear-gradient(90deg,#F59E0B,#FCD34D); }
-    .ok     .pred-bar-fill { background: linear-gradient(90deg,#10B981,#6EE7B7); }
-    .pred-rec { font-size: 12px; color: var(--gray-600); }
-    .pred-rec strong { color: var(--gray-900); }
-    .pred-card-ft {
-      padding: 12px 18px; border-top: 1px solid var(--gray-200);
-      display: flex; align-items: center; gap: 8px;
-      font-size: 12px; color: var(--gray-600); background: var(--bg-lt);
-    }
-
-    /* 데이터 누적 타임라인 */
-    .data-timeline { display: flex; align-items: flex-start; margin-top: 32px; }
-    .dt-step { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
-    .dt-step:not(:last-child)::after {
-      content: ''; position: absolute; top: 15px; left: 50%;
-      width: 100%; height: 2px; background: var(--gray-200);
-    }
-    .dt-step.done:not(:last-child)::after { background: var(--blue-lt); }
-    .dt-dot {
-      width: 30px; height: 30px; border-radius: 50%;
-      background: var(--gray-200); color: var(--gray-400);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 10px; font-weight: 700;
-      position: relative; z-index: 1; margin-bottom: 8px;
-    }
-    .dt-step.done   .dt-dot { background: var(--blue-lt); color: var(--blue); }
-    .dt-step.active .dt-dot {
-      background: var(--blue); color: #fff;
-      box-shadow: 0 0 0 4px rgba(26,111,212,0.15);
-    }
-    .dt-label { font-size: 11.5px; font-weight: 700; color: var(--gray-700); text-align: center; }
-    .dt-sub   { font-size: 10.5px; color: var(--gray-400); text-align: center; margin-top: 2px; line-height: 1.4; }
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       방화벽 섹션
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    #firewall { background: var(--bg-md); padding: 120px 0; }
-    .fw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
-
-    /* 방화벽 대화 카드 */
-    .fw-mock {
-      background: #fff; border-radius: 20px; overflow: hidden;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.08); border: 1px solid #FDE68A;
-    }
-    .fw-mock-top {
-      background: #FFFBEB; border-bottom: 1px solid #FDE68A;
-      padding: 14px 18px; display: flex; align-items: center; gap: 12px;
-    }
-    .fw-mock-ico {
-      width: 38px; height: 38px; border-radius: 10px;
-      background: #FEF3C7; display: flex; align-items: center;
-      justify-content: center; font-size: 18px; flex-shrink: 0;
-    }
-    .fw-mock-ttl { font-size: 13.5px; font-weight: 700; color: #92400E; }
-    .fw-mock-sub { font-size: 12px; color: #B45309; margin-top: 2px; }
-    .fw-mock-body { padding: 16px 18px; }
-    .fw-mock-cmd {
-      background: var(--gray-100); border-radius: 8px;
-      padding: 10px 14px; font-size: 13.5px; font-weight: 600;
-      color: var(--gray-900); margin-bottom: 12px;
-      border-left: 3px solid var(--blue);
-      display: flex; align-items: center; gap: 8px;
-    }
-    .fw-mock-desc { font-size: 13px; color: var(--gray-600); line-height: 1.65; margin-bottom: 16px; }
-    .fw-mock-btns { display: flex; gap: 10px; }
-    .fw-mock-ok {
-      flex: 1; padding: 10px; background: var(--blue); color: #fff;
-      border: none; border-radius: 10px; font-size: 13.5px; font-weight: 600;
-      cursor: pointer; transition: background 0.2s;
-    }
-    .fw-mock-ok:hover { background: var(--blue-dk); }
-    .fw-mock-no {
-      flex: 1; padding: 10px; background: var(--gray-100); color: var(--gray-600);
-      border: none; border-radius: 10px; font-size: 13.5px; font-weight: 600; cursor: pointer;
-    }
-    .fw-tags { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 18px 16px; border-top: 1px solid var(--gray-200); }
-    .fw-tag {
-      display: flex; align-items: center; gap: 6px;
-      padding: 5px 12px; background: var(--bg-lt);
-      border: 1px solid var(--gray-200); border-radius: 999px;
-      font-size: 12px; font-weight: 500; color: var(--gray-700);
-    }
-
-    /* 방화벽 안심 포인트 리스트 */
-    .reassure-list { display: flex; flex-direction: column; gap: 22px; margin-top: 32px; }
-    .reassure-item { display: flex; gap: 14px; align-items: flex-start; }
-    .reassure-ico {
-      width: 46px; height: 46px; border-radius: 13px;
-      background: var(--blue-lt); display: flex; align-items: center;
-      justify-content: center; flex-shrink: 0; font-size: 22px;
-    }
-    .reassure-ttl { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
-    .reassure-desc { font-size: 14px; color: var(--gray-600); line-height: 1.65; }
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-       반응형
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    @media (max-width: 1023px) {
-      .hero-grid  { grid-template-columns: 1fr; gap: 48px; }
-      .demo-grid  { grid-template-columns: 1fr; }
-      .demo-chat-wrap { position: static; }
-      .forecast-grid, .fw-grid { grid-template-columns: 1fr; gap: 48px; }
-      .footer-grid{ grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 767px) {
-      #hero, #demo, #features, #forecast, #firewall, #institutions, #social, #pricing { padding: 72px 0; }
-      #problem { padding: 72px 0; }
-      .hero-title { font-size: 36px; }
-      .hero-grid  { padding: 48px 0; }
-      .cards-3, .cards-6, .price-grid, .reviews { grid-template-columns: 1fr; }
-      .price-card.feat { transform: none; }
-      #cta h2 { font-size: 28px; }
-      #cta p  { font-size: 15px; }
-      .section-header h2 { font-size: 28px; }
-      .footer-grid { grid-template-columns: 1fr; }
-      .inst-grid { flex-direction: column; align-items: center; }
-      .inst-card { width: 100%; max-width: 320px; padding: 28px 32px; }
-    }
-  </style>
+  @media(max-width:900px){
+    nav{padding:12px 18px} .nav-mid{display:none} .wrap{padding-left:22px;padding-right:22px}
+    .hero{grid-template-columns:1fr; padding:46px 0 64px; gap:30px} .hero-copy{padding-left:0} h1{font-size:37px}
+    .visual{height:380px; order:2} .chat-card{width:290px}
+    .sec{padding:60px 0} .sec-title{font-size:27px}
+    .test-grid,.price-grid{grid-template-columns:1fr}
+    .split,.cap-layout,.safety-grid,.band,.mob{grid-template-columns:1fr; gap:30px} .split.rev{direction:ltr}
+    .cap-chat{position:static} .safety-head h2{font-size:28px} .band{padding:34px 26px} .band h2{font-size:24px}
+    .timesave .big{font-size:27px} .mob h2{font-size:25px} .final h2{font-size:28px}
+    .pain{min-height:0; display:flex; flex-direction:column; gap:14px}
+    .pain-bubble{position:static!important; transform:none!important; white-space:normal} .pain-bubble::after{display:none}
+    .cap-hero .big{font-size:21px}
+  }
+</style>
 </head>
 <body>
 
-<!-- ①──────── 헤더 ──────── -->
-<header id="header">
-  <nav class="container nav">
-    <a class="logo" href="#">
-      <svg width="28" height="22" viewBox="0 0 28 22" fill="none" aria-hidden="true">
-        <rect y="0" width="22" height="5" rx="2.5" fill="#1A6FD4"/>
-        <rect x="3" y="8.5" width="22" height="5" rx="2.5" fill="#1A6FD4" opacity=".6"/>
-        <rect y="17" width="22" height="5" rx="2.5" fill="#1A6FD4" opacity=".3"/>
+<nav>
+  <div class="logo">
+    <svg class="ico" width="32" height="28" viewBox="0 0 34 30" aria-label="weave"><path d="M3 6 C 13 6, 15 15, 22 15" stroke-width="4.2"/><path d="M3 15 L 22 15" stroke-width="4.2"/><path d="M3 24 C 13 24, 15 15, 22 15" stroke-width="4.2"/><path d="M22 15 L 31 15" stroke-width="4.2"/></svg>
+    <span class="txt">weave</span>
+  </div>
+  <div class="nav-mid">
+    <a data-go="features">기능</a><a data-go="why">weave만의 특징</a><a data-go="safety">안전장치</a><a data-go="reviews">후기</a><a data-go="pricing">요금제</a>
+  </div>
+  <div class="nav-right">
+    <a class="nav-login" href="https://pickit-ten.vercel.app?start=1">로그인</a>
+    <button class="nav-cta" onclick="location.href='https://pickit-ten.vercel.app?start=1'">시작하기</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero-outer">
+  <div class="wrap hero">
+    <div class="hero-copy">
+      <h1><span class="line">흩어진 채널을</span><span class="line"><span class="hl">채팅 한 줄로</span> 움직이세요</span></h1>
+      <p class="sub">채팅 한마디면 weave가 모든 채널을 관리합니다.</p>
+      <div class="cta-row">
+        <a class="btn-primary" href="https://pickit-ten.vercel.app?start=1">무료로 시작하기 <span class="arrow">→</span></a>
+      </div>
+    </div>
+    <div class="visual">
+      <svg class="flow" viewBox="0 0 560 480" preserveAspectRatio="none" aria-hidden="true">
+        <defs><filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+        <g fill="none" stroke-width="2" opacity="0.8">
+          <path id="s0" d="M20 80 C 90 80, 120 240, 175 240" stroke="#9FCBF2"/>
+          <path id="s1" d="M20 160 C 100 160, 135 240, 175 240" stroke="#6CAAE9"/>
+          <path id="s2" d="M20 240 C 90 240, 130 240, 175 240" stroke="#1A6FD4"/>
+          <path id="s3" d="M20 320 C 100 320, 135 240, 175 240" stroke="#6CAAE9"/>
+          <path id="s4" d="M20 400 C 90 400, 120 240, 175 240" stroke="#9FCBF2"/>
+        </g>
+        <g>
+          <circle cx="20" cy="80" r="6" fill="#9FCBF2"/>
+          <circle cx="20" cy="160" r="6" fill="#6CAAE9"/>
+          <circle cx="20" cy="240" r="7" fill="#1A6FD4"/>
+          <circle cx="20" cy="320" r="6" fill="#6CAAE9"/>
+          <circle cx="20" cy="400" r="6" fill="#9FCBF2"/>
+        </g>
+        <path d="M175 240 L 250 240" fill="none" stroke="#1A6FD4" stroke-width="5" stroke-linecap="round"/>
+        <circle r="3.5" fill="#1A6FD4" filter="url(#glow)"><animateMotion dur="1.6s" begin="0.9s" repeatCount="indefinite"><mpath href="#s0"/></animateMotion></circle>
+        <circle r="3.5" fill="#1A6FD4" filter="url(#glow)"><animateMotion dur="1.5s" begin="1.2s" repeatCount="indefinite"><mpath href="#s1"/></animateMotion></circle>
+        <circle r="3.5" fill="#0B4FA8" filter="url(#glow)"><animateMotion dur="1.4s" begin="1.0s" repeatCount="indefinite"><mpath href="#s2"/></animateMotion></circle>
+        <circle r="3.5" fill="#1A6FD4" filter="url(#glow)"><animateMotion dur="1.6s" begin="1.4s" repeatCount="indefinite"><mpath href="#s3"/></animateMotion></circle>
+        <circle r="3.5" fill="#1A6FD4" filter="url(#glow)"><animateMotion dur="1.7s" begin="1.1s" repeatCount="indefinite"><mpath href="#s4"/></animateMotion></circle>
+        <circle cx="175" cy="240" r="6" fill="#1A6FD4" filter="url(#glow)"><animate attributeName="r" values="5;8;5" dur="1.4s" repeatCount="indefinite"/></circle>
+        <circle r="5" fill="#1A6FD4" filter="url(#glow)"><animateMotion dur="1.4s" begin="1.6s" repeatCount="indefinite" path="M175 240 L 250 240"/></circle>
       </svg>
-      <span class="logo-text">weave</span>
-    </a>
-    <button class="btn btn-primary nav-cta" onclick="startTrial()">무료로 시작하기</button>
-  </nav>
-</header>
+      <div class="chat-card floaty">
+        <div class="chat-head"><div class="who"><svg class="av" viewBox="0 0 34 30"><path d="M3 6 C 13 6, 15 15, 22 15"/><path d="M3 15 L 22 15"/><path d="M3 24 C 13 24, 15 15, 22 15"/><path d="M22 15 L 31 15"/></svg>weave</div></div>
+        <div class="chat-body">
+          <div class="b-user">오늘 들어온 주문 전부 보여줘</div>
+          <div class="typing"><span></span><span></span><span></span></div>
+          <div class="b-bot">오늘 00:00부터 지금까지 총 36건이 들어왔어요.<div class="res"><div class="r"><span class="c">쿠팡</span><span>18건</span></div><div class="r"><span class="c">네이버</span><span>11건</span></div><div class="r"><span class="c">무신사</span><span>7건</span></div></div></div>
+        </div>
+        <div class="chat-input"><div class="fk"></div><div class="sd">↑</div></div>
+      </div>
+    </div>
+  </div>
+</section>
 
-<!-- ②──────── 히어로 (simplified) ──────── -->
-<section id="hero">
-  <div class="container">
-    <div class="hero-grid">
+<!-- STRIP -->
+<div class="strip">
+  <div class="wrap">
+    <div class="strip-label">국내 주요 쇼핑 채널을 하나로 연결합니다</div>
+    <div class="strip-row">
+      <div class="logo-slot"><i class="ti ti-shopping-cart"></i>쿠팡</div>
+      <div class="logo-slot"><i class="ti ti-shopping-cart"></i>네이버</div>
+      <div class="logo-slot"><i class="ti ti-shopping-cart"></i>카페24</div>
+      <div class="logo-slot"><i class="ti ti-shopping-cart"></i>무신사</div>
+      <div class="logo-slot"><i class="ti ti-shopping-cart"></i>에이블리</div>
+      <div class="logo-slot"><i class="ti ti-shopping-cart"></i>지그재그</div>
+    </div>
+  </div>
+</div>
 
-      <!-- 텍스트 -->
+<!-- PROBLEM -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-eyebrow reveal">이런 말, 해본 적 있으시죠?</div>
+    <h2 class="sec-title reveal">셀러의 하루는<br>이런 피로만으로 가득합니다</h2>
+    <div class="sec-sub reveal">매일 반복되는 이 힘듦들, weave는 정확히 여기서 출발했습니다.</div>
+    <div class="pain">
+      <div class="pain-bubble l pb1 reveal d1">"오늘도 송장 번호 채널마다 복붙해야 한다… 😮‍💨"</div>
+      <div class="pain-bubble r pb2 reveal d2">"이? 이거 분명 품절인데 왜 주문이 또 들어왔지? 😱"</div>
+      <div class="pain-bubble l pb3 reveal d3">"쿠팡 켜고, 네이버 켜고… 창이 몇 개야 대체 🖥️"</div>
+      <div class="pain-bubble r pb4 reveal d4">"이미 나간 건데 벌써 환불? 발주 또 놓쳤다 😦"</div>
+      <div class="pain-bubble l pb5 reveal d5">"하루의 절반이 단순 업무로 그냥 사라졌어… ⏳"</div>
+    </div>
+  </div>
+</section>
+
+<!-- CAPABILITY -->
+<section class="sec tinted" id="features">
+  <div class="wrap">
+    <div class="cap-hero reveal">
+      <div class="big">weave는 <span class="hl">자연어로 여러 쇼핑몰을 이용할 수 있는 서비스</span>입니다.<br>채팅을 기반으로 모든 쇼핑몰을 관리하세요.</div>
+    </div>
+    <div class="cap-layout">
+      <div class="cap-list reveal">
+        <button class="cap-item active" data-k="order"><div class="ico"><i class="ti ti-search"></i></div><div class="tx"><b>통합 주문 조회</b><span>여러 채널의 흩어진 주문·취소·반품을 한 화면에서 한 번에 확인합니다.</span></div></button>
+        <button class="cap-item" data-k="edit"><div class="ico"><i class="ti ti-edit"></i></div><div class="tx"><b>일괄 품절·가격 수정</b><span>여러 채널의 가격과 재고를 명령 한 번으로 동시에 변경합니다.</span></div></button>
+        <button class="cap-item" data-k="invoice"><div class="ico"><i class="ti ti-truck-delivery"></i></div><div class="tx"><b>일괄 송장 전송</b><span>채널마다 복붙하던 송장 입력을 말 한마디로 끝냅니다.</span></div></button>
+        <button class="cap-item" data-k="sync"><div class="ico"><i class="ti ti-refresh"></i></div><div class="tx"><b>재고 자동 동기화</b><span>한 채널에서 팔리면 나머지 채널 재고가 자동으로 줄어듭니다.</span></div></button>
+        <button class="cap-item" data-k="predict"><div class="ico"><i class="ti ti-bell"></i></div><div class="tx"><b>발주 예측 알림</b><span>판매 추세를 분석해 재고 소진 시점과 권장 발주량을 미리 알려줍니다.</span></div></button>
+        <button class="cap-item" data-k="excel"><div class="ico"><i class="ti ti-file-spreadsheet"></i></div><div class="tx"><b>주문 엑셀 추출</b><span>필요한 기간·채널의 주문 데이터를 엑셀로 즉시 내려받습니다.</span></div></button>
+      </div>
+      <div class="cap-chat reveal d1">
+        <div class="chat-card">
+          <div class="chat-head"><div class="who"><svg class="av" viewBox="0 0 34 30"><path d="M3 6 C 13 6, 15 15, 22 15"/><path d="M3 15 L 22 15"/><path d="M3 24 C 13 24, 15 15, 22 15"/><path d="M22 15 L 31 15"/></svg>weave</div></div>
+          <div class="chat-body" id="capBody"></div>
+          <div class="chat-input"><div class="fk"></div><div class="sd">↑</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIME SAVING -->
+<section class="sec" id="why">
+  <div class="wrap timesave reveal">
+    <div class="sec-eyebrow">시간이 곧 돈입니다</div>
+    <div class="big"><span class="strike">하루 5시간</span> 걸리는 일을<br><span class="hl">단 몇 분</span> 만에 끝냅니다</div>
+    <div class="note">송장 입력, 품절 처리, 재고 맞추기 — 매일 반복하던 단순 업무를 채팅 한 줄로.</div>
+  </div>
+</section>
+
+<!-- MOBILE -->
+<section class="sec tinted">
+  <div class="wrap">
+    <div class="mob">
+      <div class="reveal">
+        <div class="sec-eyebrow" style="text-align:left">언제 어디서도</div>
+        <h2>급할 땐 폰으로,<br>집중할 땐 PC로</h2>
+        <p class="lead">외출 중에 품절 재고가 터져도 괜찮습니다. weave는 PC와 모바일 모두에서 동일하게 작동해요. 채팅 한 줄이면 어디서든 바로 처리됩니다.</p>
+        <div class="feat-list">
+          <div class="it"><div class="ic"><i class="ti ti-device-mobile"></i></div><div class="tx"><b>모바일 완전 지원</b><span>지하철 안에서도, 매장에서도 폰으로 바로 이용.</span></div></div>
+          <div class="it"><div class="ic"><i class="ti ti-device-desktop"></i></div><div class="tx"><b>PC와 실시간 동기화</b><span>어느 기기에서 처리해도 동일하게 반영됩니다.</span></div></div>
+        </div>
+      </div>
+      <div class="reveal d1 mob-vis">
+        <div class="phone"><div class="pbody">
+          <div class="pu">3번 상품 전 채널 품절 처리해줘</div>
+          <div class="pb">3번 상품을 모든 채널에서 품절 처리했어요. ✓</div>
+          <div class="pu">오늘 주문 송장 다 보내줘</div>
+          <div class="pb">36건 전부 전송 완료했어요. 📦</div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SMARTER -->
+<section class="sec">
+  <div class="wrap reveal">
+    <div class="band">
       <div>
-        <p class="hero-eyebrow fade-up">멀티채널 셀러를 위한 AI</p>
-        <h1 class="hero-title fade-up" style="transition-delay:.08s">
-          흩어진 채널을<br>
-          <span class="hl">한 줄로</span> 움직이세요
-        </h1>
-        <p class="hero-desc fade-up" style="transition-delay:.16s">
-          <strong>쿠팡, 네이버, 무신사…</strong> 채팅창에 말하면<br>
-          weave가 모든 채널을 동시에 처리합니다.
-        </p>
-        <div class="fade-up" style="transition-delay:.24s">
-          <button class="btn btn-primary" style="font-size:16px;padding:15px 32px" onclick="startTrial()">
-            14일 무료로 시작하기 →
-          </button>
-          <p class="hero-sub">신용카드 불필요 · 자동 청구 없음</p>
-        </div>
+        <div class="eyebrow-w"><i class="ti ti-sparkles"></i>사용할수록 똑똑해집니다</div>
+        <h2>당신의 판매·이력 데이터를<br>학습해 점점 정교해집니다</h2>
+        <p>weave는 매일 쌓이는 판매·재고·발주 흐름을 학습합니다. 사용할수록 예측은 정확해지고, 더 적은 입력으로 더 많은 일을 처리합니다.</p>
       </div>
-
-      <!-- 정적 채팅 카드 (simplified) -->
-      <div class="chat-card hero-card fade-up" style="transition-delay:.18s">
-        <div class="chat-bar">
-          <span class="chat-dot" style="background:#ef4444"></span>
-          <span class="chat-dot" style="background:#f59e0b"></span>
-          <span class="chat-dot" style="background:#22c55e"></span>
-          <span class="chat-bar-title">weave Assistant</span>
-          <div class="chat-bar-logo">
-            <svg width="14" height="11" viewBox="0 0 28 22" fill="none" aria-hidden="true">
-              <rect y="0" width="22" height="5" rx="2.5" fill="#1A6FD4"/>
-              <rect x="3" y="8.5" width="22" height="5" rx="2.5" fill="#1A6FD4" opacity=".6"/>
-              <rect y="17" width="22" height="5" rx="2.5" fill="#1A6FD4" opacity=".3"/>
-            </svg>
-            <span class="chat-bar-logo-text">weave</span>
-          </div>
-        </div>
-        <!-- 미리 렌더된 대화 (JS에서 삽입) -->
-        <div class="chat-msgs" id="hero-msgs"></div>
-        <div class="chat-footer">
-          <div class="chat-input-mock">
-            <span id="hero-input-text"></span><span class="chat-cursor"></span>
-          </div>
-          <button class="chat-send" aria-label="전송">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M7 12V2M7 2L3 6M7 2L11 6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- wave divider -->
-<div class="wave" aria-hidden="true">
-  <svg viewBox="0 0 1440 40" preserveAspectRatio="none" style="height:40px">
-    <path d="M0 0 Q360 40 720 20 Q1080 0 1440 30 V40 H0Z" fill="#EEF3FA"/>
-  </svg>
-</div>
-
-<!-- ③──────── 채널 스트립 ──────── -->
-<div id="channels">
-  <div class="container">
-    <p class="ch-label">연동 지원 채널</p>
-    <div class="ch-list">
-
-      <div class="ch-chip ch-coupang fade-up" style="transition-delay:.00s">
-        <span class="ch-wordmark">coupang</span>
-      </div>
-
-      <div class="ch-chip ch-naver fade-up" style="transition-delay:.07s">
-        <span class="naver-n">N</span>
-        <span class="ch-wordmark" style="color:#03C75A">NAVER</span>
-        <span style="font-size:11px;font-weight:600;color:#9CA3AF;align-self:flex-end;margin-bottom:1px">스마트스토어</span>
-      </div>
-
-      <div class="ch-chip ch-cafe24 fade-up" style="transition-delay:.14s">
-        <span class="ch-wordmark">Cafe24</span>
-      </div>
-
-      <div class="ch-chip ch-musinsa fade-up" style="transition-delay:.21s">
-        <span class="ch-wordmark" style="font-size:13px;letter-spacing:0.06em">MUSINSA</span>
-      </div>
-
-      <div class="ch-chip ch-ably fade-up" style="transition-delay:.28s">
-        <span class="ch-wordmark" style="font-size:15px">ably</span>
-      </div>
-
-      <div class="ch-chip ch-zigzag fade-up" style="transition-delay:.35s">
-        <span class="ch-wordmark" style="font-size:13px;letter-spacing:0.04em">ZIGZAG</span>
-      </div>
-
-    </div>
-    <p class="ch-disclaimer fade-up" style="transition-delay:.42s">
-      각 사의 상표 및 로고는 해당 회사의 자산입니다. weave는 각 플랫폼과 독립적으로 운영됩니다.
-    </p>
-  </div>
-</div>
-
-<!-- wave divider -->
-<div class="wave" aria-hidden="true">
-  <svg viewBox="0 0 1440 40" preserveAspectRatio="none" style="height:40px">
-    <path d="M0 40 Q360 0 720 20 Q1080 40 1440 10 V40 H0Z" fill="#EEF3FA"/>
-  </svg>
-</div>
-
-<!-- ④──────── 문제 제기 (재구성) ──────── -->
-<section id="problem">
-  <div class="container">
-    <div class="section-header">
-      <div class="badge fade-up">지금 셀러의 현실</div>
-      <h2 class="fade-up" style="transition-delay:.08s">
-        멀티채널 운영,<br>이렇게 힘드셨죠?
-      </h2>
-    </div>
-    <div class="cards-3">
-
-      <!-- 카드 ① 플랫폼 왔다갔다 -->
-      <div class="card fade-up" style="transition-delay:.00s">
-        <div class="card-icon icon-orange">
-          <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true">
-            <!-- 두 창 사이 화살표 -->
-            <rect x="2" y="4" width="11" height="9" rx="2" stroke="#F59E0B" stroke-width="1.8"/>
-            <rect x="17" y="4" width="11" height="9" rx="2" stroke="#F59E0B" stroke-width="1.8"/>
-            <rect x="2" y="17" width="11" height="9" rx="2" stroke="#F59E0B" stroke-width="1.8" opacity=".5"/>
-            <rect x="17" y="17" width="11" height="9" rx="2" stroke="#F59E0B" stroke-width="1.8" opacity=".5"/>
-            <path d="M13 8.5h4M13 8.5l2-2M13 8.5l2 2" stroke="#F59E0B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <h3>플랫폼 사이를 종일 왔다갔다</h3>
-        <p>쿠팡에서 수정하고, 네이버 열어서 또 수정하고, 무신사 들어가서 다시 수정합니다. 같은 일을 채널 수만큼 반복합니다.</p>
-      </div>
-
-      <!-- 카드 ② 시간 소멸 -->
-      <div class="card fade-up" style="transition-delay:.12s">
-        <div class="card-icon icon-blue">
-          <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true">
-            <circle cx="15" cy="16" r="12" stroke="#1A6FD4" stroke-width="1.8"/>
-            <path d="M15 9v8l4 3" stroke="#1A6FD4" stroke-width="1.8" stroke-linecap="round"/>
-            <!-- 감소 화살표 -->
-            <path d="M4 6l4 4 4-4" stroke="#1A6FD4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M8 10V4" stroke="#1A6FD4" stroke-width="1.6" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <h3>시간은 운영에만 다 쓰고</h3>
-        <p>단순 반복 작업에 하루를 다 쓰고 나면, 정작 중요한 상품 기획·고객 응대·마케팅에 쓸 시간이 남지 않습니다.</p>
-      </div>
-
-      <!-- 카드 ③ 실수→사고 -->
-      <div class="card fade-up" style="transition-delay:.24s">
-        <div class="card-icon icon-red">
-          <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true">
-            <!-- 경고 삼각형 -->
-            <path d="M15 4L28 26H2L15 4Z" stroke="#EF4444" stroke-width="1.8" stroke-linejoin="round"/>
-            <line x1="15" y1="13" x2="15" y2="19" stroke="#EF4444" stroke-width="1.8" stroke-linecap="round"/>
-            <circle cx="15" cy="22.5" r="1" fill="#EF4444"/>
-          </svg>
-        </div>
-        <h3>작은 실수가 큰 사고로</h3>
-        <p>채널마다 따로 관리하다 보면 품절 누락·초과판매는 시간문제입니다. 패널티와 환불로 하루를 날립니다.</p>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- wave divider -->
-<div class="wave" aria-hidden="true">
-  <svg viewBox="0 0 1440 50" preserveAspectRatio="none" style="height:50px">
-    <path d="M0 0 Q720 50 1440 0 V50 H0Z" fill="#F0F7FF"/>
-  </svg>
-</div>
-
-<!-- ⑤──────── 제품 데모 ──────── -->
-<section id="demo">
-  <div class="container">
-    <div class="demo-grid">
-
-      <!-- 탭 패널 -->
-      <div>
-        <div class="badge fade-up">weave가 하는 일</div>
-        <h2 class="fade-up" style="font-size:36px;font-weight:800;line-height:1.25;letter-spacing:-0.03em;transition-delay:.08s">
-          채팅창에 말하면<br>
-          <span style="color:var(--blue)">weave가 처리합니다</span>
-        </h2>
-        <div class="demo-tabs fade-up" style="transition-delay:.18s" id="demo-tabs">
-          <button class="demo-tab active" data-tab="order">
-            <span class="demo-tab-ico">📦</span>
-            <div><div class="demo-tab-title">주문 조회</div><div class="demo-tab-sub">흩어진 채널 주문 한 번에</div></div>
-          </button>
-          <button class="demo-tab" data-tab="stock">
-            <span class="demo-tab-ico">🔒</span>
-            <div><div class="demo-tab-title">재고 수정</div><div class="demo-tab-sub">품절·가격 + 방화벽 검토</div></div>
-          </button>
-          <button class="demo-tab" data-tab="invoice">
-            <span class="demo-tab-ico">🚚</span>
-            <div><div class="demo-tab-title">송장 전송</div><div class="demo-tab-sub">전 채널 일괄 처리</div></div>
-          </button>
-          <button class="demo-tab" data-tab="excel">
-            <span class="demo-tab-ico">📊</span>
-            <div><div class="demo-tab-title">엑셀 추출</div><div class="demo-tab-sub">말 한마디로 파일 생성</div></div>
-          </button>
-        </div>
-        <ul class="demo-note fade-up" style="transition-delay:.28s">
-          <li>자연어 한 줄로 여러 채널 동시 처리</li>
-          <li>AI 방화벽이 위험 명령 자동 감지·차단</li>
-          <li>14일 무료, 신용카드 불필요</li>
-        </ul>
-      </div>
-
-      <!-- 데모 채팅 -->
-      <div class="demo-chat-wrap fade-up" style="transition-delay:.14s">
-        <div class="demo-chat">
-          <div class="chat-bar">
-            <span class="chat-dot" style="background:#ef4444"></span>
-            <span class="chat-dot" style="background:#f59e0b"></span>
-            <span class="chat-dot" style="background:#22c55e"></span>
-            <span class="chat-bar-title">weave Assistant</span>
-          </div>
-          <div class="demo-msgs" id="demo-msgs"></div>
-          <div class="chat-footer">
-            <div class="chat-input-mock">
-              <span id="demo-input-text"></span><span class="chat-cursor" id="demo-cursor"></span>
-            </div>
-            <button class="chat-send" aria-label="전송">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <path d="M7 12V2M7 2L3 6M7 2L11 6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- wave divider -->
-<div class="wave" aria-hidden="true">
-  <svg viewBox="0 0 1440 50" preserveAspectRatio="none" style="height:50px">
-    <path d="M0 50 Q360 0 720 25 Q1080 50 1440 10 V50 H0Z" fill="#F6F9FF"/>
-  </svg>
-</div>
-
-<!-- ⑥──────── 기능 그리드 ──────── -->
-<section id="features">
-  <div class="container">
-    <div class="section-header">
-      <h2 class="fade-up">weave가 대신 처리하는 것들</h2>
-    </div>
-    <div class="cards-6">
-
-      <div class="card fade-up" style="transition-delay:.00s">
-        <div class="card-icon icon-blue">
-          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
-            <circle cx="11" cy="11" r="7" stroke="#1A6FD4" stroke-width="1.8"/>
-            <path d="M16 16l5.5 5.5" stroke="#1A6FD4" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <h3>통합 주문 조회</h3>
-        <p>여러 채널 주문을 하나의 화면에서 실시간으로 확인합니다.</p>
-      </div>
-
-      <div class="card fade-up" style="transition-delay:.08s">
-        <div class="card-icon icon-orange">
-          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
-            <path d="M4 22l5-1.5L20 9.5l-3.5-3.5L5.5 17z" stroke="#F59E0B" stroke-width="1.8" stroke-linejoin="round"/>
-            <path d="M16.5 6l3.5 3.5M19 4l3 3-1.5 1.5-3-3z" stroke="#F59E0B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <h3>일괄 품절·가격 수정</h3>
-        <p>한 번의 명령으로 여러 채널의 재고와 가격을 동시에 수정합니다.</p>
-      </div>
-
-      <div class="card fade-up" style="transition-delay:.16s">
-        <div class="card-icon icon-blue">
-          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
-            <rect x="2" y="11" width="15" height="9" rx="2" stroke="#1A6FD4" stroke-width="1.8"/>
-            <path d="M6 11V8a5.5 5.5 0 0111 0" stroke="#1A6FD4" stroke-width="1.8" stroke-linecap="round"/>
-            <circle cx="20.5" cy="18" r="5.5" fill="#E8F1FB"/>
-            <path d="M18 18l2 2 3-3" stroke="#1A6FD4" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <h3>자동 송장 전송</h3>
-        <p>모든 채널의 배송 정보를 한 번에 입력하고 전송합니다.</p>
-      </div>
-
-      <div class="card fade-up" style="transition-delay:.00s">
-        <div class="card-icon icon-blue">
-          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
-            <path d="M21 8a9 9 0 10.8 7.5" stroke="#1A6FD4" stroke-width="1.8" stroke-linecap="round"/>
-            <path d="M21 8V4M21 8h-4" stroke="#1A6FD4" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <h3>재고 자동 동기화</h3>
-        <p>판매가 발생하면 연결된 채널의 재고를 자동으로 맞춥니다.</p>
-      </div>
-
-      <div class="card fade-up" style="transition-delay:.08s">
-        <div class="card-icon icon-orange">
-          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
-            <polyline points="3,18 8,11 13,14.5 18,6" stroke="#F59E0B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="22" cy="6" r="3.5" stroke="#F59E0B" stroke-width="1.8"/>
-            <line x1="22" y1="4.5" x2="22" y2="6.5" stroke="#F59E0B" stroke-width="1.4" stroke-linecap="round"/>
-            <circle cx="22" cy="7.7" r=".6" fill="#F59E0B"/>
-          </svg>
-        </div>
-        <h3>발주 예측 알림</h3>
-        <p>판매 데이터를 분석해 재고 소진 전에 미리 알려드립니다.</p>
-      </div>
-
-      <div class="card fade-up" style="transition-delay:.16s">
-        <div class="card-icon icon-blue">
-          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
-            <path d="M13 2.5L21.5 7v6.5c0 5-4.5 8.5-8.5 10-4-1.5-8.5-5-8.5-10V7z" stroke="#1A6FD4" stroke-width="1.8" stroke-linejoin="round"/>
-            <path d="M9.5 13l3 3 5-5" stroke="#1A6FD4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <h3>AI 안전 방화벽</h3>
-        <p>위험한 수정 명령을 자동 감지해 승인 전까지 실행을 차단합니다.</p>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ─────── 발주 예측 섹션 ─────── -->
-<section id="forecast">
-  <div class="container">
-    <div class="forecast-grid">
-
-      <!-- 텍스트 -->
-      <div>
-        <div class="badge fade-up">데이터 기반 발주 예측</div>
-        <h2 class="fade-up" style="font-size:38px;font-weight:800;line-height:1.25;letter-spacing:-0.03em;transition-delay:.08s">
-          얼마나, 언제 주문해야<br>
-          할지 <span style="color:var(--blue)">데이터가 알려줍니다</span>
-        </h2>
-        <p class="fade-up" style="font-size:16px;color:var(--gray-600);line-height:1.8;margin-top:16px;transition-delay:.16s">
-          "다음 달 이 상품 몇 개 준비해야 하지?" — 감이 아닌 판매 기록으로 계산합니다.
-          weave는 재고 소진 속도를 실시간으로 분석해, 품절 전에 먼저 알려드립니다.
-        </p>
-        <ul class="reassure-list fade-up" style="transition-delay:.24s">
-          <li class="reassure-item">
-            <div class="reassure-ico">📈</div>
-            <div>
-              <div class="reassure-ttl">소진 예상일 자동 계산</div>
-              <div class="reassure-desc">현재 판매 속도를 기반으로 재고가 언제 바닥날지 미리 알려드립니다.</div>
-            </div>
-          </li>
-          <li class="reassure-item">
-            <div class="reassure-ico">🌊</div>
-            <div>
-              <div class="reassure-ttl">계절성·재구매 주기 자동 반영</div>
-              <div class="reassure-desc">작년 같은 시기에 얼마나 팔렸는지, 재구매 패턴이 있는지를 데이터에서 직접 추출합니다.</div>
-            </div>
-          </li>
-          <li class="reassure-item">
-            <div class="reassure-ico">🧠</div>
-            <div>
-              <div class="reassure-ttl">오래 쓸수록 더 똑똑해집니다</div>
-              <div class="reassure-desc">판매 데이터가 쌓일수록 예측 정확도가 높아집니다. 1개월 사용과 6개월 사용의 예측은 다릅니다.</div>
-            </div>
-          </li>
-        </ul>
-
-        <!-- 데이터 누적 타임라인 -->
-        <div class="data-timeline fade-up" style="transition-delay:.32s">
-          <div class="dt-step done">
-            <div class="dt-dot">✓</div>
-            <div class="dt-label">시작</div>
-            <div class="dt-sub">적재 시작</div>
-          </div>
-          <div class="dt-step done">
-            <div class="dt-dot">✓</div>
-            <div class="dt-label">1개월</div>
-            <div class="dt-sub">기본 예측<br>가능</div>
-          </div>
-          <div class="dt-step active">
-            <div class="dt-dot">★</div>
-            <div class="dt-label">3개월</div>
-            <div class="dt-sub">계절성<br>반영</div>
-          </div>
-          <div class="dt-step">
-            <div class="dt-dot"></div>
-            <div class="dt-label">6개월+</div>
-            <div class="dt-sub">정밀 예측<br>완성</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 예측 카드 목업 -->
-      <div class="pred-card fade-up" style="transition-delay:.14s">
-        <div class="pred-card-hd">
-          <div class="pred-hd-left">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <rect x="1" y="10" width="3" height="5" rx="1" fill="#1A6FD4"/>
-              <rect x="6" y="6"  width="3" height="9" rx="1" fill="#1A6FD4" opacity=".7"/>
-              <rect x="11" y="2" width="3" height="13" rx="1" fill="#1A6FD4" opacity=".4"/>
-            </svg>
-            발주 예측 알림
-          </div>
-          <span class="pred-urgent-tag">2개 긴급</span>
-        </div>
-        <div class="pred-card-bd">
-
-          <!-- 긴급 -->
-          <div class="pred-item urgent">
-            <div class="pred-item-top">
-              <span class="pred-pname">블랙 롱코트 M</span>
-              <span class="pred-badge">D-8 소진 예상</span>
-            </div>
-            <div class="pred-bar"><div class="pred-bar-fill" style="width:8%"></div></div>
-            <div class="pred-rec">weave 추천 → 지금 <strong>80개</strong> 발주 필요</div>
-          </div>
-
-          <!-- 주의 -->
-          <div class="pred-item warn">
-            <div class="pred-item-top">
-              <span class="pred-pname">네이비 슬랙스 32</span>
-              <span class="pred-badge">D-21 소진 예상</span>
-            </div>
-            <div class="pred-bar"><div class="pred-bar-fill" style="width:30%"></div></div>
-            <div class="pred-rec">weave 추천 → <strong>이번 주 내</strong> 40개 발주</div>
-          </div>
-
-          <!-- 여유 -->
-          <div class="pred-item ok">
-            <div class="pred-item-top">
-              <span class="pred-pname">화이트 셔츠 L</span>
-              <span class="pred-badge">D-52 여유 있음</span>
-            </div>
-            <div class="pred-bar"><div class="pred-bar-fill" style="width:72%"></div></div>
-            <div class="pred-rec">현재 재고 충분. 다음 달 재확인 예정</div>
-          </div>
-
-        </div>
-        <div class="pred-card-ft">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-            <circle cx="7" cy="7" r="6" stroke="#9CA3AF" stroke-width="1.3"/>
-            <path d="M7 4v4l2.5 2" stroke="#9CA3AF" stroke-width="1.3" stroke-linecap="round"/>
-          </svg>
-          최근 90일 판매 데이터 기반으로 자동 계산됩니다
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- wave divider -->
-<div class="wave" aria-hidden="true">
-  <svg viewBox="0 0 1440 50" preserveAspectRatio="none" style="height:50px">
-    <path d="M0 0 Q360 50 720 20 Q1080 0 1440 40 V50 H0Z" fill="#EEF3FA"/>
-  </svg>
-</div>
-
-<!-- ─────── 방화벽 섹션 ─────── -->
-<section id="firewall">
-  <div class="container">
-    <div class="fw-grid">
-
-      <!-- 방화벽 대화 카드 목업 (왼쪽) -->
-      <div class="fw-mock fade-up" style="transition-delay:.14s">
-        <div class="fw-mock-top">
-          <div class="fw-mock-ico">⚠️</div>
-          <div>
-            <div class="fw-mock-ttl">안전 확인 — 실행 전 검토 요청</div>
-            <div class="fw-mock-sub">weave가 중요한 변경을 감지했습니다</div>
-          </div>
-        </div>
-        <div class="fw-mock-body">
-          <div class="fw-mock-cmd">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <circle cx="7" cy="7" r="6" stroke="#1A6FD4" stroke-width="1.5"/>
-              <path d="M7 4v3.5l2 1.5" stroke="#1A6FD4" stroke-width="1.3" stroke-linecap="round"/>
-            </svg>
-            전체 상품 가격 20% 인하해줘
-          </div>
-          <div class="fw-mock-desc">
-            <strong style="color:#92400E">전체 상품 일괄 수정</strong> + <strong style="color:#92400E">가격 20% 변경</strong> 명령입니다.<br>
-            실행 전 한 번 더 확인해 드립니다. 정말 진행하시겠어요?
-          </div>
-          <div class="fw-mock-btns">
-            <button class="fw-mock-ok">✓ 최종 승인하기</button>
-            <button class="fw-mock-no">✗ 취소</button>
-          </div>
-        </div>
-        <div class="fw-tags">
-          <span class="fw-tag">💰 금액 ±20% 초과</span>
-          <span class="fw-tag">📋 전체·일괄 수정</span>
-          <span class="fw-tag">❓ 낮은 확신도</span>
-          <span class="fw-tag">🔗 미지원 채널 요청</span>
-        </div>
-      </div>
-
-      <!-- 안심 카피 (오른쪽) -->
-      <div>
-        <div class="badge fade-up">AI 안전 방화벽</div>
-        <h2 class="fade-up" style="font-size:38px;font-weight:800;line-height:1.25;letter-spacing:-0.03em;transition-delay:.08s">
-          AI에게 맡겨도<br>
-          <span style="color:var(--blue)">걱정 마세요</span>
-        </h2>
-        <p class="fade-up" style="font-size:16px;color:var(--gray-600);line-height:1.8;margin-top:16px;transition-delay:.16s">
-          "AI가 멋대로 바꿔버리면 어떡하지?" — 그 걱정, weave가 먼저 생각했습니다.
-          중요한 수정은 반드시 먼저 여쭤보고, 승인하기 전까지는 아무것도 바뀌지 않습니다.
-        </p>
-        <ul class="reassure-list fade-up" style="transition-delay:.24s">
-          <li class="reassure-item">
-            <div class="reassure-ico">🛑</div>
-            <div>
-              <div class="reassure-ttl">승인 전에는 아무것도 실행하지 않습니다</div>
-              <div class="reassure-desc">방화벽이 걸리면 명령을 멈추고 채팅창에 "최종 승인 / 취소" 버튼을 띄웁니다. 버튼을 누르기 전까지 실제 API는 호출되지 않습니다.</div>
-            </div>
-          </li>
-          <li class="reassure-item">
-            <div class="reassure-ico">🔍</div>
-            <div>
-              <div class="reassure-ttl">4가지 상황에서 자동으로 멈춥니다</div>
-              <div class="reassure-desc">가격 ±20% 초과, 5개 이상 일괄 수정, AI 확신도 부족, 미지원 채널 요청 — 이 4가지가 감지되면 먼저 여쭤봅니다.</div>
-            </div>
-          </li>
-          <li class="reassure-item">
-            <div class="reassure-ico">💬</div>
-            <div>
-              <div class="reassure-ttl">왜 멈췄는지 이유도 설명해 드립니다</div>
-              <div class="reassure-desc">어떤 조건에 걸렸는지, 어떻게 수정하면 바로 실행할 수 있는지 안내합니다.</div>
-            </div>
-          </li>
-        </ul>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- wave divider -->
-<div class="wave" aria-hidden="true">
-  <svg viewBox="0 0 1440 50" preserveAspectRatio="none" style="height:50px">
-    <path d="M0 20 Q360 50 720 10 Q1080 0 1440 40 V50 H0Z" fill="#FFFFFF"/>
-  </svg>
-</div>
-
-<!-- ⑦──────── 함께하는 기관 (신규) ──────── -->
-<section id="institutions">
-  <div class="container">
-    <div class="section-header">
-      <div class="badge fade-up">검증된 시작</div>
-      <h2 class="fade-up" style="transition-delay:.08s">함께하는 기관</h2>
-      <p class="fade-up" style="transition-delay:.16s">
-        서울대학교 공과대학 혁신인재 프로그램,<br>아산나눔재단 지원으로 개발되고 있습니다.
-      </p>
-    </div>
-    <div class="inst-grid">
-
-      <!-- 서울대학교 공과대학 -->
-      <!-- ⚠ 공식 CI 가이드라인을 확인하고 아래 로고를 실제 이미지로 교체하십시오 -->
-      <div class="inst-card fade-up" style="transition-delay:.00s">
-        <div class="inst-logo">
-          <div class="snu-logo">
-            <div class="snu-shield">S</div>
-            <div class="snu-text">
-              <span>SNU</span>
-              <span>COLLEGE OF ENGINEERING</span>
-            </div>
-          </div>
-        </div>
-        <div class="inst-name">서울대학교 공과대학</div>
-      </div>
-
-      <!-- 아산나눔재단 -->
-      <!-- ⚠ 공식 CI 가이드라인을 확인하고 아래 로고를 실제 이미지로 교체하십시오 -->
-      <div class="inst-card fade-up" style="transition-delay:.12s">
-        <div class="inst-logo">
-          <div class="an-logo">
-            <div class="an-mark">
-              <span></span><span></span><span></span>
-            </div>
-            <div class="an-text">
-              <span>ASAN NANUM</span>
-              <span>FOUNDATION</span>
-            </div>
-          </div>
-        </div>
-        <div class="inst-name">아산나눔재단</div>
-      </div>
-
-    </div>
-    <!-- ⚠ 로고 교체 안내 (실제 배포 전 제거) -->
-    <p class="inst-note fade-up" style="transition-delay:.24s">
-      * 위 로고는 임시 표현입니다. 배포 전 각 기관의 공식 CI 가이드라인을 확인하고 정식 로고 파일로 교체하십시오.
-    </p>
-  </div>
-</section>
-
-<!-- wave divider -->
-<div class="wave" aria-hidden="true">
-  <svg viewBox="0 0 1440 50" preserveAspectRatio="none" style="height:50px">
-    <path d="M0 0 Q720 50 1440 0 V50 H0Z" fill="#F6F9FF"/>
-  </svg>
-</div>
-
-<!-- ⑧──────── 셀러 후기 ──────── -->
-<section id="social">
-  <div class="container">
-    <div class="section-header">
-      <div class="badge fade-up">실제 후기</div>
-      <h2 class="fade-up" style="transition-delay:.08s">이미 사용 중인 셀러들의 이야기</h2>
-    </div>
-    <div class="reviews">
-      <div class="review fade-up" style="transition-delay:.00s">
-        <div class="review-q">"</div>
-        <p class="review-body">송장 전송에 매일 2시간씩 쓰던 게 이제 10분도 안 걸려요. 운영 방식이 완전히 달라졌습니다.</p>
-        <div class="review-who">— 패션 셀러, 5개 채널 운영</div>
-      </div>
-      <div class="review fade-up" style="transition-delay:.12s">
-        <div class="review-q">"</div>
-        <p class="review-body">품절 실수로 받던 패널티가 사용하고 나서 한 번도 없었어요. 방화벽이 실수를 미리 잡아주니까요.</p>
-        <div class="review-who">— 사입 셀러, 쿠팡·네이버·무신사</div>
-      </div>
-      <div class="review fade-up" style="transition-delay:.24s">
-        <div class="review-q">"</div>
-        <p class="review-body">발주 예측 덕분에 재고 소진 전에 미리 준비할 수 있게 됐어요. 시즌 품절이 사라졌습니다.</p>
-        <div class="review-who">— 자체 브랜드, 에이블리·지그재그</div>
+      <div class="band-stat">
+        <div class="row"><div class="ic"><i class="ti ti-chart-dots"></i></div><div class="tx"><b>판매 패턴 학습</b><span>채널·계절별 추세를 반영해 발주 예측 정확도 향상</span></div></div>
+        <div class="row"><div class="ic"><i class="ti ti-bulb"></i></div><div class="tx"><b>이용 흐름 학습</b><span>자주 쓰는 명령을 이해해 더 빠르게 응답</span></div></div>
+        <div class="row"><div class="ic"><i class="ti ti-trending-up"></i></div><div class="tx"><b>시간이 갈수록 강화</b><span>데이터가 쌓일수록 더 정교한 이운 파트너로</span></div></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- wave divider -->
-<div class="wave" aria-hidden="true">
-  <svg viewBox="0 0 1440 50" preserveAspectRatio="none" style="height:50px">
-    <path d="M0 50 Q720 0 1440 50 V50 H0Z" fill="#FFFFFF"/>
-  </svg>
-</div>
-
-<!-- ⑨──────── 요금제 ──────── -->
-<section id="pricing">
-  <div class="container">
-    <div class="section-header">
-      <h2 class="fade-up">엑셀에서 벗어나는<br>가장 쉬운 방법</h2>
+<!-- SAFETY -->
+<section class="sec tinted" id="safety">
+  <div class="wrap">
+    <div class="safety-head reveal">
+      <div class="badge-top"><i class="ti ti-shield-check"></i>weave가 가장 신경 쓴 것</div>
+      <h2>AI에게 맡겨도,<br><span class="hl">실수는 절대 나지 않게</span></h2>
+      <p>"AI가 이상하게 바꿔버리면 어쩌지?" 그 걱정은 weave가 먼저 막습니다. 위험한 수정을 실행 직전 반드시 사람의 확인을 거칩니다.</p>
     </div>
+    <div class="safety-grid">
+      <div class="reveal">
+        <div class="feat-list">
+          <div class="it"><div class="ic"><i class="ti ti-coin"></i></div><div class="tx"><b>급격한 가격 변동 차단</b><span>기존가 대비 20% 넘게 벗어나면 자동으로 멈추고 확인을 요청합니다.</span></div></div>
+          <div class="it"><div class="ic"><i class="ti ti-stack-2"></i></div><div class="tx"><b>대량 수정 보호</b><span>한 번에 여러 상품을 바꾸는 명령은 실행 전 한 번 더 검토합니다.</span></div></div>
+          <div class="it"><div class="ic"><i class="ti ti-help-circle"></i></div><div class="tx"><b>불명확하면 되묻기</b><span>의도가 불확실하면 멋대로 실행하지 않고 다시 확인합니다.</span></div></div>
+        </div>
+      </div>
+      <div class="reveal d1">
+        <div class="fw">
+          <div class="fw-h"><i class="ti ti-shield-check"></i>금액 방화벽 — 승인이 필요해요<i class="ti ti-lock lock"></i></div>
+          <div class="fw-b">
+            <div class="fw-info">
+              <div class="x"><div class="l">대상 채널</div><div class="v">쿠팡, 네이버</div></div>
+              <div class="x"><div class="l">영향 상품</div><div class="v danger">247개</div></div>
+              <div class="x"><div class="l">변경 내용</div><div class="v">가격 ↓500원</div></div>
+            </div>
+            <div class="fw-btns">
+              <button class="fw-cancel">취소</button>
+              <button class="fw-ok">최종 승인하기</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section class="sec">
+  <div class="wrap">
+    <h2 class="sec-title reveal">함께하는 기관</h2>
+    <div class="sec-sub reveal">검증된 기관들의 도움을 받아 이어가고 있습니다.</div>
+    <div class="trust-row">
+      <div class="trust-slot reveal d1">
+        <div class="ic"><i class="ti ti-building-community"></i></div>
+        <div class="tx"><b>서울대학교 공과대학</b><span>학생 인재 프로그램 · 공식 로고 입수 예정</span></div>
+      </div>
+      <div class="trust-slot reveal d2">
+        <div class="ic"><i class="ti ti-building-community"></i></div>
+        <div class="tx"><b>아산나눔재단</b><span>창업 지원 프로그램 · 공식 로고 입수 예정</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="sec tinted" id="reviews">
+  <div class="wrap">
+    <h2 class="sec-title reveal">이미 사용 중인 셀러들의 이야기</h2>
+    <div class="sec-sub reveal">* 아래는 예시 후기입니다. 실제 얼리어답터 확보 후 교체 예정.</div>
+    <div class="test-grid">
+      <div class="test-card reveal d1"><div class="q">"</div><p>송장 전송에 매일 2시간씩 쓰던 게 거짓말처럼 사라졌어요. 이제 인원이 한 명 늘어난 기분입니다.</p><div class="who">— 여성 의류 자사몰 셀러</div></div>
+      <div class="test-card reveal d2"><div class="q">"</div><p>품절 실수로 생긴 패널티가 없어졌어요. 한 곳에서 다 보이니까 놓치는 게 없습니다.</p><div class="who">— 자체 브랜드 이사</div></div>
+      <div class="test-card reveal d3"><div class="q">"</div><p>발주 예측 덕분에 재고가 없어진 일이 줄었습니다. 감으로 하던 걸 데이터로 하게 됐어요.</p><div class="who">— 멀티채널 의류 셀러</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="sec" id="pricing">
+  <div class="wrap">
+    <h2 class="sec-title reveal">시작하는 가장 쉬운 방법</h2>
+    <div class="sec-sub reveal">먼저 충분히 써보세요. 마음에 들면 그때 결정하면 됩니다.</div>
     <div class="price-grid">
-
-      <div class="price-card fade-up" style="transition-delay:.00s">
-        <div class="price-tier">Free Trial</div>
-        <div class="price-name">14일 무료</div>
-        <div class="price-amount">₩0<span class="unit"> / 14일</span></div>
-        <ul class="price-list">
-          <li>전 기능 체험</li>
-          <li>신용카드 불필요</li>
-          <li>자동 결제 없음</li>
-          <li>언제든 해지</li>
+      <div class="price-card reveal d1">
+        <div class="pn">Free Trial</div>
+        <div class="pp">무료<small> / 체험</small></div>
+        <div class="pd">결제 정보 없이 전 기능 체험</div>
+        <ul>
+          <li><i class="ti ti-check"></i>전 기능 체험</li>
+          <li><i class="ti ti-check"></i>전체 채널 연동</li>
+          <li><i class="ti ti-check"></i>카드 등록 불필요</li>
         </ul>
-        <button class="btn btn-outline" style="width:100%" onclick="startTrial()">무료로 시작하기</button>
+        <a class="price-btn ghost" href="https://pickit-ten.vercel.app?start=1">무료로 시작하기</a>
       </div>
-
-      <div class="price-card feat fade-up" style="transition-delay:.12s">
-        <div class="feat-badge">가장 많이 선택</div>
-        <div class="price-tier">Starter</div>
-        <div class="price-name">스타터</div>
-        <div class="price-amount" style="font-size:22px;margin:14px 0">출시 예정</div>
-        <ul class="price-list">
-          <li>최대 2개 채널 연동</li>
-          <li>주문 조회·수정·송장</li>
-          <li>엑셀 추출</li>
-          <li>AI 방화벽 기본 포함</li>
-          <li>얼리어답터 할인 적용</li>
+      <div class="price-card feat reveal d2">
+        <div class="price-tag">가장 많이 선택</div>
+        <div class="pn">Starter</div>
+        <div class="pp">출시 예정</div>
+        <div class="pd">최대 2개 채널 이용</div>
+        <ul>
+          <li><i class="ti ti-check"></i>최대 2채널 통합 관리</li>
+          <li><i class="ti ti-check"></i>주문 조회·수정·송장</li>
+          <li><i class="ti ti-check"></i>엑셀 추출</li>
+          <li><i class="ti ti-check"></i>AI 수정 방화벽</li>
         </ul>
-        <button class="btn btn-primary" style="width:100%" onclick="startTrial()">얼리어답터 신청하기</button>
+        <a class="price-btn solid" href="https://pickit-ten.vercel.app?start=1">얼리어답터 신청하기</a>
       </div>
-
-      <div class="price-card fade-up" style="transition-delay:.24s">
-        <div class="price-tier">Pro</div>
-        <div class="price-name">프로</div>
-        <div class="price-amount" style="font-size:22px;margin:14px 0">출시 예정</div>
-        <ul class="price-list">
-          <li>채널 무제한 연동</li>
-          <li>Starter 전체 포함</li>
-          <li>발주 예측 알림</li>
-          <li>재고 자동 동기화</li>
-          <li>얼리어답터 할인 적용</li>
+      <div class="price-card reveal d3">
+        <div class="pn">Pro</div>
+        <div class="pp">출시 예정</div>
+        <div class="pd">채널 수 무제한</div>
+        <ul>
+          <li><i class="ti ti-check"></i>Starter 전체 기능</li>
+          <li><i class="ti ti-check"></i>채널 수 무제한</li>
+          <li><i class="ti ti-check"></i>발주 예측 알림</li>
+          <li><i class="ti ti-check"></i>재고 자동 동기화</li>
         </ul>
-        <button class="btn btn-outline" style="width:100%" onclick="startTrial()">얼리어답터 신청하기</button>
+        <a class="price-btn ghost" href="https://pickit-ten.vercel.app?start=1">얼리어답터 신청하기</a>
       </div>
-
     </div>
-    <div class="price-notes fade-up" style="transition-delay:.3s">
-      <p>14일 무료 체험 후 자동 청구 없음</p>
-      <p>언제든 해지 가능 · 남은 기간 환불</p>
-      <p>출시 전 얼리어답터 한정 할인 진행 중</p>
-    </div>
+    <div class="price-foot reveal">사방넷·이지어드민 대비 부담 없는 가격으로 준비 중입니다.<br>이기 얼리어답터에게는 기간 한정 혜택을 드립니다.</div>
   </div>
 </section>
 
-<!-- ⑩──────── 마지막 CTA ──────── -->
-<section id="cta">
-  <div class="cta-deco cta-d1"></div>
-  <div class="cta-deco cta-d2"></div>
-  <div class="cta-deco cta-d3"></div>
-  <div class="container" style="position:relative;z-index:1">
-    <h2 class="fade-up">지금 시작하면,<br>내일부터 달라집니다</h2>
-    <p class="fade-up" style="transition-delay:.1s">14일 무료 체험. 신용카드 불필요. 언제든 해지 가능.</p>
-    <button class="btn btn-white fade-up" style="font-size:16px;padding:16px 42px;transition-delay:.2s" onclick="startTrial()">
-      무료로 시작하기 →
-    </button>
+<!-- FINAL -->
+<section class="final">
+  <div class="wrap">
+    <h2 class="reveal">하루라도 빨리 시작하면,<br>그만큼의 시간이 돌아옵니다</h2>
+    <a class="btn-white reveal d1" href="https://pickit-ten.vercel.app?start=1">무료로 시작하기 <span class="arrow">→</span></a>
   </div>
 </section>
 
-<!-- ⑪──────── 푸터 ──────── -->
+<!-- FOOTER -->
 <footer>
-  <div class="container">
-    <div class="footer-grid">
-      <div>
-        <a class="logo" href="#">
-          <svg width="24" height="19" viewBox="0 0 28 22" fill="none" aria-hidden="true">
-            <rect y="0" width="22" height="5" rx="2.5" fill="#4A9EE8"/>
-            <rect x="3" y="8.5" width="22" height="5" rx="2.5" fill="#4A9EE8" opacity=".6"/>
-            <rect y="17" width="22" height="5" rx="2.5" fill="#4A9EE8" opacity=".3"/>
-          </svg>
-          <span class="logo-text" style="color:#fff;font-size:17px">weave</span>
-        </a>
-        <p class="footer-sub">멀티채널 셀러를 위한 AI 운영 서비스</p>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-logo logo"><div>
+        <div style="display:flex;align-items:center;gap:9px">
+          <svg class="ico" width="30" height="26" viewBox="0 0 34 30"><path d="M3 6 C 13 6, 15 15, 22 15" stroke-width="4.2"/><path d="M3 15 L 22 15" stroke-width="4.2"/><path d="M3 24 C 13 24, 15 15, 22 15" stroke-width="4.2"/><path d="M22 15 L 31 15" stroke-width="4.2"/></svg>
+          <span class="txt">weave</span>
+        </div>
+        <p class="foot-tag">정리되지 않은 멀티채널을 한 줄로 움직이는 셀러 이용 운영 도구.</p>
+      </div></div>
+      <div class="foot-links">
+        <div class="foot-col"><h4>제품</h4><a data-go="features">기능 소개</a><a data-go="pricing">요금제</a><a>연동 채널</a></div>
+        <div class="foot-col"><h4>회사</h4><a>소개</a><a>문의하기</a><a>hello@weave.kr</a></div>
+        <div class="foot-col"><h4>약관</h4><a>이용약관</a><a>개인정보처리방침</a></div>
       </div>
-      <nav class="footer-links" aria-label="법적 정보">
-        <a href="#">이용약관</a>
-        <a href="#">개인정보처리방침</a>
-      </nav>
-      <nav class="footer-links" aria-label="연락처">
-        <a href="mailto:hello@weave.kr">hello@weave.kr</a>
-      </nav>
     </div>
-    <p class="footer-copy">© 2025 weave. All rights reserved.</p>
+    <div class="foot-bot">© 2026 weave. All rights reserved.</div>
   </div>
 </footer>
 
 <script>
-/* ─────────────────────────────────────
-   스크롤 애니메이션
-───────────────────────────────────── */
-const io = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (!e.isIntersecting) return;
-    const el = e.target;
-    const delay = parseFloat(el.style.transitionDelay || '0') * 1000;
-    setTimeout(() => el.classList.add('visible'), delay);
-    io.unobserve(el);
-  });
-}, { threshold: 0.1 });
-document.querySelectorAll('.fade-up').forEach(el => io.observe(el));
+  setTimeout(function(){ var t=document.querySelector('.typing'); if(t) t.classList.add('gone'); }, 50);
 
-/* ─────────────────────────────────────
-   헤더 스크롤
-───────────────────────────────────── */
-const hdr = document.getElementById('header');
-window.addEventListener('scroll', () => {
-  hdr.classList.toggle('scrolled', window.scrollY > 48);
-}, { passive: true });
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold:0.12 });
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
 
-/* ─────────────────────────────────────
-   히어로 정적 채팅 초기화
-   (전체 루프 제거 — 맛보기 정적 표시)
-───────────────────────────────────── */
-function initHeroChat() {
-  const msgs = document.getElementById('hero-msgs');
-
-  // 미리 완성된 대화를 삽입
-  const staticMessages = [
-    { type: 'user', text: '오늘 전체 채널 주문 보여줘' },
-    { type: 'ai',   lines: [
-        '📦 오늘 주문 현황 (00:00~현재)',
-        '쿠팡 14건 · 네이버 9건 · 카페24 4건',
-        '무신사 3건 · 에이블리 6건',
-        '━━━━━━━━━━━━',
-        '총 36건 | 신규 20건 · 처리중 11건',
-      ]
-    },
-  ];
-
-  staticMessages.forEach((m, i) => {
-    setTimeout(() => {
-      if (m.type === 'user') {
-        const el = document.createElement('div');
-        el.className = 'bubble bubble-user';
-        el.textContent = m.text;
-        msgs.appendChild(el);
-      } else {
-        const wrap = document.createElement('div');
-        wrap.className = 'bubble bubble-ai';
-        wrap.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
-        m.lines.forEach((line, j) => {
-          const ln = document.createElement('div');
-          ln.className = 'bubble-line';
-          ln.textContent = line;
-          wrap.appendChild(ln);
-          setTimeout(() => { ln.getBoundingClientRect(); ln.classList.add('in'); }, j * 60);
-        });
-        msgs.appendChild(wrap);
-      }
-      msgs.scrollTop = msgs.scrollHeight;
-    }, i * 500 + 600);
-  });
-
-  // 입력창에 한 번만 타이핑 (루프 없음)
-  const inputEl = document.getElementById('hero-input-text');
-  const typeText = '쿠팡 블랙 코트 M 품절시켜줘';
-  let idx = 0;
-  setTimeout(() => {
-    const timer = setInterval(() => {
-      if (idx >= typeText.length) { clearInterval(timer); return; }
-      inputEl.textContent = typeText.slice(0, ++idx);
-    }, 62);
-  }, 2400);
-}
-
-/* ─────────────────────────────────────
-   ChatSim — 데모 탭용
-───────────────────────────────────── */
-class ChatSim {
-  constructor(msgsId, inputTextId) {
-    this.msgs      = document.getElementById(msgsId);
-    this.inputText = document.getElementById(inputTextId);
-    this.ct        = { cancelled: false };
-  }
-  clear() {
-    this.ct.cancelled = true;
-    this.ct = { cancelled: false };
-    this.msgs.innerHTML = '';
-    this.inputText.textContent = '';
-  }
-  _wait(ms) {
-    const ct = this.ct;
-    return new Promise(res => {
-      const t = setTimeout(res, ms);
-      const p = setInterval(() => { if (ct.cancelled) { clearTimeout(t); clearInterval(p); res(); } }, 40);
+  document.querySelectorAll('[data-go]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      var el = document.getElementById(a.dataset.go);
+      if(el){ var y = el.getBoundingClientRect().top + window.pageYOffset - 64; window.scrollTo({top:y, behavior:'smooth'}); }
     });
-  }
-  async _type(text, speed) {
-    for (let i = 0; i < text.length; i++) {
-      if (this.ct.cancelled) return;
-      this.inputText.textContent = text.slice(0, i + 1);
-      await this._wait(speed);
-    }
-  }
-  _addBubble(cls, html) {
-    if (this.ct.cancelled) return null;
-    const el = document.createElement('div');
-    el.className = `bubble ${cls}`;
-    el.innerHTML = html;
-    this.msgs.appendChild(el);
-    this.msgs.scrollTop = this.msgs.scrollHeight;
-    return el;
-  }
-  async _addLines(lines) {
-    if (this.ct.cancelled) return;
-    const wrap = document.createElement('div');
-    wrap.className = 'bubble bubble-ai';
-    wrap.style.cssText = 'display:flex;flex-direction:column;gap:4px;';
-    this.msgs.appendChild(wrap);
-    this.msgs.scrollTop = this.msgs.scrollHeight;
-    for (const text of lines) {
-      if (this.ct.cancelled) return;
-      await this._wait(68);
-      const ln = document.createElement('div');
-      ln.className = 'bubble-line';
-      ln.textContent = text;
-      wrap.appendChild(ln);
-      ln.getBoundingClientRect();
-      ln.classList.add('in');
-      this.msgs.scrollTop = this.msgs.scrollHeight;
-    }
-  }
-  _showDots() {
-    const el = document.createElement('div');
-    el.className = 'loading-dots';
-    el.innerHTML = '<span></span><span></span><span></span>';
-    this.msgs.appendChild(el);
-    this.msgs.scrollTop = this.msgs.scrollHeight;
-    return el;
-  }
-  async run(scenario) {
-    const ct = this.ct;
-    await this._wait(360);
-    if (ct.cancelled) return;
-    await this._type(scenario.input, 52);
-    if (ct.cancelled) return;
-    await this._wait(380);
-    if (ct.cancelled) return;
-    this.inputText.textContent = '';
-    this._addBubble('bubble-user', scenario.input);
-    await this._wait(580);
-    if (ct.cancelled) return;
-    if (scenario.firewall) {
-      const d = this._showDots();
-      await this._wait(900);
-      if (ct.cancelled) return;
-      d.remove();
-      const fw = document.createElement('div');
-      fw.className = 'bubble bubble-fw';
-      fw.innerHTML =
-        `<div>${scenario.firewall}</div>` +
-        `<div class="fw-btns">` +
-        `<button class="fw-btn fw-btn-ok" onclick="this.closest('.bubble-fw').remove()">최종 승인하기</button>` +
-        `<button class="fw-btn fw-btn-no">취소</button></div>`;
-      this.msgs.appendChild(fw);
-      this.msgs.scrollTop = this.msgs.scrollHeight;
-      await this._wait(1600);
-      if (ct.cancelled) return;
-      const ok = fw.querySelector('.fw-btn-ok');
-      if (ok) ok.click();
-      const d2 = this._showDots();
-      await this._wait(800);
-      if (ct.cancelled) return;
-      d2.remove();
-    } else {
-      const d = this._showDots();
-      await this._wait(1000);
-      if (ct.cancelled) return;
-      d.remove();
-    }
-    await this._addLines(scenario.response);
-    if (ct.cancelled || !scenario.file) return;
-    await this._wait(180);
-    const fc = document.createElement('div');
-    fc.className = 'bubble bubble-ai bubble-line';
-    fc.innerHTML = `<span class="file-chip">💾 ${scenario.file}</span>`;
-    this.msgs.appendChild(fc);
-    fc.getBoundingClientRect();
-    fc.classList.add('in');
-    this.msgs.scrollTop = this.msgs.scrollHeight;
-  }
-}
+  });
 
-/* ─────────────────────────────────────
-   데모 탭
-───────────────────────────────────── */
-const demoSim = new ChatSim('demo-msgs', 'demo-input-text');
-
-const demoScenarios = {
-  order: {
-    input: '오늘 전체 채널 주문 보여줘',
-    response: [
-      '📦 오늘 주문 현황 (00:00~현재)',
-      '쿠팡 14건 · 네이버 9건 · 카페24 4건',
-      '무신사 3건 · 에이블리 6건 · 지그재그 2건',
-      '━━━━━━━━━━━━',
-      '총 38건 | 신규 21건 · 처리중 12건 · 완료 5건'
-    ]
-  },
-  stock: {
-    input: '쿠팡이랑 네이버 블랙 코트 M 품절시켜줘',
-    firewall: '⚠️ 방화벽 — 2개 채널 × 1개 상품 재고 수정입니다. 최종 승인하시겠어요?',
-    response: [
-      '✅ 쿠팡 블랙 코트 M — 품절 처리 완료',
-      '✅ 네이버 블랙 코트 M — 품절 처리 완료',
-      '2개 채널 재고 수정이 완료되었습니다.'
-    ]
-  },
-  invoice: {
-    input: '오늘 주문 전체 채널 송장 전송해줘',
-    response: [
-      '✅ 쿠팡 14건 전송 완료',
-      '✅ 네이버 9건 전송 완료',
-      '✅ 카페24 4건 전송 완료',
-      '✅ 무신사 3건 전송 완료',
-      '✅ 에이블리 6건 전송 완료',
-      '✅ 지그재그 2건 전송 완료',
-      '총 38건 전체 채널 송장 전송이 완료되었습니다.'
-    ]
-  },
-  excel: {
-    input: '이번 달 네이버 주문 엑셀로 뽑아줘',
-    response: ['6월 네이버 주문·정산 데이터 142건을 정리했습니다.'],
-    file: '2026_06_네이버_매출_리포트.xlsx'
+  var demos = {
+    order:   { u:"오늘 들어온 주문 전부 보여줘", b:"오늘 00:00부터 총 36건이 들어왔어요.", res:[["쿠팡","18건"],["네이버","11건"],["무신사","7건"]] },
+    edit:    { u:"전 채널에서 브레이크 사이즈 L 품절 처리해줘", b:"모든 채널에서 품절 처리했어요. ✓", res:[["쿠팡","완료"],["네이버","완료"],["카페24","완료"]] },
+    invoice: { u:"오늘 주문 송장 전부 전송해줘", b:"미전송 주문의 송장을 일괄 전송했어요. 📦", res:[["전송 완료","36 / 36건"]] },
+    sync:    { u:"재고를 자동으로 맞춰줘", b:"재고 자동 동기화가 켜져 있어요. 한 채널에서 팔리면 나머지도 자동 차감됩니다.", res:[["상태","자동 동기화 ON"]] },
+    predict: { u:"브레이크 코트 언제쯤 발주해야 해?", b:"현재 추세면 9월 말 소진 예상이에요. 권장 발주량은 120개입니다.", res:[["소진 예상","9월 말"],["권장 발주","120개"]] },
+    excel:   { u:"이번 달 네이버 매출 엑셀로 줘", b:"네이버 주문 142건을 엑셀로 정리했어요. 📎", res:[["파일","2026_06_네이버.xlsx"]] }
+  };
+  var body = document.getElementById('capBody');
+  function render(k){
+    var d = demos[k];
+    var rows = d.res.map(function(r){ return '<div class="r"><span class="c">'+r[0]+'</span><span>'+r[1]+'</span></div>'; }).join('');
+    body.innerHTML = '<div class="b-user" style="animation:pop .4s ease">'+d.u+'</div>'
+      +'<div class="b-bot" style="animation:pop .4s ease .15s both">'+d.b+'<div class="res">'+rows+'</div></div>';
   }
-};
-
-let currentTab = 'order';
-document.getElementById('demo-tabs').addEventListener('click', e => {
-  const btn = e.target.closest('[data-tab]');
-  if (!btn || btn.dataset.tab === currentTab) return;
-  document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  currentTab = btn.dataset.tab;
-  demoSim.clear();
-  demoSim.run(demoScenarios[currentTab]);
-});
-
-/* ─────────────────────────────────────
-   초기화
-───────────────────────────────────── */
-function startTrial() {
-  alert('준비 중입니다. 곧 얼리어답터 신청을 받습니다! 🎉');
-}
-
-window.addEventListener('load', () => {
-  setTimeout(() => initHeroChat(), 500);
-  setTimeout(() => demoSim.run(demoScenarios['order']), 1000);
-});
+  render('order');
+  document.querySelectorAll('.cap-item').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.cap-item').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active'); render(btn.dataset.k);
+    });
+  });
 </script>
 </body>
 </html>
