@@ -335,7 +335,6 @@
         <button class="cap-item active" data-k="order"><div class="ico"><i class="ti ti-search"></i></div><div class="tx"><b>통합 주문 조회</b><span>여러 채널의 흩어진 주문·취소·반품을 한 화면에서 한 번에 확인합니다.</span></div></button>
         <button class="cap-item" data-k="edit"><div class="ico"><i class="ti ti-edit"></i></div><div class="tx"><b>일괄 품절·가격 수정</b><span>여러 채널의 가격과 재고를 명령 한 번으로 동시에 변경합니다.</span></div></button>
         <button class="cap-item" data-k="invoice"><div class="ico"><i class="ti ti-truck-delivery"></i></div><div class="tx"><b>일괄 송장 전송</b><span>채널마다 복붙하던 송장 입력을 말 한마디로 끝냅니다.</span></div></button>
-        <button class="cap-item" data-k="sync"><div class="ico"><i class="ti ti-refresh"></i></div><div class="tx"><b>재고 자동 동기화</b><span>한 채널에서 팔리면 나머지 채널 재고가 자동으로 줄어듭니다.</span></div></button>
         <button class="cap-item" data-k="predict"><div class="ico"><i class="ti ti-bell"></i></div><div class="tx"><b>발주 예측 알림</b><span>판매 추세를 분석해 재고 소진 시점과 권장 발주량을 미리 알려줍니다.</span></div></button>
         <button class="cap-item" data-k="excel"><div class="ico"><i class="ti ti-file-spreadsheet"></i></div><div class="tx"><b>주문 엑셀 추출</b><span>필요한 기간·채널의 주문 데이터를 엑셀로 즉시 내려받습니다.</span></div></button>
       </div>
@@ -507,7 +506,6 @@
           <li><i class="ti ti-check"></i>Starter 전체 기능</li>
           <li><i class="ti ti-check"></i>채널 수 무제한</li>
           <li><i class="ti ti-check"></i>발주 예측 알림</li>
-          <li><i class="ti ti-check"></i>재고 자동 동기화</li>
         </ul>
         <a class="price-btn ghost" href="https://pickit-ten.vercel.app?start=1">얼리어답터 신청하기</a>
       </div>
@@ -565,7 +563,6 @@
     order:   { u:"오늘 들어온 주문 전부 보여줘", b:"오늘 00:00부터 총 36건이 들어왔어요.", res:[["쿠팡","18건"],["네이버","11건"],["무신사","7건"]] },
     edit:    { u:"전 채널에서 브레이크 사이즈 L 품절 처리해줘", b:"모든 채널에서 품절 처리했어요. ✓", res:[["쿠팡","완료"],["네이버","완료"],["카페24","완료"]] },
     invoice: { u:"오늘 주문 송장 전부 전송해줘", b:"미전송 주문의 송장을 일괄 전송했어요. 📦", res:[["전송 완료","36 / 36건"]] },
-    sync:    { u:"재고를 자동으로 맞춰줘", b:"재고 자동 동기화가 켜져 있어요. 한 채널에서 팔리면 나머지도 자동 차감됩니다.", res:[["상태","자동 동기화 ON"]] },
     predict: { u:"브레이크 코트 언제쯤 발주해야 해?", b:"현재 추세면 9월 말 소진 예상이에요. 권장 발주량은 120개입니다.", res:[["소진 예상","9월 말"],["권장 발주","120개"]] },
     excel:   { u:"이번 달 네이버 매출 엑셀로 줘", b:"네이버 주문 142건을 엑셀로 정리했어요. 📎", res:[["파일","2026_06_네이버.xlsx"]] }
   };
