@@ -8,7 +8,7 @@ import ConnectionStatus from '../ConnectionStatus';
 // 온보딩 흐름:
 //   재고여부(1) → [Yes] 공유/분리 선택(1-b) → 채널선택(2) → API키 입력(3) → 완료(complete)
 //               → [No]  채널선택(2) → API키 입력(3) → 완료(complete)
-export default function Onboarding({ onComplete }) {
+export default function Onboarding({ onComplete, onBack }) {
   const [step,              setStep]              = useState(1);
   const [hasInventory,      setHasInventory]      = useState(null);
   const [totalSteps,        setTotalSteps]        = useState(null); // 직접보유 4 / 위탁 3
@@ -49,17 +49,19 @@ export default function Onboarding({ onComplete }) {
       channels={channels}
       totalSteps={totalSteps}
       onComplete={handleApiKeysComplete}
+      onBack={() => setStep(2)}
     />
   );
 
   if (step === 2) return (
     <StepChannels
       onNext={handleChannelsNext}
+      onBack={() => setStep(hasInventory ? '1b' : 1)}
       displayStep={totalSteps === 4 ? 3 : 2}
       totalSteps={totalSteps}
     />
   );
 
-  if (step === '1b') return <StepStockMode onNext={handleStockModeNext} />;
-  return <StepInventory onNext={handleInventoryNext} />;
+  if (step === '1b') return <StepStockMode onNext={handleStockModeNext} onBack={() => setStep(1)} />;
+  return <StepInventory onNext={handleInventoryNext} onBack={onBack} />;
 }

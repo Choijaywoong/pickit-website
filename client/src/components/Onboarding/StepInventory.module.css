@@ -5,10 +5,42 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 40px 24px;
+  padding: 40px 24px 24px;
   background: var(--ob-bg);
   font-family: 'Pretendard', 'Apple SD Gothic Neo', -apple-system, sans-serif;
+}
+
+/* ── 뒤로가기 버튼 ── */
+.backBtn {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 4px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  color: #94a3b8;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+}
+
+.backBtn:hover {
+  background: #F1F5F9;
+  color: #1e293b;
+}
+
+/* ── 메인 콘텐츠 (flex:1로 수직 가운데 유지) ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 /* ── 로고 ── */
@@ -92,6 +124,33 @@
 .cardActive .iconWrap {
   color: var(--ob-brand) !important;
   background: #DBEAFE !important;
+}
+
+/* ── 다음 버튼 ── */
+.nextBtn {
+  width: 100%;
+  max-width: 540px;
+  padding: 15px 0;
+  margin-top: 28px;
+  background: var(--ob-brand);
+  color: #fff;
+  border: none;
+  border-radius: var(--ob-radius-card);
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.nextBtn:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.nextBtn:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 /* ── 아이콘 ── */
