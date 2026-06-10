@@ -158,6 +158,9 @@
   .timesave .big .strike { color:var(--gray); text-decoration:line-through; text-decoration-color:#D64545; text-decoration-thickness:3px; }
   .timesave .big .hl { color:var(--blue); }
   .timesave .note { font-size:14px; color:var(--gray); font-weight:500; margin-top:18px; }
+  .timesave-msg { font-size:17px; color:var(--gray); font-weight:500; line-height:1.75; margin-top:24px; }
+  .timesave-tags { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:28px; }
+  .timesave-tags span { padding:8px 18px; border-radius:999px; background:var(--tint-2); color:var(--blue); font-size:14px; font-weight:700; border:1px solid rgba(26,111,212,.15); }
 
   .mob { display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:center; }
   .mob h2 { font-size:32px; font-weight:800; letter-spacing:-.03em; color:var(--blue-ink); line-height:1.32; margin-bottom:18px; }
@@ -321,7 +324,6 @@
   <div class="wrap">
     <div class="sec-eyebrow reveal">이런 말, 해본 적 있으시죠?</div>
     <h2 class="sec-title reveal">셀러의 하루는<br>이런 피로만으로 가득합니다</h2>
-    <div class="sec-sub reveal">매일 반복되는 이 힘듦들, weave는 정확히 여기서 출발했습니다.</div>
     <div class="pain">
       <div class="pain-bubble l pb1 reveal d1">"오늘도 송장 번호 채널마다 복붙해야 한다… 😮‍💨"</div>
       <div class="pain-bubble r pb2 reveal d2">"이? 이거 분명 품절인데 왜 주문이 또 들어왔지? 😱"</div>
@@ -336,7 +338,7 @@
 <section class="sec tinted" id="features">
   <div class="wrap">
     <div class="cap-hero reveal">
-      <div class="big">weave는 <span class="hl">자연어로 여러 쇼핑몰을 이용할 수 있는 서비스</span>입니다.<br>채팅을 기반으로 모든 쇼핑몰을 관리하세요.</div>
+      <div class="big">weave는 <span class="hl">자연어로 여러 쇼핑몰을 이용할 수 있는 서비스</span>입니다.</div>
     </div>
     <div class="cap-layout">
       <div class="cap-list reveal">
@@ -345,6 +347,7 @@
         <button class="cap-item" data-k="invoice"><div class="ico"><i class="ti ti-truck-delivery"></i></div><div class="tx"><b>일괄 송장 전송</b><span>채널마다 복붙하던 송장 입력을 말 한마디로 끝냅니다.</span></div></button>
         <button class="cap-item" data-k="predict"><div class="ico"><i class="ti ti-bell"></i></div><div class="tx"><b>발주 예측 알림</b><span>판매 추세를 분석해 재고 소진 시점과 권장 발주량을 미리 알려줍니다.</span></div></button>
         <button class="cap-item" data-k="excel"><div class="ico"><i class="ti ti-file-spreadsheet"></i></div><div class="tx"><b>주문 엑셀 추출</b><span>필요한 기간·채널의 주문 데이터를 엑셀로 즉시 내려받습니다.</span></div></button>
+        <button class="cap-item" data-k="auto"><div class="ico"><i class="ti ti-player-play"></i></div><div class="tx"><b>조건부 자동 실행</b><span>"재고 10개 이하면 알려줘" 같은 조건을 설정하면 weave가 알아서 감지하고 처리합니다.</span></div></button>
       </div>
       <div class="cap-chat reveal d1">
         <div class="chat-card">
@@ -362,7 +365,10 @@
   <div class="wrap timesave reveal">
     <div class="sec-eyebrow">시간이 곧 돈입니다</div>
     <div class="big"><span class="strike">하루 5시간</span> 걸리는 일을<br><span class="hl">단 몇 분</span> 만에 끝냅니다</div>
-    <div class="note">송장 입력, 품절 처리, 재고 맞추기 — 매일 반복하던 단순 업무를 채팅 한 줄로.</div>
+    <p class="timesave-msg">반복 관리에 쓰던 시간과 돈을 낭비하지 마세요.<br>소싱, CS, 마케팅 — 진짜 중요한 것에 집중할 수 있도록,<br>weave가 나머지를 처리합니다.</p>
+    <div class="timesave-tags">
+      <span>소싱</span><span>고객 CS</span><span>마케팅</span><span>브랜딩</span><span>신제품 기획</span>
+    </div>
   </div>
 </section>
 
@@ -371,7 +377,6 @@
   <div class="wrap">
     <div class="mob">
       <div class="reveal">
-        <div class="sec-eyebrow" style="text-align:left">언제 어디서도</div>
         <h2>급할 땐 폰으로,<br>집중할 땐 PC로</h2>
         <p class="lead">외출 중에 품절 재고가 터져도 괜찮습니다. weave는 PC와 모바일 모두에서 동일하게 작동해요. 채팅 한 줄이면 어디서든 바로 처리됩니다.</p>
         <div class="feat-list">
@@ -581,13 +586,14 @@
     edit:    { u:"전 채널에서 브레이크 사이즈 L 품절 처리해줘", b:"모든 채널에서 품절 처리했어요. ✓", res:[["쿠팡","완료"],["네이버","완료"],["카페24","완료"]] },
     invoice: { u:"오늘 주문 송장 전부 전송해줘", b:"미전송 주문의 송장을 일괄 전송했어요. 📦", res:[["전송 완료","36 / 36건"]] },
     predict: { u:"브레이크 코트 언제쯤 발주해야 해?", b:"현재 추세면 9월 말 소진 예상이에요. 권장 발주량은 120개입니다.", res:[["소진 예상","9월 말"],["권장 발주","120개"]] },
-    excel:   { u:"이번 달 네이버 매출 엑셀로 줘", b:"네이버 주문 142건을 엑셀로 정리했어요. 📎", res:[["파일","2026_06_네이버.xlsx"]] }
+    excel:   { u:"이번 달 네이버 매출 엑셀로 줘", b:"네이버 주문 142건을 엑셀로 정리했어요. 📎", res:[["파일","2026_06_네이버.xlsx"]] },
+    auto:    { u:"재고가 10개 이하로 떨어지면 자동으로 알려줘", b:"조건을 등록했어요. 해당 상품의 재고가 10개 이하로 떨어지면 즉시 알림을 드릴게요. 🔔", res:[["감시 대상","전체 상품"],["조건","재고 ≤ 10개"]] }
   };
   var body = document.getElementById('capBody');
   function render(k){
     var d = demos[k];
     var rows = d.res.map(function(r){ return '<div class="r"><span class="c">'+r[0]+'</span><span>'+r[1]+'</span></div>'; }).join('');
-    body.innerHTML = '<div class="b-user" style="animation:pop .4s ease">'+d.u+'</div>'
+    body.innerHTML = '<div class="b-user" style="animation:pop .4s ease both">'+d.u+'</div>'
       +'<div class="b-bot" style="animation:pop .4s ease .15s both">'+d.b+'<div class="res">'+rows+'</div></div>';
   }
   render('order');
