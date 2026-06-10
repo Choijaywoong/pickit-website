@@ -158,9 +158,22 @@
   .timesave .big .strike { color:var(--gray); text-decoration:line-through; text-decoration-color:#D64545; text-decoration-thickness:3px; }
   .timesave .big .hl { color:var(--blue); }
   .timesave .note { font-size:14px; color:var(--gray); font-weight:500; margin-top:18px; }
-  .timesave-msg { font-size:17px; color:var(--gray); font-weight:500; line-height:1.75; margin-top:24px; }
-  .timesave-tags { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:28px; }
-  .timesave-tags span { padding:8px 18px; border-radius:999px; background:var(--tint-2); color:var(--blue); font-size:14px; font-weight:700; border:1px solid rgba(26,111,212,.15); }
+  .timesave-lead { font-size:17px; color:var(--gray); font-weight:500; line-height:1.75; margin-top:22px; }
+  .timesave-split { display:grid; grid-template-columns:1fr 48px 1fr; gap:16px; align-items:center; margin:40px auto 0; max-width:760px; }
+  .timesave-col { border-radius:18px; padding:26px 28px; text-align:left; }
+  .ts-waste { background:var(--tint); border:1px solid var(--line); }
+  .ts-focus { background:linear-gradient(135deg,#EAF2FD,#F4F8FE); border:1px solid rgba(26,111,212,.2); }
+  .ts-col-head { font-size:12.5px; font-weight:800; margin-bottom:16px; display:flex; align-items:center; gap:7px; letter-spacing:.02em; }
+  .ts-waste .ts-col-head { color:var(--gray); }
+  .ts-focus .ts-col-head { color:var(--blue); }
+  .ts-items { list-style:none; display:flex; flex-direction:column; gap:11px; }
+  .ts-items li { font-size:14px; font-weight:500; padding-left:20px; position:relative; line-height:1.45; }
+  .ts-waste .ts-items li { color:#9AA7B8; }
+  .ts-waste .ts-items li::before { content:"✕"; position:absolute; left:0; color:#D64545; font-size:11px; font-weight:900; top:2px; }
+  .ts-focus .ts-items li { color:var(--blue-ink); font-weight:600; }
+  .ts-focus .ts-items li::before { content:"✓"; position:absolute; left:0; color:var(--blue); font-size:12px; font-weight:900; top:1px; }
+  .ts-arrow { display:flex; align-items:center; justify-content:center; font-size:24px; color:var(--blue); opacity:.7; }
+  @media(max-width:900px){ .timesave-split{ grid-template-columns:1fr; } .ts-arrow{ display:none; } }
 
   .mob { display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:center; }
   .mob h2 { font-size:32px; font-weight:800; letter-spacing:-.03em; color:var(--blue-ink); line-height:1.32; margin-bottom:18px; }
@@ -365,9 +378,27 @@
   <div class="wrap timesave reveal">
     <div class="sec-eyebrow">시간이 곧 돈입니다</div>
     <div class="big"><span class="strike">하루 5시간</span> 걸리는 일을<br><span class="hl">단 몇 분</span> 만에 끝냅니다</div>
-    <p class="timesave-msg">반복 관리에 쓰던 시간과 돈을 낭비하지 마세요.<br>소싱, CS, 마케팅 — 진짜 중요한 것에 집중할 수 있도록,<br>weave가 나머지를 처리합니다.</p>
-    <div class="timesave-tags">
-      <span>소싱</span><span>고객 CS</span><span>마케팅</span><span>브랜딩</span><span>신제품 기획</span>
+    <p class="timesave-lead">반복 관리에 쓰던 시간을 낭비하지 마세요.<br>weave가 처리할 테니, 당신은 진짜 중요한 것에 집중하세요.</p>
+    <div class="timesave-split">
+      <div class="timesave-col ts-waste">
+        <div class="ts-col-head"><i class="ti ti-clock-off"></i> 지금까지 낭비하던 시간</div>
+        <ul class="ts-items">
+          <li>채널마다 송장 번호 복붙</li>
+          <li>채널별 품절·재고 수동 처리</li>
+          <li>반복적인 가격 수정</li>
+          <li>주문 현황 채널 순회</li>
+        </ul>
+      </div>
+      <div class="ts-arrow"><i class="ti ti-arrow-right"></i></div>
+      <div class="timesave-col ts-focus">
+        <div class="ts-col-head"><i class="ti ti-sparkles"></i> 이제 여기에 집중하세요</div>
+        <ul class="ts-items">
+          <li>소싱 · 공급처 발굴</li>
+          <li>고객 CS · 리뷰 관리</li>
+          <li>마케팅 · 광고 최적화</li>
+          <li>신제품 기획 · 브랜딩</li>
+        </ul>
+      </div>
     </div>
   </div>
 </section>
@@ -589,12 +620,31 @@
     excel:   { u:"이번 달 네이버 매출 엑셀로 줘", b:"네이버 주문 142건을 엑셀로 정리했어요. 📎", res:[["파일","2026_06_네이버.xlsx"]] },
     auto:    { u:"재고가 10개 이하로 떨어지면 자동으로 알려줘", b:"조건을 등록했어요. 해당 상품의 재고가 10개 이하로 떨어지면 즉시 알림을 드릴게요. 🔔", res:[["감시 대상","전체 상품"],["조건","재고 ≤ 10개"]] }
   };
-  var body = document.getElementById('capBody');
+  var capBody = document.getElementById('capBody');
+  var renderTimer = null;
   function render(k){
+    if(renderTimer){ clearTimeout(renderTimer); }
     var d = demos[k];
     var rows = d.res.map(function(r){ return '<div class="r"><span class="c">'+r[0]+'</span><span>'+r[1]+'</span></div>'; }).join('');
-    body.innerHTML = '<div class="b-user" style="animation:pop .4s ease both">'+d.u+'</div>'
-      +'<div class="b-bot" style="animation:pop .4s ease .15s both">'+d.b+'<div class="res">'+rows+'</div></div>';
+
+    // 1단계: 사용자 메시지
+    capBody.innerHTML = '<div class="b-user" style="animation:pop .3s ease both">'+d.u+'</div>';
+
+    // 2단계: 타이핑 인디케이터
+    renderTimer = setTimeout(function(){
+      capBody.innerHTML += '<div class="cap-typing typing"><span></span><span></span><span></span></div>';
+
+      // 3단계: 봇 응답
+      renderTimer = setTimeout(function(){
+        var typing = capBody.querySelector('.cap-typing');
+        if(typing) typing.remove();
+        var bot = document.createElement('div');
+        bot.className = 'b-bot';
+        bot.style.animation = 'pop .4s ease both';
+        bot.innerHTML = d.b + '<div class="res">'+rows+'</div>';
+        capBody.appendChild(bot);
+      }, 900);
+    }, 350);
   }
   render('order');
   document.querySelectorAll('.cap-item').forEach(function(btn){
