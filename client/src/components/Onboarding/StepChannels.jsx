@@ -1,4 +1,4 @@
-// 온보딩 3단계: 채널 선택 (2개 이상 필수)
+// 온보딩 3단계: 채널 선택 (1개 이상 필수)
 // 의류 버티컬 3사 선택 시 지원 범위 안내 모달 노출 (에이블리: 셀러스 타입 주의사항 추가)
 // 색상 점·인라인 배지 없음 (ONBOARDING_UI_SPEC 3-3)
 import { useState } from 'react';
@@ -36,12 +36,10 @@ export default function StepChannels({ onNext, displayStep, totalSteps }) {
     setModalChannel(null);
   }
 
-  const canNext = selected.length >= 2;
+  const canNext = selected.length >= 1;
 
   const countHint = selected.length === 0
     ? t('ob2Count0')
-    : selected.length === 1
-    ? t('ob2Count1')
     : t('ob2CountN', selected.length);
 
   return (
