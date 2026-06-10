@@ -6,13 +6,12 @@ import { useLanguage } from '../../i18n';
 import Logo from '../Logo';
 import ProgressBar from '../ProgressBar';
 
-export default function StepStockMode({ onNext }) {
+export default function StepStockMode({ onNext, onBack }) {
   const { t } = useLanguage();
   const [selected, setSelected] = useState(null);
 
   function handleSelect(mode) {
     setSelected(mode);
-    setTimeout(() => onNext(mode), 180);
   }
 
   return (
@@ -20,6 +19,15 @@ export default function StepStockMode({ onNext }) {
 
       {/* 메인 콘텐츠 — flex:1 로 하단 안내를 아래로 밀어냄 */}
       <div className={styles.main}>
+
+        {/* 뒤로가기 */}
+        {onBack && (
+          <button className={styles.backBtn} onClick={onBack} title="이전 단계">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M12.5 5L7.5 10l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        )}
 
         {/* 로고 */}
         <div className={styles.logo}>
@@ -73,6 +81,14 @@ export default function StepStockMode({ onNext }) {
           </button>
 
         </div>
+
+        <button
+          className={styles.nextBtn}
+          disabled={!selected}
+          onClick={() => onNext(selected)}
+        >
+          {t('ob2Next')}
+        </button>
       </div>
 
       {/* 하단 고정 안내 */}
