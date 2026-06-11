@@ -140,7 +140,9 @@ export default function App() {
   }
 
   function handleOnboardingComplete(data) {
-    localStorage.setItem(ONBOARDING_KEY, JSON.stringify(data));
+    // PRD 3-3: MVP는 14일 무료 체험 시작일만 기록 (결제 시스템은 PMF 후 도입)
+    const dataWithTrial = { ...data, trialStartAt: new Date().toISOString() };
+    localStorage.setItem(ONBOARDING_KEY, JSON.stringify(dataWithTrial));
     setChannels(data.channels);
     setStep('connection');
     logActivity('onboarding_complete', { channels: data.channels, channelCount: data.channels.length });

@@ -68,6 +68,7 @@ export default function ChatWidget() {
   const [invoiceOrders, setInvoiceOrders] = useState(null);  // InvoicePanel 주문 데이터
   const [connErrors, setConnErrors]       = useState([]);    // 연동 끊김 에러 목록
   const [predictions, setPredictions]     = useState([]);    // 발주 예측 알림
+  const [coldStart, setColdStart]         = useState(null);  // 데이터 누적 중 안내 { daysUntilReady }
 
   const bottomRef  = useRef(null);
   const textareaRef = useRef(null);
@@ -311,8 +312,13 @@ export default function ChatWidget() {
         );
       }
 
-      // 발주 예측 알림
-      if (data.predictions?.length) {
+      // 발주 예측 알림 (FR-006)
+      if (data.coldStart) {
+        // 데이터 누적 중: 예측 대신 카운트다운 안내 표시
+        setColdStart(data.coldStart);
+        setPredictions([]);
+      } else if (data.predictions?.length) {
+        setColdStart(null);
         setPredictions(data.predictions);
       }
     } catch (e) {
@@ -625,11 +631,15 @@ export default function ChatWidget() {
             /* 메시지 목록 */
             <div className={styles.msgList}>
               {/* 발주 예측 알림 (hasInventory = true 셀러만, 알림 설정 OFF 시 숨김) */}
-              {hasInventory && predictions.length > 0 &&
-               JSON.parse(localStorage.getItem('pickit_notifications') || '{}').predictionAlert !== false && (
+              {hasInventory &&
+               JSON.parse(localStorage.getItem('pickit_notifications') || '{}').predictionAlert !== false &&
+               (coldStart || predictions.length > 0) && (
                 <PredictionAlert
                   predictions={predictions}
-                  onClickItem={(name) => setInput(`${name} 재고 조회해줘`)}
+                  coldStart={coldStart}
+                  onClickItem={(name, channel) =>
+                    setInput(channel ? `${channel}에서 ${name} 재고 조회해줘` : `${name} 재고 조회해줘`)
+                  }
                 />
               )}
 
