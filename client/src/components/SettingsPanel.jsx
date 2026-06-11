@@ -1,7 +1,8 @@
-// 설정 패널 — 채널 연결·언어 등 앱 설정을 관리하는 풀 페이지 뷰 (사이드바 '설정' 탭에서 진입)
+// 설정 패널 — 채널 연결·방화벽·알림·계정을 관리하는 풀 페이지 뷰 (사이드바 '설정' 탭에서 진입)
 import { useState, useEffect } from 'react';
 import styles from './SettingsPanel.module.css';
 import { authFetch } from '../auth';
+import { supabase } from '../supabase';
 import { useLanguage, SUPPORTED_LANGS } from '../i18n';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '/api';
@@ -31,7 +32,7 @@ const CHANNEL_CONFIG = [
   {
     id: 'cafe24',
     label: '카페24',
-    color: '#1155CC',
+    color: '#2563EB',
     desc: '조회·수정·송장 지원. Mall ID 입력 후 OAuth 인증 필요.',
     isOAuth: true,
     oauthKey: 'CAFE24_ACCESS_TOKEN',
@@ -68,20 +69,53 @@ const CHANNEL_CONFIG = [
   },
 ];
 
+// 왼쪽 섹션 목록 (언어는 계정 탭 안으로 통합)
 const SECTIONS = [
-  { id: 'channels', label: '채널 연결' },
-  { id: 'language', label: '언어' },
+  { id: 'channels',      label: '채널 연결' },
+  { id: 'firewall',      label: '방화벽' },
+  { id: 'notifications', label: '알림' },
+  { id: 'account',       label: '계정' },
 ];
+
+// 방화벽 현재 임계값 (guardrail.js와 동기화)
+const FIREWALL_INFO = [
+  { label: '가격 변동 허용 범위', value: '±20%',  desc: '기존 가격 대비 20% 초과 변경 시 승인 요청' },
+  { label: '일괄 수정 한도',     value: '5개',    desc: '수정 대상 5개 이상 또는 "전체/일괄" 키워드 포함 시 승인 요청' },
+  { label: '최소 확신도',        value: '85%',    desc: 'AI 의도 파싱 확신도 85% 미만 시 재질문' },
+  { label: '미지원 채널 수정',   value: '차단',   desc: '무신사·에이블리·지그재그 수정 요청 시 파트너센터 링크로 안내' },
+];
+
+// 알림 항목 정의
+const NOTIF_ITEMS = [
+  {
+    key: 'predictionAlert',
+    label: '발주 예측 알림',
+    desc: '재고 소진 예상일이 가까운 상품을 채팅 상단에 카드로 알림 (재고 보유 셀러만)',
+  },
+  {
+    key: 'musinsaExpiry',
+    label: '무신사 API Key 만료 알림',
+    desc: '만료 30일·7일 전 채팅창에 경고 배너 표시 (무신사 키는 1년 만료)',
+  },
+];
+
+function loadNotifSettings() {
+  try { return JSON.parse(localStorage.getItem('pickit_notifications') || '{}'); }
+  catch { return {}; }
+}
 
 export default function SettingsPanel({ onClose, initialChannel = null }) {
   const { lang, setLang } = useLanguage();
-  const [section, setSection]         = useState('channels');
+  const [section, setSection]             = useState('channels');
   const [activeChannel, setActiveChannel] = useState(initialChannel || 'coupang');
-  const [formValues, setFormValues]   = useState({});
-  const [savedKeys, setSavedKeys]     = useState({});
-  const [saving, setSaving]           = useState(false);
-  const [saveMsg, setSaveMsg]         = useState('');
-  const [loadErr, setLoadErr]         = useState(false);
+  const [formValues, setFormValues]       = useState({});
+  const [savedKeys, setSavedKeys]         = useState({});
+  const [saving, setSaving]               = useState(false);
+  const [saveMsg, setSaveMsg]             = useState('');
+  const [loadErr, setLoadErr]             = useState(false);
+  const [notifSettings, setNotifSettings] = useState(loadNotifSettings);
+  const [userEmail, setUserEmail]         = useState('');
+  const [loggingOut, setLoggingOut]       = useState(false);
 
   useEffect(() => {
     authFetch(`${API_BASE}/settings/credentials`)
@@ -90,7 +124,15 @@ export default function SettingsPanel({ onClose, initialChannel = null }) {
       .catch(() => setLoadErr(true));
   }, []);
 
-  // initialChannel이 나중에 바뀌면 채널 탭도 업데이트
+  // 계정 탭용: Supabase에서 로그인된 이메일 로드
+  useEffect(() => {
+    if (!supabase) return;
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user?.email) setUserEmail(data.user.email);
+    });
+  }, []);
+
+  // ConnectionBanner "다시 연결하기"에서 특정 채널로 열릴 때
   useEffect(() => {
     if (initialChannel) {
       setSection('channels');
@@ -156,6 +198,20 @@ export default function SettingsPanel({ onClose, initialChannel = null }) {
     return fieldsOk;
   }
 
+  function handleNotifToggle(key) {
+    setNotifSettings((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      localStorage.setItem('pickit_notifications', JSON.stringify(next));
+      return next;
+    });
+  }
+
+  async function handleLogout() {
+    setLoggingOut(true);
+    if (supabase) await supabase.auth.signOut();
+    onClose();
+  }
+
   return (
     <div className={styles.panel}>
       {/* 헤더 */}
@@ -177,7 +233,7 @@ export default function SettingsPanel({ onClose, initialChannel = null }) {
             <button
               key={s.id}
               className={`${styles.sectionBtn} ${section === s.id ? styles.sectionBtnActive : ''}`}
-              onClick={() => setSection(s.id)}
+              onClick={() => { setSection(s.id); setSaveMsg(''); }}
             >
               {s.label}
             </button>
@@ -187,7 +243,7 @@ export default function SettingsPanel({ onClose, initialChannel = null }) {
         {/* 오른쪽 콘텐츠 */}
         <div className={styles.content}>
 
-          {/* 채널 연결 섹션 */}
+          {/* ── 채널 연결 섹션 ── */}
           {section === 'channels' && (
             <div className={styles.channelsLayout}>
               {loadErr && (
@@ -277,23 +333,94 @@ export default function SettingsPanel({ onClose, initialChannel = null }) {
             </div>
           )}
 
-          {/* 언어 섹션 */}
-          {section === 'language' && (
-            <div className={styles.langSection}>
-              <h2 className={styles.sectionTitle}>언어 설정 / Language</h2>
-              <p className={styles.sectionDesc}>인터페이스 언어를 선택합니다. / Select your interface language.</p>
-              <div className={styles.langOptions}>
-                {SUPPORTED_LANGS.map((l) => (
-                  <button
-                    key={l.code}
-                    className={`${styles.langOption} ${lang === l.code ? styles.langOptionActive : ''}`}
-                    onClick={() => setLang(l.code)}
-                  >
-                    <span className={styles.langFlag}>{l.flag}</span>
-                    <span className={styles.langName}>{l.nativeName}</span>
-                    {lang === l.code && <span className={styles.langCheck}>✓</span>}
-                  </button>
+          {/* ── 방화벽 섹션 ── */}
+          {section === 'firewall' && (
+            <div className={styles.simpleSection}>
+              <h2 className={styles.sectionTitle}>방화벽 현재 설정</h2>
+              <p className={styles.sectionDesc}>
+                AI가 만든 수정 명령이 실제 채널 API로 나가기 직전 통과해야 하는 안전장치입니다.
+                아래 임계값을 벗어나면 채팅창에 승인 요청이 표시되고, 승인 전 API 호출은 차단됩니다.
+              </p>
+
+              <div className={styles.infoTable}>
+                {FIREWALL_INFO.map((row) => (
+                  <div key={row.label} className={styles.infoRow}>
+                    <div className={styles.infoLeft}>
+                      <span className={styles.infoLabel}>{row.label}</span>
+                      <span className={styles.infoRowDesc}>{row.desc}</span>
+                    </div>
+                    <span className={styles.infoValue}>{row.value}</span>
+                  </div>
                 ))}
+              </div>
+
+              <p className={styles.firewallNotice}>
+                🔒 방화벽 임계값은 서버에서 관리됩니다. 조정이 필요하면 운영팀에 문의해 주세요.
+              </p>
+            </div>
+          )}
+
+          {/* ── 알림 섹션 ── */}
+          {section === 'notifications' && (
+            <div className={styles.simpleSection}>
+              <h2 className={styles.sectionTitle}>알림 설정</h2>
+              <p className={styles.sectionDesc}>채팅창에 표시할 알림 항목을 켜거나 끌 수 있습니다.</p>
+
+              <div className={styles.notifList}>
+                {NOTIF_ITEMS.map((item) => (
+                  <div key={item.key} className={styles.notifRow}>
+                    <div className={styles.notifInfo}>
+                      <span className={styles.notifLabel}>{item.label}</span>
+                      <span className={styles.notifRowDesc}>{item.desc}</span>
+                    </div>
+                    <button
+                      className={`${styles.toggle} ${notifSettings[item.key] !== false ? styles.toggleOn : ''}`}
+                      onClick={() => handleNotifToggle(item.key)}
+                      aria-label={`${item.label} ${notifSettings[item.key] !== false ? '끄기' : '켜기'}`}
+                    >
+                      <span className={styles.toggleThumb} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── 계정 섹션 ── */}
+          {section === 'account' && (
+            <div className={styles.simpleSection}>
+              <h2 className={styles.sectionTitle}>계정</h2>
+
+              <div className={styles.accountList}>
+                {/* 이메일 */}
+                <div className={styles.accountRow}>
+                  <span className={styles.accountLabel}>이메일</span>
+                  <span className={styles.accountValue}>{userEmail || '—'}</span>
+                </div>
+
+                {/* 언어 */}
+                <div className={styles.accountRow}>
+                  <span className={styles.accountLabel}>언어</span>
+                  <select
+                    className={styles.langSelect}
+                    value={lang}
+                    onChange={(e) => setLang(e.target.value)}
+                  >
+                    {SUPPORTED_LANGS.map((l) => (
+                      <option key={l.code} value={l.code}>{l.flag} {l.nativeName}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className={styles.accountDanger}>
+                <button
+                  className={styles.logoutBtn}
+                  onClick={handleLogout}
+                  disabled={loggingOut}
+                >
+                  {loggingOut ? '로그아웃 중...' : '로그아웃'}
+                </button>
               </div>
             </div>
           )}

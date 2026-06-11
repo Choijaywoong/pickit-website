@@ -624,8 +624,9 @@ export default function ChatWidget() {
           ) : (
             /* 메시지 목록 */
             <div className={styles.msgList}>
-              {/* 발주 예측 알림 (hasInventory = true 셀러만, FR-001 AC) */}
-              {hasInventory && predictions.length > 0 && (
+              {/* 발주 예측 알림 (hasInventory = true 셀러만, 알림 설정 OFF 시 숨김) */}
+              {hasInventory && predictions.length > 0 &&
+               JSON.parse(localStorage.getItem('pickit_notifications') || '{}').predictionAlert !== false && (
                 <PredictionAlert
                   predictions={predictions}
                   onClickItem={(name) => setInput(`${name} 재고 조회해줘`)}
